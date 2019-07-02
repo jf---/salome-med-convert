@@ -20,7 +20,7 @@ def get_prefix(argv):
     "Analyse the given argv, and return the installation prefix"
 
     prefix = "/usr/local"
-    for x in argv : 
+    for x in argv :
         if x.startswith("--prefix="):
             prefix = x.split("=")[1]
     return prefix
@@ -38,7 +38,7 @@ class InstallLibSalome(install_lib):
 
     def run(self):
         pypath = osp.join(self.install_dir, SALOME_DIR)
-        log.info("--- To import the ConvMail plugin, you should add `%s`", pypath)
+        log.info("--- To import the MED_CONVERT plugin, you should add `%s`", pypath)
         log.info("    to the environment variables PYTHONPATH and SALOME_PLUGINS_PATH.")
         log.info("    For example:")
         log.info(ENV % { 'pypath' : osp.abspath(pypath), 'prefix' : osp.abspath(PREFIX)})
@@ -46,32 +46,27 @@ class InstallLibSalome(install_lib):
 
     def get_outputs(self):
         return self.alter_install_dir(install_lib.get_outputs)
-    
-PKGS = ['convmail', 'convmail.gui']
+
+PKGS = ['med_convert', 'med_convert.gui']
 MODS = ["salome_plugins",]
-SCRIPTS = ["bin/convmailGUI",]
+SCRIPTS = ["bin/med_convert",]
 
 DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
-    # ('share/salome/resources/meshes', glob('resources/meshes/*')),
-    # ('share/salome/resources/references', glob('resources/references/*.*')),
-    # ('share/salome/resources/data', glob('resources/data/*.*')),
-    # ('share/salome/resources/data/XXX1', glob('resources/data/XXX1/*.*')),
-    # ('share/salome/resources/data/MODELE_DC', glob('resources/data/MODELE_DC/*.*')),
-    # ('share/salome/resources/data/ForcHydro', glob('resources/data/ForcHydro/*.*')),
-    ('share/salome/resources/convmail', glob('resources/translation/ConvMail_msg_fr.qm')),
+    ('share/salome/resources/med_convert',
+     glob('resources/translation/MedConvert_msg_fr.qm')),
 ]
 
 SALOME_DIR = 'salome'
 PREFIX = get_prefix(sys.argv)
-ENV = """# Environment for the MAC3 plugin
+ENV = """# Environment for the MED_CONVERT plugin
 
-export SALOMEMECA_CONVMAIL_PYDIR=%(pypath)s
-export PYTHONPATH=${SALOMEMECA_CONVMAIL_PYDIR}:${PYTHONPATH}
-export SALOME_PLUGINS_PATH=${SALOMEMECA_CONVMAIL_PYDIR}:${SALOME_PLUGINS_PATH}
+export SALOMEMECA_MED_CONVERT_PYDIR=%(pypath)s
+export PYTHONPATH=${SALOMEMECA_MED_CONVERT_PYDIR}:${PYTHONPATH}
+export SALOME_PLUGINS_PATH=${SALOMEMECA_MED_CONVERT_PYDIR}:${SALOME_PLUGINS_PATH}
 
-export SALOMEMECA_CONVMAIL_ROOT_DIR=%(prefix)s
-export PATH=${SALOMEMECA_CONVMAIL_ROOT_DIR}/bin/:${PATH}
+export SALOMEMECA_MED_CONVERT_ROOT_DIR=%(prefix)s
+export PATH=${SALOMEMECA_MED_CONVERT_ROOT_DIR}/bin/:${PATH}
 
 """
 
@@ -80,7 +75,7 @@ cmdclass = {
 }
 
 setup(
-    name = 'convmail',
+    name = 'med_convert',
     version = '1.0',
     packages = PKGS,
     scripts = SCRIPTS,

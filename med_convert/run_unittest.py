@@ -1,13 +1,13 @@
 # coding=utf-8
 
-"""Unittests of the convmail package"""
+"""Unittests of the med_convert package"""
 
 import sys
 import os.path as osp
 import unittest
 from optparse import OptionParser
 
-import convmail
+import med_convert
 
 def _build_suite(testlist):
     """Build the suite of testcases of the package"""
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         help="run one or more unittests (can be repeated)")
 
     opts, args = parser.parse_args()
-    convmail._unittest_level = opts.runlevel
-    convmail._unittest_graph = opts.graph
-    convmail._unittest_salome = opts.salome_exists
+    med_convert._unittest_level = opts.runlevel
+    med_convert._unittest_graph = opts.graph
+    med_convert._unittest_salome = opts.salome_exists
     _main(opts.verbose, opts.testlist)

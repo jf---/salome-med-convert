@@ -25,16 +25,16 @@ import salome_pluginsmanager
 
 # pragma pylint: disable=invalid-name
 
-from convmail.gui.utilities import translate
-from convmail.gui.gui import start
+from med_convert.gui.utilities import translate
+from med_convert.gui.gui import start
 
 try:
-    title = translate("ConvMail",
+    title = translate("MedConvert",
                       "Mesh Converter")
-    description = translate("ConvMail",
+    description = translate("MedConvert",
                             "GUI plugin to convert meshes")
     salome_pluginsmanager.AddFunction(title, description, start)
 except: # pragma pylint: disable=bare-except
-    error = translate("ConvMail",
-                      "ERROR: ConvMail plugin is unavailable")
+    error = translate("MedConvert",
+                      "ERROR: MedConvert plugin is unavailable")
     salome_pluginsmanager.logger.info(error)

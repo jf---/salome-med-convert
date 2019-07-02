@@ -16,14 +16,14 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Auxiliary utilities for *Convmail* plugin.
+Auxiliary utilities for *MedConvert* plugin.
 """
 
 import os
 import os.path as osp
 import sys
 from PyQt5 import Qt as Q
-from convmail.utilities import resources_path, docs_path
+from med_convert.utilities import resources_path, docs_path
 
 def mandatory_suffix():
     """
@@ -65,7 +65,7 @@ def debug_message(*args):
     if debug_mode():
         if args:
             stream = sys.stdout
-            stream.write('ConvmailPlugin:')
+            stream.write('MedConvertPlugin:')
             for arg in args:
                 stream.write(' ' + str(arg))
             stream.write('\n')

@@ -11,8 +11,8 @@ import sys
 import signal
 
 from PyQt5 import Qt as Q
-from convmail.gui.gui import load_language, MainWindow
-from convmail.gui.settings import Settings
+from med_convert.gui.gui import load_language, MainWindow
+from med_convert.gui.settings import Settings
 
 #Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)

@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Implementation of Graphical User Interface for *ConvMail* plugin.
+Implementation of Graphical User Interface for *MedConvert* plugin.
 """
 
 import sys
@@ -33,7 +33,7 @@ from .services import convert
 
 class MainWindow(Q.QDialog):
     """
-    Main window of *ConvMail* plugin.
+    Main window of *MedConvert* plugin.
     """
 
     def __init__(self, parent=None):
@@ -47,23 +47,23 @@ class MainWindow(Q.QDialog):
 
         self._mandatory_ctrls = []
 
-        self.setObjectName("convmail_main_window")
+        self.setObjectName("med_convert_main_window")
         self.setModal(True)
         self.setAttribute(Q.Qt.WA_DeleteOnClose, True)
 
-        title = translate("ConvMail",
+        title = translate("MedConvert",
                           "Mesh Converter")
         self.setWindowTitle(title)
-        
+
         margin = 9
         spacing = 6
 
         # Create group-box for files description
-        title = translate("ConvMail", "Files Selection")
+        title = translate("MedConvert", "Files Selection")
         groupbox_files = Q.QGroupBox(title)
 
-        # Create controls for output file parameter        
-        title = translate("ConvMail", "Output File")
+        # Create controls for output file parameter
+        title = translate("MedConvert", "Output File")
         outputfile_label = Q.QLabel(groupbox_files)
         outputfile_label.setObjectName("outputfile_label")
         outputfile_label.setText(title)
@@ -75,13 +75,13 @@ class MainWindow(Q.QDialog):
         self.add_mandatory_ctrl(self.outputfile_edit)
         outputfile_label.setBuddy(self.outputfile_edit)
         #--
-        title = translate("ConvMail", "Browse...")
+        title = translate("MedConvert", "Browse...")
         self.outputfile_btn = Q.QPushButton(groupbox_files)
         self.outputfile_btn.setObjectName("outputfile_btn")
         self.outputfile_btn.setText(title)
 
-        # Create controls for input file parameter        
-        title = translate("ConvMail", "Input File")
+        # Create controls for input file parameter
+        title = translate("MedConvert", "Input File")
         inputfile_label = Q.QLabel(groupbox_files)
         inputfile_label.setObjectName("inputfile_label")
         inputfile_label.setText(title)
@@ -93,11 +93,11 @@ class MainWindow(Q.QDialog):
         self.add_mandatory_ctrl(self.inputfile_edit)
         inputfile_label.setBuddy(self.inputfile_edit)
         #--
-        title = translate("ConvMail", "Browse...")
+        title = translate("MedConvert", "Browse...")
         self.inputfile_btn = Q.QPushButton(groupbox_files)
         self.inputfile_btn.setObjectName("inputfile_btn")
         self.inputfile_btn.setText(title)
-        
+
         # Lay out files controls
         grid_layout_files = Q.QGridLayout()
         grid_layout_files.setObjectName("grid_layout_files")
@@ -110,12 +110,12 @@ class MainWindow(Q.QDialog):
         grid_layout_files.addWidget(outputfile_label, 1, 0)
         grid_layout_files.addWidget(self.outputfile_edit, 1, 1)
         grid_layout_files.addWidget(self.outputfile_btn, 1, 2)
-        
+
         grid_layout_files.setColumnStretch(1, 1)
         groupbox_files.setLayout(grid_layout_files)
 
         # Create group-box for launch conversion parameters
-        title = translate("ConvMail", "Conversion Type")
+        title = translate("MedConvert", "Conversion Type")
         groupbox_conv = Q.QGroupBox(title)
 
         # Create controls for conversion_type choice
@@ -151,17 +151,17 @@ class MainWindow(Q.QDialog):
         # Create Help button
         help_btn = Q.QPushButton(self)
         help_btn.setObjectName("help_btn")
-        help_btn.setText(translate("ConvMail", "&Help"))
+        help_btn.setText(translate("MedConvert", "&Help"))
 
         # Create Launch button
         self._launch_btn = Q.QPushButton(self)
         self._launch_btn.setObjectName("launch_btn")
-        self._launch_btn.setText(translate("ConvMail", "Launch"))
+        self._launch_btn.setText(translate("MedConvert", "Launch"))
 
         # Create Close button
         close_btn = Q.QPushButton(self)
         close_btn.setObjectName("close_btn")
-        close_btn.setText(translate("ConvMail", "&Close"))
+        close_btn.setText(translate("MedConvert", "&Close"))
 
         # Lay out buttons
         hbox_layout_btn = Q.QHBoxLayout()
@@ -198,7 +198,7 @@ class MainWindow(Q.QDialog):
 
         # initialize default values
         self.from_settings(Settings())
-        
+
         # Update state
         self.update_controls()
 
@@ -240,11 +240,11 @@ class MainWindow(Q.QDialog):
                 return
         except ImportError:
             pass
-        title = translate("ConvMail", "Warning")
-        message = translate("ConvMail", "Help is not available.")
+        title = translate("MedConvert", "Warning")
+        message = translate("MedConvert", "Help is not available.")
         Q.QMessageBox.warning(self, title, message)
 
-        
+
     @Q.pyqtSlot()
     def launch(self):
         """Called when user clicks *Launch* button."""
@@ -255,18 +255,18 @@ class MainWindow(Q.QDialog):
         input_file = current_settings.input_file
         output_file = current_settings.output_file
         conversion_type = current_settings.conversion_type
-        
+
         is_ok, msg = convert(input_file, output_file, conversion_type)
 
         if  is_ok:
-            title = translate("ConvMail", "Information")
-            message = translate("ConvMail",
+            title = translate("MedConvert", "Information")
+            message = translate("MedConvert",
                                 "Conversion Done.")
             Q.QMessageBox.information(self, title, message)
 
         else:
-            title = translate("ConvMail", "Error")
-            message = translate("ConvMail",
+            title = translate("MedConvert", "Error")
+            message = translate("MedConvert",
                                 "Conversion Failed.") + '\n%s'%msg
             Q.QMessageBox.critical(self, title, message)
 
@@ -276,8 +276,8 @@ class MainWindow(Q.QDialog):
         Called when user presses *Escape* key or clicks *Cancel* or <X>(*Close*)
         button.
         """
-        title = translate("ConvMail", "Exit")
-        message = translate("ConvMail", "Are you sure you want to quit?")
+        title = translate("MedConvert", "Exit")
+        message = translate("MedConvert", "Are you sure you want to quit?")
         reply = Q.QMessageBox.question(self, title, message,
                                        Q.QMessageBox.Yes, Q.QMessageBox.No)
         if reply == Q.QMessageBox.Yes:
@@ -290,7 +290,7 @@ class MainWindow(Q.QDialog):
         enable_launch_btn = True
         current_settings = self.to_settings()
         if not (current_settings.input_file and current_settings.output_file):
-            enable_launch_btn = False  
+            enable_launch_btn = False
 
         self._launch_btn.setEnabled(enable_launch_btn)
 
@@ -301,8 +301,8 @@ class MainWindow(Q.QDialog):
         button = self.sender()
         edit_name = button.objectName().replace('btn', 'edit')
         edit = self.findChild(Q.QLineEdit, edit_name)
-        
-        title = translate("ConvMail", "Select a file")
+
+        title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
         file_name = get_file_name(self, 1, title, '', filters, suffix)
@@ -315,14 +315,14 @@ class MainWindow(Q.QDialog):
         button = self.sender()
         edit_name = button.objectName().replace('btn', 'edit')
         edit = self.findChild(Q.QLineEdit, edit_name)
-        
-        title = translate("ConvMail", "Select a file")
+
+        title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
             edit.setText(file_name)
-            
+
 
     def add_mandatory_ctrl(self, ctrl):
         """
@@ -353,8 +353,8 @@ def load_language(language='en'):
 
     # Load plugin translations
     translator = Q.QTranslator(qobject)
-    if translator.load('ConvMail_msg_{}'.format(language),
-                       osp.join(resources_path(), 'convmail')):
+    if translator.load('MedConvert_msg_{}'.format(language),
+                       osp.join(resources_path(), 'med_convert')):
         Q.QApplication.instance().installTranslator(translator)
 
     return qobject
@@ -362,7 +362,7 @@ def load_language(language='en'):
 
 def start(context=None):
     """
-    Show main window of *Convmail* plugin.
+    Show main window of *MedConvert* plugin.
 
     Arguments:
         context: SALOME GUI context.

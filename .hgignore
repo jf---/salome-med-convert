@@ -1,4 +1,3 @@
-syntax: glob
-convmail_installed/
-*.pyc
-
+syntax: regexp
+^install/
+\.pyc$

@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-This module implements *ConvMail* settings
+This module implements *MedConvert* settings
 """
 from collections import OrderedDict
 from .utilities import translate
@@ -30,7 +30,7 @@ class FileType(object):
 
     SYSTUS_TO_SALOME = 0
     SALOME_TO_SYSTUS = 1
-    
+
     @staticmethod
     def value2str(value):
         """
@@ -46,9 +46,9 @@ class FileType(object):
             KeyError: If wrong value is specified.
         """
         if value in (FileType.SALOME_TO_SYSTUS,):
-            return translate("ConvMail", "Salome to Systus")
+            return translate("MedConvert", "Salome to Systus")
         elif value in (FileType.SYSTUS_TO_SALOME,):
-            return translate("ConvMail", "Systus to Salome")
+            return translate("MedConvert", "Systus to Salome")
         raise KeyError("Unsupported value {}".format(value))
 
 
@@ -107,7 +107,7 @@ class Settings(object):
         self.input_file = ''
         self.output_file = ''
         self.conversion_type = FileType.SYSTUS_TO_SALOME
-        
+
 
     def dump(self, stream):
         """
@@ -117,12 +117,11 @@ class Settings(object):
             stream (object): Writer.
         """
         stream.write('==========================================\n')
-        stream.write('ConvMail parameters\n')
+        stream.write('MedConvert parameters\n')
         stream.write('==========================================\n')
-        title = translate("ConvMail", "Input File")
+        title = translate("MedConvert", "Input File")
         stream.write('{:<35}: {}\n'.format(title, self.input_file))
-        title = translate("ConvMail", "Output File")
+        title = translate("MedConvert", "Output File")
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
-        title = translate("ConvMail", "Conversion Type")
+        title = translate("MedConvert", "Conversion Type")
         stream.write('{:<35}: {}\n'.format(title, FileType.value2str(self.conversion_type)))
-       

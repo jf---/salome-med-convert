@@ -24,19 +24,14 @@ salome shell -- make
 
 # Executing the plugin using the development files
 
+In stand-alone mode:
+
 ``` bash
-INST=$(pwd)/convmail_installed/lib/python3.6/site-packages/salome
-PYTHONPATH=$INST SALOME_PLUGINS_PATH=$INST salome
+./bin/med_convert
 ```
 
+or in a SALOME graphical session:
 
 ``` bash
-export SALOMEMECA_CONVMAIL_PYDIR=$(pwd)/convmail_installed/lib/python3.6/site-packages/salome
-export PYTHONPATH=${SALOMEMECA_CONVMAIL_PYDIR}:${PYTHONPATH}
-export SALOME_PLUGINS_PATH=${SALOMEMECA_CONVMAIL_PYDIR}:${SALOME_PLUGINS_PATH}
-
-export SALOMEMECA_CONVMAIL_ROOT_DIR=$(pwd)/convmail_installed
-export PATH=${SALOMEMECA_CONVMAIL_ROOT_DIR}/bin/:${PATH}
-
-salome
+SALOME_PLUGINS_PATH=$(pwd) salome
 ```

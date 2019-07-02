@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-The module implement *Convmail* plugin's services.
+The module implement *MedConvert* plugin's services.
 """
 
 import os
@@ -26,7 +26,7 @@ from glob import glob
 import shutil
 
 from PyQt5 import Qt as Q
-from convmail import kernel
+from med_convert import kernel
 
 #Fonction principale
 def convert(input_file, output_file, conversion_type):
@@ -34,8 +34,6 @@ def convert(input_file, output_file, conversion_type):
     try :
         kernel.convert(input_file, output_file, conversion_type)
         return True, ''
-    
+
     except Exception as err:
         return False, err
-    
-    

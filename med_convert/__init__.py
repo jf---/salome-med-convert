@@ -16,5 +16,5 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Implementation of *ConvMail* plugin.
+Implementation of *MedConvert* plugin.
 """
