@@ -14,30 +14,28 @@ from PyQt5 import Qt as Q
 from convmail.gui.gui import load_language, MainWindow
 from convmail.gui.settings import Settings
 
-import salome_instance
-
 #Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def main():
     """Main function."""
-    
+
     # create application
     app = Q.QApplication(sys.argv)
     app.lastWindowClosed.connect(app.quit)
-    
+
     lang = 'en'
     if 'fr' in Q.QLocale.system().name():
         lang = 'fr'
 
 
-    # settings = Settings()      
-        
+    # settings = Settings()
+
     translator = load_language(lang)
     main_window = MainWindow()
     translator.setParent(main_window)
   #  main_window.from_settings(settings)
     main_window.exec_()
-    
+
 if __name__ == "__main__":
     sys.exit(main())
