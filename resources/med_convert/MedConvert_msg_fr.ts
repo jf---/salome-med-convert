@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="en">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr" sourcelanguage="en">
 <context>
     <name>MedConvert</name>
     <message>
@@ -111,6 +112,11 @@
         <location filename="../../salome_plugins.py" line="38"/>
         <source>ERROR: MedConvert plugin is unavailable</source>
         <translation>ERREUR: L&apos;outil MedConvert n&apos;est pas disponible</translation>
+    </message>
+    <message>
+        <location filename="../../med_convert/gui/services.py" line="30"/>
+        <source>Unsupported format!</source>
+        <translation>Format non supporté !</translation>
     </message>
 </context>
 </TS>

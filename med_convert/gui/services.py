@@ -19,20 +19,18 @@
 The module implement *MedConvert* plugin's services.
 """
 
-import os
-import sys
+from ..convert import Fmt, convert
+from .utilities import translate
 
-from glob import glob
-import shutil
 
-from PyQt5 import Qt as Q
-from med_convert import kernel
-
-#Fonction principale
 def convert(input_file, output_file, conversion_type):
-
+    """Safe call to the converter.
+    """
+    if conversion_type != 0:
+        return False, translate("MedConvert", "Unsupported format!")
+    format = Fmt.Systus
     try :
-        kernel.convert(input_file, output_file, conversion_type)
+        convert(input_file, format, output_file)
         return True, ''
 
     except Exception as err:
