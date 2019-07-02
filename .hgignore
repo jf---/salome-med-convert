@@ -1,0 +1,4 @@
+syntax: glob
+convmail_installed/
+*.pyc
+
