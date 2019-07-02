@@ -2,30 +2,35 @@ SALOMEMECA_MED_CONVERT_ROOT_DIR ?= ./install
 PREFIX = ${SALOMEMECA_MED_CONVERT_ROOT_DIR}
 TRAD_DIR = resources/med_convert
 
-default: install
+.PHONY: help install uninstall clean
 
-translate:
+help: ## Print Help
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+translate: ## Build the i18n files (extract messages and compile 'qm' file)
 	pylupdate5 $(TRAD_DIR)/MedConvert.pro
 	lrelease $(TRAD_DIR)/MedConvert.pro
 
-install:
+install: ## Install the plugin into directory given by $SALOMEMECA_MED_CONVERT_ROOT_DIR
 	make translate
 	python setup.py install --prefix=$(PREFIX)
 	python setup.py clean --all
 
-uninstall:
+uninstall: ## Uninstall a previous installation ($SALOMEMECA_MED_CONVERT_ROOT_DIR must be the same)
 	@if [ "$(abspath $(PREFIX))" = "/usr" ] || \
-            [ "$(abspath $(PREFIX))" = "/usr/local" ] || \
-            [ "$(abspath $(PREFIX))" = "$(PWD)" ] \
-            ; then echo "Can't uninstall automatically when PREFIX=$(PREFIX)" ; false ; fi
+			[ "$(abspath $(PREFIX))" = "/usr/local" ] || \
+			[ "$(abspath $(PREFIX))" = "$(PWD)" ] ; then \
+        echo "Can't uninstall automatically when PREFIX=$(PREFIX)"; \
+		false ; \
+	fi
 	@echo -n "Are you sure you want to remove '$(PREFIX)/*' [y/n]? " ;
-	@read verify ; [ "$$verify" = "y" ] || { echo "User aborted uninstall"; false ; }
+	@read verify ; [ "$$verify" = "y" ] || { echo "Interrupted!"; false ; }
 	rm -rf $(PREFIX)/*
+	@rmdir $(PREFIX) 2> /dev/null || true
 
-clean:
+clean: ## Remove Python cache files
 	@rm -f $$(find . -name '*.pyc')
-	@rmdir $$(find . -type d) 2> /dev/null || true
+	@rm -rf $$(find . -type d -name __pycache__) 2> /dev/null || true
 
-distclean:
-	rm -f $(TRAD_DIR)/MedConvert_msg_fr.qm
-	make uninstall
+
+.DEFAULT_GOAL := help

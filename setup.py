@@ -54,7 +54,7 @@ SCRIPTS = ["bin/med_convert",]
 DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
     ('share/salome/resources/med_convert',
-     glob('resources/translation/MedConvert_msg_fr.qm')),
+     glob('resources/med_convert/MedConvert_msg_fr.qm')),
 ]
 
 SALOME_DIR = 'salome'
