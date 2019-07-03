@@ -90,6 +90,7 @@ def read_asc_mesh(filename):
     return nodes, elements, groups_e, groups_n
 
 def asso_elem(code_systus):
+    
     sdim, nb_nodes = int(str(code_systus)[0]), int(str(code_systus)[-2:])
 
     if sdim == 3 and nb_nodes == 20:
@@ -108,16 +109,3 @@ def asso_elem(code_systus):
         raise KeyError(code_systus)
     
     return sdim, code_aster
-
-meshes = sorted(glob('Maillages/**/*.ASC') + glob('Maillages/**/**/*.ASC'))
-
-for mesh in meshes :
-    try : 
-        t0 = time()
-        nodes, elements, groups_e, groups_n = read_asc_mesh(mesh)
-        dt = time()-t0
-        n = len(nodes)
-        print("Spent %s s for reading %s with %d nodes"%(round(dt,2), osp.split(mesh)[-1], n))
-
-    except KeyError :
-        print(mesh)
