@@ -9,7 +9,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V3.02"
+__revision__ = "V3.03"
 #
 #========================= Les imports - Début ===================================
 #
@@ -293,6 +293,43 @@ Entrées/Sorties :
 #
 #=========================== Début de la fonction ================================
 #
+def aggregation_maillage ( le_maillage_niveau, d_groupes, verbose=False ) :
+  """Agrégation dans une structure de MEDLoader
+
+Entrées :
+  :le_maillage_niveau: dictionnaire des maillages par niveau
+  :d_groupes: dictionnaire des groupes par niveau
+  """
+#
+  nom_fonction = __name__ + "/aggregation_maillage"
+  blabla = "\nDans " + nom_fonction
+  if verbose :
+    print (blabla)
+#
+# 1. Création d'un maillage global
+#
+  meshmedfile = ml.MEDFileUMesh()
+#
+# 2. Ajout des maillages de chaque niveau
+#
+  for niveau in le_maillage_niveau :
+#
+    if verbose :
+      texte = ".. Enregistrement du niveau %d" % niveau
+      print (texte)
+    meshmedfile.setMeshAtLevel(niveau, le_maillage_niveau[niveau])
+    maillage_nom = le_maillage_niveau[niveau].getName()
+    #meshmedfile.setGroupsAtLevel(niveau, d_groupes[niveau])
+#
+# 3. Nom du maillage
+#
+  meshmedfile.setName(maillage_nom)
+#
+# 4. Arrangement final des familles
+#
+  meshmedfile.rearrangeFamilies()
+#
+  return meshmedfile
 #
 #===========================  Fin de la fonction =================================
 #
