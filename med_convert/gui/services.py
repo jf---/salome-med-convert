@@ -19,8 +19,8 @@
 The module implement *MedConvert* plugin's services.
 """
 
-from ..convert import Fmt, convert
-from .utilities import translate
+from ..convert import Fmt, convert as convert_engine
+from ..utilities import translate
 
 
 def convert(input_file, output_file, conversion_type):
@@ -30,7 +30,7 @@ def convert(input_file, output_file, conversion_type):
         return False, translate("MedConvert", "Unsupported format!")
     format = Fmt.Systus
     try :
-        convert(input_file, format, output_file)
+        convert_engine(input_file, format, output_file)
         return True, ''
 
     except Exception as err:

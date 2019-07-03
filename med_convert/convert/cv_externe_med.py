@@ -17,10 +17,10 @@ import sys
 #
 import MEDLoader as ml
 #
-from systus_vers_med import cv_systus_vers_med
-from med_vers_systus import cv_med_vers_systus
+from .systus_vers_med import cv_systus_vers_med
+from .med_vers_systus import cv_med_vers_systus
 #
-from util import aggregation_maillage
+from .util import aggregation_maillage
 #
 #========================== Les imports - Fin ====================================
 #

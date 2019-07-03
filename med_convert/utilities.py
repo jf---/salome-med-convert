@@ -3,6 +3,8 @@
 import os
 import os.path as osp
 
+from PyQt5 import Qt as Q
+
 
 def resources_path():
     """
@@ -35,7 +37,7 @@ def docs_path():
         return docs_path.path
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
-    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir,
+    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
                                 os.pardir, 'share', 'doc', 'salome',
                                 'gui', 'med_convert', 'html'))
     if not osp.isdir(path):
@@ -52,7 +54,17 @@ def data_path():
     Returns:
         str: Path to the data test folder.
     """
-    path = osp.join(resources_path(), 'data')
+    if hasattr(data_path, 'path'):
+        return data_path.path
+
+    install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
+    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
+                                os.pardir, 'share', 'salome',
+                                'med_convert_test', 'data'))
+    if not osp.isdir(path):
+        path = osp.join(install_root, 'test', 'data')
+
+    data_path.path = path
     return path
 
 
@@ -65,3 +77,21 @@ def references_path():
     """
     path = osp.join(resources_path(), 'references')
     return path
+
+
+def translate(context, source_text, disambiguation=None, num=-1):
+    """
+    Get translation text for source text.
+
+    Arguments:
+        context (str): Context name.
+        source_text (str): Text being translated.
+        disambiguation (Opional[str]): String identifying text role
+            within the same context. Defaults to *None*.
+        num (Optional[int]): Number used to support plural forms of
+            translation. Defaults to -1 (that means no number feature).
+
+    Returns:
+        str: Translation text.
+    """
+    return Q.QApplication.translate(context, source_text, disambiguation, num)

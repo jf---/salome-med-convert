@@ -19,8 +19,8 @@
 This module implements *MedConvert* settings
 """
 from collections import OrderedDict
-from .utilities import translate
 
+from ..utilities import translate
 
 
 class FileType(object):

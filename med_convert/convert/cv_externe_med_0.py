@@ -15,16 +15,16 @@ import os
 #
 #================== A PERSONNALISER - DEBUT ==================
 #
-# REP_EXTERNE = répertoire pour externe
-SALOME_HOME = os.environ["SALOME_HOME"]
-REP_EXTERNE = os.path.join(SALOME_HOME, "salome-med-convert")
-#
-#=================== A PERSONNALISER - FIN ==================
-#
-#============================= Paramétrage =======================================
-# REPSCRIPT = répertoire des scripts
-REPSCRIPT = os.path.join(REP_EXTERNE, "med_convert", "convert")
-sys.path.append(REPSCRIPT)
+# # REP_EXTERNE = répertoire pour externe
+# SALOME_HOME = os.environ["SALOME_HOME"]
+# REP_EXTERNE = os.path.join(SALOME_HOME, "salome-med-convert")
+# #
+# #=================== A PERSONNALISER - FIN ==================
+# #
+# #============================= Paramétrage =======================================
+# # REPSCRIPT = répertoire des scripts
+# REPSCRIPT = os.path.join(REP_EXTERNE, "med_convert", "convert")
+# sys.path.append(REPSCRIPT)
 from cv_externe_med import ExterneMED
 #=================================================================================
 #

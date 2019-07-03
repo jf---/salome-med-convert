@@ -102,24 +102,6 @@ def disconnect(signal, slot=None):
             pass
 
 
-def translate(context, source_text, disambiguation=None, num=-1):
-    """
-    Get translation text for source text.
-
-    Arguments:
-        context (str): Context name.
-        source_text (str): Text being translated.
-        disambiguation (Opional[str]): String identifying text role
-            within the same context. Defaults to *None*.
-        num (Optional[int]): Number used to support plural forms of
-            translation. Defaults to -1 (that means no number feature).
-
-    Returns:
-        str: Translation text.
-    """
-    return Q.QApplication.translate(context, source_text, disambiguation, num)
-
-
 def get_dir_name(parent, title, url):
     """
     Show standard file dialog, to select a directory.

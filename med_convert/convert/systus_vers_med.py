@@ -13,10 +13,10 @@ __revision__ = "V03.03"
 #
 import numpy as np
 #
-from util import cree_maillage_par_niveau_0
-from util import get_caract_mailles
-from util import gettabrecip
-from util import print_bilan
+from .util import cree_maillage_par_niveau_0
+from .util import get_caract_mailles
+from .util import gettabrecip
+from .util import print_bilan
 #
 import MEDLoader as ml
 #
@@ -675,4 +675,3 @@ if __name__ == "__main__" :
 #
   if not ERREUR :
     print ("Fin normale")
-

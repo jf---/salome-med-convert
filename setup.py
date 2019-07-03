@@ -47,7 +47,7 @@ class InstallLibSalome(install_lib):
     def get_outputs(self):
         return self.alter_install_dir(install_lib.get_outputs)
 
-PKGS = ['med_convert', 'med_convert.gui']
+PKGS = ['med_convert', 'med_convert.convert', 'med_convert.gui']
 MODS = ["salome_plugins",]
 SCRIPTS = ["bin/med_convert",]
 
@@ -56,6 +56,8 @@ DATA = [
     ('share/salome/resources/med_convert',
      glob('resources/med_convert/MedConvert_msg_fr.qm')),
     ('share/salome/med_convert_test', glob('test/*.py')),
+    ('share/salome/med_convert_test/data', glob('test/data/*')),
+    ('share/doc/salome/gui/med_convert/html', glob('doc/*.html')),
 ]
 
 SALOME_DIR = 'salome'

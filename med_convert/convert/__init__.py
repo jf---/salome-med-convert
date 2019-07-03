@@ -15,10 +15,13 @@
 # along with this program; if not, you may download a copy of license
 # from https://www.gnu.org/licenses/gpl-3.0.
 
-
 """
 This package defines the *engine* of the MED converter plugin.
 """
+
+from ..utilities import translate
+from .cv_externe_med import ExterneMED
+
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -53,11 +56,22 @@ def convert(input_file, format, output_file):
 
     Arguments:
         input_file (str): Path to the input file.
-        format (str): Format of the input file.
+        format (*Fmt*): Format of the input file.
         output_file (str): Path to the output file.
 
     Returns:
         bool: Status of the conversion: *True* in case of success, *False*
         otherwise.
     """
+    if format != Fmt.Systus:
+        raise ValueError(translate("MedConvert", "Unsupported format!"))
+
+    opts = [
+        '--type_externe=SYSTUS',
+        '--type_cv=0',
+        '--ficexterne={0}'.format(input_file),
+        '--ficmed={0}'.format(output_file),
+    ]
+    converter = ExterneMED(opts)
+    converter.lancement()
     return True

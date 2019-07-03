@@ -25,7 +25,7 @@ import salome_pluginsmanager
 
 # pragma pylint: disable=invalid-name
 
-from med_convert.gui.utilities import translate
+from med_convert.utilities import translate
 from med_convert.gui.gui import start
 
 try:
