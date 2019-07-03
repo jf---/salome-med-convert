@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.02"
+__revision__ = "V03.03"
 #
 #========================= Les imports - Début ===================================
 #
@@ -385,7 +385,7 @@ Sorties :
 #
 # 2. Les correspondances entre SYSTUS et MED
 #
-    d_corres_type, d_num_local = cv_systus_med_3 (verbose_max)
+    d_corres_type, num_local_dans_med = cv_systus_med_3 (verbose_max)
 #
 # 3. Le tableau réciproque de la numérotation des noeuds
 #
@@ -416,7 +416,7 @@ Sorties :
 #
 # 3.2. Ajout des mailles du niveau
 #
-        cv_systus_med_2_0 ( les_lignes[d_nro_section["l_be"]+1:], d_corres_type, d_num_local, ndim, le_maillage_niveau[niveau], tb_type_elem, d_tab_recip, verbose_max )
+        cv_systus_med_2_0 ( les_lignes[d_nro_section["l_be"]+1:], d_corres_type, num_local_dans_med, ndim, le_maillage_niveau[niveau], tb_type_elem, d_tab_recip, verbose_max )
 #
       if ( niveau <= 0 ) :
         niveau -= 1
@@ -430,7 +430,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_2_0 ( les_lignes, d_corres_type, d_num_local, ndim, maillage, tb_type_elem, d_tab_recip, verbose=False ) :
+def cv_systus_med_2_0 ( les_lignes, d_corres_type, num_local_dans_med, ndim, maillage, tb_type_elem, d_tab_recip, verbose=False ) :
   """Ajout des mailles dans le maillage d'un niveau
 
 Entrées:
@@ -438,9 +438,9 @@ Entrées:
   :d_corres_type: dictionnaire de la correspondance
     . clé : le type SYSTUS
     . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
-  :d_num_local: dictionnaire de la correspondance de numérotation locale
+  :num_local_dans_med: dictionnaire de la correspondance de numérotation locale
     . clé : le type medcoupling
-    . valeur : liste de la position locale MED
+    . valeur : liste de la position locale dans la convention MED pour chaque position SYSTUS
   :ndim: dimension du maillage
   :tb_type_elem: tableau de typage des éléments
   :d_tab_recip: tableau réciproque de la renumérotation des noeuds
@@ -478,7 +478,7 @@ Entrées/Sorties :
 #
       for jaux, n_systus in enumerate(laux[-nbn:]):
         #print (jaux,d_tab_recip[int(n_systus)])
-        tb_nodes[d_num_local[type_med][jaux]] = d_tab_recip[int(n_systus)]
+        tb_nodes[num_local_dans_med[type_med][jaux]] = d_tab_recip[int(n_systus)]
       #print ("... tb_nodes =", tb_nodes[:nbn])
 #
 # 3. Insertion des noeuds dans le maillage medcoupling
@@ -501,9 +501,9 @@ Sorties :
   :d_corres_type: dictionnaire de la correspondance
     . clé : le type SYSTUS
     . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
-  :d_num_local: dictionnaire de la correspondance de numérotation locale
+  :num_local_dans_med: dictionnaire de la correspondance de numérotation locale
     . clé : le type medcoupling
-    . valeur : liste de la position locale MED
+    . valeur : liste de la position locale dans la convention MED pour chaque position SYSTUS
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_3"
@@ -517,9 +517,9 @@ Sorties :
 #
 # 2. Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
 #
-  d_num_local = cv_systus_med_31 ( verbose )
+  num_local_dans_med = cv_systus_med_31 ( verbose )
 #
-  return d_corres_type, d_num_local
+  return d_corres_type, num_local_dans_med
 #
 #===========================  Fin de la fonction =================================
 #
@@ -571,11 +571,13 @@ Sorties :
 def cv_systus_med_31 ( verbose=False ) :
   """Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
 
+Remarque : on préserve les orientations des mailles
+
 Entrées:
 Sorties :
-  :d_num_local: dictionnaire de la correspondance de numérotation locale
+  :num_local_dans_med: dictionnaire de la correspondance de numérotation locale
     . clé : le type medcoupling
-    . valeur : liste de la position locale MED
+    . valeur : liste de la position locale dans la convention MED pour chaque position SYSTUS
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_31"
@@ -583,45 +585,53 @@ Sorties :
   if verbose:
     print (blabla)
 #
-  d_num_local = dict()
+  num_local_dans_med = dict()
 #
 # 1. Mailles 0D
 #
-  d_num_local[ml.NORM_POINT1] = [0]
+  num_local_dans_med[ml.NORM_POINT1] = [0]
 #
 # 2. Mailles 1D
 #
-  d_num_local[ml.NORM_SEG2] = [0, 1]
+  num_local_dans_med[ml.NORM_SEG2] = [0, 1]
 #
-  d_num_local[ml.NORM_SEG3] = [0, 2, 1]
+  num_local_dans_med[ml.NORM_SEG3] = [0, 2, 1]
 #
 # 3. Mailles 2D
 #
-  d_num_local[ml.NORM_TRI3] = [0, 1, 2]
-  d_num_local[ml.NORM_QUAD4] = [0, 1, 3, 2]
+  num_local_dans_med[ml.NORM_TRI3] = [0, 1, 2]
+  num_local_dans_med[ml.NORM_QUAD4] = [0, 1, 3, 2]
 #
-  d_num_local[ml.NORM_TRI6] = [0, 2, 4, 1, 3, 5]
-  d_num_local[ml.NORM_QUAD8] = [0, 4, 1, 5, 2, 6, 3, 7]
+  num_local_dans_med[ml.NORM_TRI6] = [0, 2, 4, 1, 3, 5]
+  num_local_dans_med[ml.NORM_QUAD8] = [0, 4, 1, 5, 2, 6, 3, 7]
 #
 # 4. Mailles 3D
 #
-  d_num_local[ml.NORM_TETRA4] = [0, 1, 2, 3]
-  d_num_local[ml.NORM_HEXA8] = list()
-  d_num_local[ml.NORM_PYRA5] = list()
-  d_num_local[ml.NORM_PENTA6] = list()
+  num_local_dans_med[ml.NORM_TETRA4] = [0, 2, 1, 3]
+  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1, \
+                                       7, 4, 5, 6]
+  num_local_dans_med[ml.NORM_PYRA5] = list()
+  num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1, \
+                                        3, 5, 4]
 #
-  d_num_local[ml.NORM_TETRA10] = list()
-  d_num_local[ml.NORM_HEXA20] = [0, 8, 1, 9, 2, 10, 3, 11, 16, 17, 18, 19, 4, 12, 5, 13, 6, 14, 7, 15]
-  d_num_local[ml.NORM_PYRA13] = list()
-  d_num_local[ml.NORM_PENTA15] = [0, 2, 4, 9, 11, 13, 1, 3, 5, 6, 7, 8, 10, 12, 14]
+  num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4, \
+                                          7,  9,  8, \
+                                          3 ]
+  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8, \
+                                        16, 19, 18, 17, \
+                                         4, 15,  7, 14,  6, 13,  5, 12 ]
+  num_local_dans_med[ml.NORM_PYRA13] = list()
+  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6, \
+                                         12, 14, 13, \
+                                          3, 11,  5, 10,  4,  9]
 #
   if verbose:
-    texte  = "d_num_local :"
+    texte  = "num_local_dans_med :"
     print (texte)
-    for cle in d_num_local:
-      print ("%2d :" % cle, d_num_local[cle])
+    for cle in num_local_dans_med:
+      print ("%2d :" % cle, num_local_dans_med[cle])
 #
-  return d_num_local
+  return num_local_dans_med
 #
 #===========================  Fin de la fonction =================================
 #
