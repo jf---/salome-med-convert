@@ -55,6 +55,7 @@ DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
     ('share/salome/resources/med_convert',
      glob('resources/med_convert/MedConvert_msg_fr.qm')),
+    ('share/salome/med_convert_test', glob('test/*.py')),
 ]
 
 SALOME_DIR = 'salome'

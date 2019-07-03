@@ -35,3 +35,24 @@ or in a SALOME graphical session:
 ``` bash
 SALOME_PLUGINS_PATH=$(pwd) salome
 ```
+
+
+# Testing
+
+In the source tree, just execute:
+
+``` bash
+python test/run_unittest.py -v
+```
+
+or to run a specific test:
+
+``` bash
+python test/run_unittest.py -v test_utilities
+```
+
+[TODO] Within a SALOME installation:
+
+``` bash
+salome test -R MED_CONVERT
+```
