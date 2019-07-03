@@ -19,16 +19,16 @@
 Implementation of Graphical User Interface for *MedConvert* plugin.
 """
 
-import sys
 import os.path as osp
+import sys
 
 from PyQt5 import Qt as Q
 
-from .settings import (FileType, Settings)
-from .utilities import (connect, docs_path, get_dir_name,
-                        get_file_name, resources_path, set_mandatory, to_list,
-                        translate, update_palette)
+from ..utilities import translate
 from .services import convert
+from .settings import FileType, Settings
+from .utilities import (connect, docs_path, get_dir_name, get_file_name,
+                        resources_path, set_mandatory, to_list, update_palette)
 
 
 class MainWindow(Q.QDialog):
