@@ -9,13 +9,40 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V3.03"
+__revision__ = "V4.01"
 #
 #========================= Les imports - Début ===================================
 #
 import MEDLoader as ml
 #
 #========================== Les imports - Fin ====================================
+#
+#=========================== Début de la fonction ================================
+#
+def gettabrecip ( tab, verbose=False ) :
+  """Produit le dictionnaire réciproque pour un tableau
+
+Entrées :
+  :tab: tableau à inverser
+Sorties:
+  :d_tab_recip: tableau réciproque
+    . clé : la valeur dans le tableau
+    . valeur : la position de la valeur dans le tableau
+  """
+#
+  nom_fonction = __name__ + "/gettabrecip"
+  blabla = "\nDans " + nom_fonction
+  if verbose:
+    print (blabla)
+#
+  d_tab_recip = dict()
+#
+  for iaux, valeur in enumerate(tab):
+    d_tab_recip[valeur] = iaux
+#
+  return d_tab_recip
+#
+#===========================  Fin de la fonction =================================
 #
 #=========================== Début de la fonction ================================
 #
@@ -73,7 +100,7 @@ def get_l_type_mailles (verbose=False):
 Entrées :
 Sorties :
   :l_type_mailles: dictionnaire des types de mailles
-    . clé : le dimension
+    . clé : la dimension
     . valeur : la liste des types de mailles associés
   """
 #
@@ -288,7 +315,6 @@ Entrées/Sorties :
 #
   return
 #
-#
 #===========================  Fin de la fonction =================================
 #
 #=========================== Début de la fonction ================================
@@ -339,8 +365,22 @@ Entrées :
 #
 if __name__ == "__main__" :
 #
+  import numpy as np
+#
   ERREUR = 0
   while not ERREUR :
+#
+# ==============================================================
+#
+    print ("\nTest de gettabrecip :")
+#
+    LG = 10
+    TAB = np.zeros(LG)
+    for IAUX in range(LG):
+      TAB[IAUX] = int(30+2*IAUX)
+    print ("TAB :\n", TAB)
+    D_TAB_RECIP = gettabrecip (TAB)
+    print ("D_TAB_RECIP :\n", D_TAB_RECIP)
 #
 # ==============================================================
 #
