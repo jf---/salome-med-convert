@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V2.02"
+__revision__ = "V02.03"
 #
 # Les imports standard
 import sys
@@ -36,7 +36,8 @@ if __name__ == "__main__" :
 #
 # 1. Options
 #
-  VERBOSE = 1
+  VERBOSE = True
+  VERBOSE = False
   HOME = os.environ["HOME"]
   REP_DATA = os.path.join(HOME, "MAILLAGE", "SYSTUS")
 #
@@ -53,6 +54,7 @@ if __name__ == "__main__" :
   NOM_FICHIER = "PIQUAGE_RIS_900_SAIN_DONN1005"
 #
   REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Simples")
+  NOM_FICHIER = "CARRE_DONN1.mod"
   NOM_FICHIER = "RECTANGLE_DONN1"
   NOM_FICHIER = "COURONNE_DONN1"
   NOM_FICHIER = "MOTIF_DONN1"
@@ -88,7 +90,7 @@ if __name__ == "__main__" :
     L_OPTIONS.append(SAUX)
   if VERBOSE :
     L_OPTIONS.append("-v")
-  L_OPTIONS.append("-vmax")
+  #L_OPTIONS.append("-vmax")
   #L_OPTIONS.append("-h")
 #
 # 2. Lancement de la classe

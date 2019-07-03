@@ -7,13 +7,15 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V2.02"
+__revision__ = "V03.01"
 #
 #========================= Les imports - Début ===================================
 #
 import numpy as np
 #
+from util import cree_maillage_par_niveau_0
 from util import get_caract_mailles
+from util import gettabrecip
 from util import print_bilan
 #
 import MEDLoader as ml
@@ -48,7 +50,7 @@ Sorties :
 #
 # 1. Exploration des données
 #
-    erreur, message, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem = systus_fichier_1 ( les_lignes, verbose, verbose_max)
+    erreur, message, d_nro_section, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem = cv_systus_med_1 ( les_lignes, verbose, verbose_max)
     if erreur:
       break
 #
@@ -58,7 +60,7 @@ Sorties :
 #
 # 3. Création des maillages par niveau
 #
-    erreur, message, le_maillage_niveau, d_groupes, d_niveau = systus_fichier_2 ( maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem, verbose, verbose_max )
+    erreur, message, le_maillage_niveau, d_groupes, d_niveau = cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max )
     if erreur:
       break
 #
@@ -71,7 +73,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def systus_fichier_1 ( les_lignes, verbose, verbose_max):
+def cv_systus_med_1 ( les_lignes, verbose, verbose_max):
   """Décodage des lignes du fichier
 
 Entrées :
@@ -79,6 +81,9 @@ Entrées :
 Sorties :
   :erreur: code d'erreur
   :message: message d'erreur
+  :d_nro_section: dictionnaire des numéros des lignes des repères
+    . clé : nom parmi ("l_bn", "l_en", "l_be", "l_ee", "l_bg", "l_eg")
+    . valeur : le numéro de la ligne
   :maillage_nom: nom du maillage
   :sdim: dimension de l'espace
   :nbr_entites: dictionnaire du nombre d'entités par type
@@ -88,7 +93,7 @@ Sorties :
   :tb_type_elem: tableau de typage des éléments
   """
 #
-  nom_fonction = __name__ + "/systus_fichier_1"
+  nom_fonction = __name__ + "/cv_systus_med_1"
   blabla = "\nDans " + nom_fonction
   if verbose_max:
     texte = blabla
@@ -108,42 +113,44 @@ Sorties :
       print ("... maillage_nom = '%s'" % maillage_nom)
     if ( len(maillage_nom) == 0 ):
       maillage_nom = "MAILLAGE"
-      print ("Pas de nom de maillage dans le fichier.\nOn impose le nom '%s'" % maillage_nom)
+      texte = "\n.. Attention : le nom de maillage est absent dans ce fichier."
+      texte += " On impose le nom '%s'" % maillage_nom
+      print (texte)
 #
 # 2. Les repères
 #
-    erreur, message, d_nro_section = systus_fichier_1_r ( les_lignes, verbose_max)
+    erreur, message, d_nro_section = cv_systus_med_1_r ( les_lignes, verbose_max)
     if erreur:
       break
 #
 # 3. Dimension de l'espace
 #
-    laux = d_nro_section["l_bn"][0].split()
+    laux = les_lignes[d_nro_section["l_bn"]].split()
     sdim = int(laux[2])
     if verbose:
-      texte = ".. Dimension d'espace : %d" % sdim
+      texte = "\n.. Dimension d'espace : %d" % sdim
       print (texte)
 #
 # 3. Noeuds
 #
-    nbr_entites["Noeuds"], coordinates, tb_renum_node = systus_fichier_1_n ( les_lignes, d_nro_section["l_bn"][1]+1, d_nro_section["l_en"][1], sdim, verbose_max)
+    nbr_entites["Noeuds"], coordinates, tb_renum_node = cv_systus_med_1_n ( les_lignes, d_nro_section["l_bn"]+1, d_nro_section["l_en"], sdim, verbose_max)
 #
 # 4. Eléments
 #
-    tb_renum_elem, tb_type_elem = systus_fichier_1_e ( les_lignes, d_nro_section["l_be"][1]+1, d_nro_section["l_ee"][1], nbr_entites, verbose_max)
+    tb_renum_elem, tb_type_elem = cv_systus_med_1_e ( les_lignes, d_nro_section["l_be"]+1, d_nro_section["l_ee"], nbr_entites, verbose_max)
     if verbose_max:
       break
 #
 #
     break
 #
-  return erreur, message, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem
+  return erreur, message, d_nro_section, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem
 #
 #===========================  Fin de la fonction =================================
 #
 #=========================== Début de la fonction ================================
 #
-def systus_fichier_1_r ( les_lignes, verbose_max=False):
+def cv_systus_med_1_r ( les_lignes, verbose_max=False):
   """Décodage des lignes du fichier : les repères
 
 Entrées :
@@ -153,11 +160,10 @@ Sorties :
   :message: message d'erreur
   :d_nro_section: dictionnaire des numéros des lignes des repères
     . clé : nom parmi ("l_bn", "l_en", "l_be", "l_ee", "l_bg", "l_eg")
-    . valeur : (la ligne, le numéro de la ligne)
-
+    . valeur : le numéro de la ligne
   """
 #
-  nom_fonction = __name__ + "/systus_fichier_1_r"
+  nom_fonction = __name__ + "/cv_systus_med_1_r"
   blabla = "\nDans " + nom_fonction
   if verbose_max:
     texte = blabla
@@ -177,17 +183,17 @@ Sorties :
     for iaux, ligne in enumerate(les_lignes) :
 #
       if ( "BEGIN_NODES" in ligne ):
-        d_nro_section["l_bn"] = (ligne, iaux)
+        d_nro_section["l_bn"] = iaux
       elif ( "END_NODES" in ligne ):
-        d_nro_section["l_en"] = (ligne, iaux)
+        d_nro_section["l_en"] = iaux
       elif ( "BEGIN_ELEMENTS" in ligne ):
-        d_nro_section["l_be"] = (ligne, iaux)
+        d_nro_section["l_be"] = iaux
       elif ( "END_ELEMENTS" in ligne ):
-        d_nro_section["l_ee"] = (ligne, iaux)
+        d_nro_section["l_ee"] = iaux
       elif ( "BEGIN_GROUPS" in ligne ):
-        d_nro_section["l_bg"] = (ligne, iaux)
+        d_nro_section["l_bg"] = iaux
       elif ( "END_GROUPS" in ligne ):
-        d_nro_section["l_eg"] = (ligne, iaux)
+        d_nro_section["l_eg"] = iaux
         break
 #
 # 2. Contrôle
@@ -213,7 +219,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def systus_fichier_1_n ( les_lignes, ideb, ifin, sdim, verbose_max=False):
+def cv_systus_med_1_n ( les_lignes, ideb, ifin, sdim, verbose_max=False):
   """Décodage des lignes du fichier : les noeuds
 
 Entrées :
@@ -227,7 +233,7 @@ Sorties :
   :tb_renum_node: tableau de renumérotation des noeuds
   """
 #
-  nom_fonction = __name__ + "/systus_fichier_1_n"
+  nom_fonction = __name__ + "/cv_systus_med_1_n"
   blabla = "\nDans " + nom_fonction
   if verbose_max:
     texte = blabla
@@ -265,7 +271,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def systus_fichier_1_e ( les_lignes, ideb, ifin, nbr_entites, verbose_max=False):
+def cv_systus_med_1_e ( les_lignes, ideb, ifin, nbr_entites, verbose_max=False):
   """Décodage des lignes du fichier : les éléments
 
 Entrées :
@@ -279,7 +285,7 @@ Entrées/Sorties :
   :nbr_entites: nombre d'entités par type
   """
 #
-  nom_fonction = __name__ + "/systus_fichier_1_e"
+  nom_fonction = __name__ + "/cv_systus_med_1_e"
   blabla = "\nDans " + nom_fonction
   if verbose_max:
     texte = blabla
@@ -339,17 +345,20 @@ Entrées/Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def systus_fichier_2 ( maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem, verbose, verbose_max ) :
+def cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max ) :
   """Création des maillages
 
 Entrées:
+  :les_lignes: les lignes du fichier à convertir
+  :d_nro_section: dictionnaire des numéros des lignes des repères
+    . clé : nom parmi ("l_bn", "l_en", "l_be", "l_ee", "l_bg", "l_eg")
+    . valeur : le numéro de la ligne
   :maillage_nom: nom du maillage
   :sdim: dimension de l'espace
   :nbr_entites: dictionnaire du nombre d'entités par type
   :nbr_mailles_dim: nombre de mailles par dimension
   :coordinates: les coordonnées
   :tb_renum_node: tableau de renumérotation des noeuds
-  :tb_renum_elem: tableau de renumérotation des éléments
   :tb_type_elem: tableau de typage des éléments
 Sorties :
   :erreur: code d'erreur
@@ -359,7 +368,7 @@ Sorties :
   :d_niveau: dictionnaire des niveau par dimension
   """
 #
-  nom_fonction = __name__ + "/systus_fichier_2"
+  nom_fonction = __name__ + "/cv_systus_med_2"
   blabla = "\nDans " + nom_fonction
   if verbose_max:
     texte = blabla
@@ -374,7 +383,15 @@ Sorties :
 #
     les_coords = ml.DataArrayDouble(coordinates, nbr_entites["Noeuds"], sdim)
 #
-# 2. Les maillages par niveau
+# 2. Les correspondances entre SYSTUS et MED
+#
+    d_corres_type, d_num_local = cv_systus_med_3 (verbose_max)
+#
+# 3. Le tableau réciproque de la numérotation des noeuds
+#
+    d_tab_recip = gettabrecip (tb_renum_node)
+#
+# 3. Les maillages par niveau
 #
     le_maillage_niveau = dict()
     d_groupes = dict()
@@ -386,34 +403,23 @@ Sorties :
       if ( nbr_mailles_dim[ndim] > 0 ) :
 #
         if verbose:
-          texte = "\n... Création du maillage de dimension %d" % ndim
+          texte = "\n.. Création du maillage de dimension %d" % ndim
           texte += " sous le nom '%s'" % maillage_nom
           print (texte)
 #
         if ( niveau > 0 ) :
           niveau = 0
 #
-        d_niveau[ndim] = niveau
-        le_maillage_niveau[niveau] = ml.MEDCouplingUMesh(maillage_nom, 2)
-        le_maillage_niveau[niveau].setMeshDimension(ndim)
+# 3.1. Création de la structure du maillage
 #
-        #print (les_coords)
-        if verbose:
-          texte = "... Enregistrement des coordonnées dans le maillage du niveau %d" % niveau
-          print (texte)
-        le_maillage_niveau[niveau].setCoords(les_coords)
+        cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, d_niveau, le_maillage_niveau, verbose_max )
 #
-        if verbose:
-          texte = "... Allocation pour %d cellules" % nbr_mailles_dim[ndim]
-          texte += " dans le maillage du niveau %d" % niveau
-          print (texte)
-        le_maillage_niveau[niveau].allocateCells(nbr_mailles_dim[ndim])
+# 3.2. Ajout des mailles du niveau
+#
+        cv_systus_med_2_0 ( les_lignes[d_nro_section["l_be"]+1:], d_corres_type, d_num_local, ndim, le_maillage_niveau[niveau], tb_type_elem, d_tab_recip, verbose_max )
 #
       if ( niveau <= 0 ) :
         niveau -= 1
-#
-    #for niveau in le_maillage_niveau :
-      #print ("Maillage du niveau %d\n" %niveau, le_maillage_niveau[niveau])
 #
 #
     break
@@ -423,6 +429,206 @@ Sorties :
 #===========================  Fin de la fonction =================================
 #
 #=========================== Début de la fonction ================================
+#
+def cv_systus_med_2_0 ( les_lignes, d_corres_type, d_num_local, ndim, maillage, tb_type_elem, d_tab_recip, verbose=False ) :
+  """Ajout des mailles dans le maillage d'un niveau
+
+Entrées:
+  :les_lignes: les lignes du fichier à convertir - pour les éléments
+  :d_corres_type: dictionnaire de la correspondance
+    . clé : le type SYSTUS
+    . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
+  :d_num_local: dictionnaire de la correspondance de numérotation locale
+    . clé : le type medcoupling
+    . valeur : liste de la position locale MED
+  :ndim: dimension du maillage
+  :tb_type_elem: tableau de typage des éléments
+  :d_tab_recip: tableau réciproque de la renumérotation des noeuds
+Entrées/Sorties :
+  :maillage: le maillage à compléter
+  """
+#
+  nom_fonction = __name__ + "/cv_systus_med_2_0"
+  blabla = "\nDans " + nom_fonction
+  if verbose:
+    print (blabla)
+#
+  if verbose:
+    texte = "\n... Dimension %d" % ndim
+    print (texte)
+#
+  tb_nodes = np.zeros(27, dtype=np.int32)
+#
+  nrmail = 0
+  for iaux, t_element in enumerate(tb_type_elem):
+#
+# On filtre sur la bonne dimension
+#
+    if ( d_corres_type[t_element][0] == ndim ):
+#
+      nbn = d_corres_type[t_element][1]
+      type_med = d_corres_type[t_element][2]
+#
+# 1. La liste des noeuds dans la numérotation SYSTUS
+#
+      laux = les_lignes[iaux].split()
+      #print (laux[-nbn:])
+#
+# 2. La liste des noeuds dans la numérotation MED
+#
+      for jaux, n_systus in enumerate(laux[-nbn:]):
+        tb_nodes[d_num_local[type_med][jaux]] = d_tab_recip[int(n_systus)]
+      #if verbose:
+        #print ("... tb_nodes =", tb_nodes)
+#
+# 3. Insertion des noeuds dans le maillage medcoupling
+#
+      maillage.insertNextCell(type_med, nbn, ml.DataArrayInt(tb_nodes))
+#
+      nrmail += 1
+#
+  return
+#
+#===========================  Fin de la fonction =================================
+#
+#=========================== Début de la fonction ================================
+#
+def cv_systus_med_3 ( verbose=False ) :
+  """Correspondance entre le type SYSTUS et le type mecoupling
+
+Entrées:
+Sorties :
+  :d_corres_type: dictionnaire de la correspondance
+    . clé : le type SYSTUS
+    . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
+  :d_num_local: dictionnaire de la correspondance de numérotation locale
+    . clé : le type medcoupling
+    . valeur : liste de la position locale MED
+  """
+#
+  nom_fonction = __name__ + "/cv_systus_med_3"
+  blabla = "\nDans " + nom_fonction
+  if verbose:
+    print (blabla)
+#
+# 1. Correspondance entre le type SYSTUS et le type mecoupling
+#
+  d_corres_type = cv_systus_med_30 ( verbose )
+#
+# 2. Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
+#
+  d_num_local = cv_systus_med_31 ( verbose )
+#
+  return d_corres_type, d_num_local
+#
+#===========================  Fin de la fonction =================================
+#
+#=========================== Début de la fonction ================================
+#
+def cv_systus_med_30 ( verbose=False ) :
+  """Correspondance entre le type SYSTUS et le type mecoupling
+
+Entrées:
+Sorties :
+  :d_corres_type: dictionnaire de la correspondance
+    . clé : le type SYSTUS
+    . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
+  """
+#
+  nom_fonction = __name__ + "/cv_systus_med_30"
+  blabla = "\nDans " + nom_fonction
+  if verbose:
+    print (blabla)
+#
+# 1. Dictionnaire de caractérisation des mailles
+#    . la clé est le nom
+#    . la donnée est le triplet (nombre de noeuds, code medcoupling, dimension)
+#
+  caract_maille = get_caract_mailles ()
+#
+# 2. Affectation
+#
+  d_corres_type = dict()
+  for type_maille in caract_maille:
+#
+    nbn = caract_maille[type_maille][0]
+    ndim = caract_maille[type_maille][2]
+    for iaux in range(10):
+      jaux = ndim*1000 + iaux*100 + nbn
+      d_corres_type[jaux] = (ndim, nbn, caract_maille[type_maille][1])
+#
+  if verbose:
+    texte  = "d_corres_type :"
+    for cle in d_corres_type:
+      texte += "\n%4d : dimension = %2d, nombre de noeuds = %2d, type medcoupling = %d" % (cle, d_corres_type[cle][0], d_corres_type[cle][1], d_corres_type[cle][2])
+    print (texte)
+#
+  return d_corres_type
+#
+#
+#=========================== Début de la fonction ================================
+#
+def cv_systus_med_31 ( verbose=False ) :
+  """Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
+
+Entrées:
+Sorties :
+  :d_num_local: dictionnaire de la correspondance de numérotation locale
+    . clé : le type medcoupling
+    . valeur : liste de la position locale MED
+  """
+#
+  nom_fonction = __name__ + "/cv_systus_med_31"
+  blabla = "\nDans " + nom_fonction
+  if verbose:
+    print (blabla)
+#
+  d_num_local = dict()
+#
+# 1. Mailles 0D
+#
+  d_num_local[ml.NORM_POINT1] = [0]
+#
+# 2. Mailles 1D
+#
+  d_num_local[ml.NORM_SEG2] = [0, 1]
+#
+  d_num_local[ml.NORM_SEG3] = [0, 2, 1]
+#
+# 3. Mailles 2D
+#
+  d_num_local[ml.NORM_TRI3] = [0, 1, 2]
+  d_num_local[ml.NORM_QUAD4] = [0, 1, 3, 2]
+#
+  d_num_local[ml.NORM_TRI6] = [0, 2, 4, 1, 3, 5]
+  d_num_local[ml.NORM_QUAD8] = [0, 4, 1, 5, 2, 6, 3, 7]
+#
+# 4. Mailles 3D
+#
+  d_num_local[ml.NORM_TETRA4] = [0, 1, 2, 3]
+  d_num_local[ml.NORM_HEXA8] = list()
+  d_num_local[ml.NORM_PYRA5] = list()
+  d_num_local[ml.NORM_PENTA6] = list()
+#
+  d_num_local[ml.NORM_TETRA10] = list()
+  d_num_local[ml.NORM_HEXA20] = [18, 16, 14, 12, 6, 4, 2, 0, 17, 15, 13, 19, 11, 10, 9, 8, 5, 3, 1, 7]
+  d_num_local[ml.NORM_PYRA13] = list()
+  d_num_local[ml.NORM_PENTA15] = [0, 2, 4, 9, 11, 13, 1, 3, 5, 6, 7, 8, 10, 12, 14]
+#
+  if verbose:
+    texte  = "d_num_local :"
+    print (texte)
+    for cle in d_num_local:
+      print ("%2d :" % cle, d_num_local[cle])
+#
+  return d_num_local
+#
+#===========================  Fin de la fonction =================================
+#
+#=========================== Début de la fonction ================================
+#
+#
+#===========================  Fin de la fonction =================================
 #
 #===========================  Fin de la fonction =================================
 #
@@ -436,4 +642,27 @@ Sorties :
 #
 if __name__ == "__main__" :
 #
-  pass
+  ERREUR = 0
+  while not ERREUR :
+#
+# ==============================================================
+#
+    print ("\nTest de cv_systus_med_31 :")
+#
+    VERBOSE = True
+    D_CORRES_TYPE = cv_systus_med_30 (VERBOSE)
+#
+# ==============================================================
+#
+    print ("\nTest de cv_systus_med_31 :")
+#
+    VERBOSE = True
+    D_NUM_LOCAL = cv_systus_med_31 (VERBOSE)
+#
+# ==============================================================
+#
+    break
+#
+  if not ERREUR :
+    print ("Fin normale")
+

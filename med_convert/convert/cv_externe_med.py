@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V2.02"
+__revision__ = "V02.03"
 #
 #========================= Les imports - Début ===================================
 #
@@ -366,9 +366,8 @@ Sorties :
 #
 # 1. Lecture du maillage sous forme de la liste des lignes
 #
-      if self._verbose:
-        texte = "Lecture de %s" % self._ficexterne
-        print (texte)
+      texte = "\n. Lecture du fichier :\n%s" % self._ficexterne
+      print (texte)
 #
       with open (self._ficexterne, "r") as fichier :
         les_lignes = fichier.readlines()
@@ -390,17 +389,12 @@ Sorties :
 #
 # 3. Aggrégation du maillage du maillage
 #
-      if self._verbose:
-        texte = "Ecriture de %s" % self._ficmed
-        print (texte)
-#
       meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, self._verbose_max)
 #
 # 4. Ecriture du maillage
 #
-      if self._verbose:
-        texte = "Ecriture de %s" % self._ficmed
-        print (texte)
+      texte = "\n. Ecriture du fichier :\n%s" % self._ficmed
+      print (texte)
 #
       meshmedfile.write(self._ficmed, 2)
 #

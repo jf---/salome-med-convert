@@ -9,7 +9,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V4.01"
+__revision__ = "V04.01"
 #
 #========================= Les imports - Début ===================================
 #
@@ -85,7 +85,7 @@ Sorties :
     laux = sorted(caract_maille.keys())
     texte = ""
     for type_maille in laux:
-      texte += "\n... Type '%5s' : nombre de noeuds = %2d, code medcoupling = %3d, dimension = %d" % (type_maille, caract_maille[type_maille][0], caract_maille[type_maille][1], caract_maille[type_maille][2])
+      texte += "\n... Type '%5s' : nombre de noeuds = %2d, code medcoupling = %2d, dimension = %d" % (type_maille, caract_maille[type_maille][0], caract_maille[type_maille][1], caract_maille[type_maille][2])
     print (texte)
 #
   return caract_maille
