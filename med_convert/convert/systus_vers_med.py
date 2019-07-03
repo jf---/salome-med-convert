@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.01"
+__revision__ = "V03.02"
 #
 #========================= Les imports - Début ===================================
 #
@@ -477,9 +477,9 @@ Entrées/Sorties :
 # 2. La liste des noeuds dans la numérotation MED
 #
       for jaux, n_systus in enumerate(laux[-nbn:]):
+        #print (jaux,d_tab_recip[int(n_systus)])
         tb_nodes[d_num_local[type_med][jaux]] = d_tab_recip[int(n_systus)]
-      #if verbose:
-        #print ("... tb_nodes =", tb_nodes)
+      #print ("... tb_nodes =", tb_nodes[:nbn])
 #
 # 3. Insertion des noeuds dans le maillage medcoupling
 #
@@ -611,7 +611,7 @@ Sorties :
   d_num_local[ml.NORM_PENTA6] = list()
 #
   d_num_local[ml.NORM_TETRA10] = list()
-  d_num_local[ml.NORM_HEXA20] = [18, 16, 14, 12, 6, 4, 2, 0, 17, 15, 13, 19, 11, 10, 9, 8, 5, 3, 1, 7]
+  d_num_local[ml.NORM_HEXA20] = [0, 8, 1, 9, 2, 10, 3, 11, 16, 17, 18, 19, 4, 12, 5, 13, 6, 14, 7, 15]
   d_num_local[ml.NORM_PYRA13] = list()
   d_num_local[ml.NORM_PENTA15] = [0, 2, 4, 9, 11, 13, 1, 3, 5, 6, 7, 8, 10, 12, 14]
 #
