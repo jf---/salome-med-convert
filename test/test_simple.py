@@ -26,6 +26,13 @@ from functools import wraps
 from med_convert.convert import Fmt, convert
 from med_convert.utilities import data_path
 
+try:
+    import MEDLoader
+except ImportError:
+    sys.stderr.write("Please read the README file to execute the unittests "
+                     "inside SALOME environment.")
+    raise
+
 
 def tempdir(func):
     """Decorator that executes a method in a temporary directory.
@@ -52,7 +59,7 @@ def tempdir(func):
 class TestSimple(unittest.TestCase):
 
     @tempdir
-    def _standard_conversion(self, tmpdir, filename):
+    def _standard_conversion(self, tmpdir, filename, nbcells, nbnodes):
         infile = osp.join(data_path(), filename)
         outfile = osp.join(tmpdir, "mesh.med")
         self.assertTrue(osp.isfile(infile))
@@ -61,18 +68,27 @@ class TestSimple(unittest.TestCase):
         convert(infile, Fmt.Systus, outfile)
 
         self.assertTrue(osp.isfile(outfile))
+        mesh = MEDLoader.ReadMeshFromFile(outfile)
+        self.assertEqual(mesh.getNumberOfCells(), nbcells)
+        self.assertEqual(mesh.getNumberOfNodes(), nbnodes)
+
 
     def test_carre(self):
-        return self._standard_conversion("CARRE_DONN1.ASC")
+        self._standard_conversion("CARRE_DONN1.ASC", 25, 96)
 
     def test_couronne(self):
-        return self._standard_conversion("COURONNE_DONN1.ASC")
+        self._standard_conversion("COURONNE_DONN1.ASC", 216, 720)
 
+    @unittest.skip("QUAD8 type not yet supported")
     def test_motif(self):
-        return self._standard_conversion("MOTIF_DONN1.ASC")
+        self._standard_conversion("MOTIF_DONN1.ASC", 114, 673)
+
+    def test_motif_partial(self):
+        # to be removed when test_motif is fixed
+        self._standard_conversion("MOTIF_DONN1.ASC", 96, 673)
 
     def test_rectangle(self):
-        return self._standard_conversion("RECTANGLE_DONN1.ASC")
+        self._standard_conversion("RECTANGLE_DONN1.ASC", 60, 213)
 
 
 if __name__ == "__main__":
