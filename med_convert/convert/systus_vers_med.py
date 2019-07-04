@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.05"
+__revision__ = "V03.06"
 #
 #========================= Les imports - Début ===================================
 #
@@ -67,6 +67,9 @@ Sorties :
 # 4. Aggrégation du maillage du maillage
 #
     meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, verbose_max)
+#
+# 5. Création des groupes
+#
 #
     break
 #
@@ -388,7 +391,7 @@ Sorties :
 #
 # 2. Les correspondances entre SYSTUS et MED
 #
-    d_corres_type, num_local_dans_med = cv_systus_med_3 (verbose_max)
+    d_corres_type, num_local_dans_med = cv_systus_med_20 (verbose_max)
 #
 # 3. Le tableau réciproque de la numérotation des noeuds
 #
@@ -497,7 +500,7 @@ Entrées/Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_3 ( verbose=False ) :
+def cv_systus_med_20 ( verbose=False ) :
   """Correspondance entre le type SYSTUS et le type mecoupling
 
 Entrées:
@@ -510,18 +513,18 @@ Sorties :
     . valeur : liste de la position locale dans la convention MED pour chaque position SYSTUS
   """
 #
-  nom_fonction = __name__ + "/cv_systus_med_3"
+  nom_fonction = __name__ + "/cv_systus_med_20"
   blabla = "\nDans " + nom_fonction
   if verbose:
     print (blabla)
 #
 # 1. Correspondance entre le type SYSTUS et le type mecoupling
 #
-  d_corres_type = cv_systus_med_30 ( verbose )
+  d_corres_type = cv_systus_med_200 ( verbose )
 #
 # 2. Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
 #
-  num_local_dans_med = cv_systus_med_31 ( verbose )
+  num_local_dans_med = cv_systus_med_201 ( verbose )
 #
   return d_corres_type, num_local_dans_med
 #
@@ -529,7 +532,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_30 ( verbose=False ) :
+def cv_systus_med_200 ( verbose=False ) :
   """Correspondance entre le type SYSTUS et le type mecoupling
 
 Entrées:
@@ -539,7 +542,7 @@ Sorties :
     . valeur : (la dimension, le nombre de noeuds, le type medcoupling)
   """
 #
-  nom_fonction = __name__ + "/cv_systus_med_30"
+  nom_fonction = __name__ + "/cv_systus_med_200"
   blabla = "\nDans " + nom_fonction
   if verbose:
     print (blabla)
@@ -572,7 +575,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_31 ( verbose=False ) :
+def cv_systus_med_201 ( verbose=False ) :
   """Correspondance entre la numérotation locale SYSTUS et celle de mecoupling
 
 Remarque : on préserve les orientations des mailles
@@ -584,7 +587,7 @@ Sorties :
     . valeur : liste de la position locale dans la convention MED pour chaque position SYSTUS
   """
 #
-  nom_fonction = __name__ + "/cv_systus_med_31"
+  nom_fonction = __name__ + "/cv_systus_med_201"
   blabla = "\nDans " + nom_fonction
   if verbose:
     print (blabla)
@@ -661,17 +664,17 @@ if __name__ == "__main__" :
 #
 # ==============================================================
 #
-    print ("\nTest de cv_systus_med_31 :")
+    print ("\nTest de cv_systus_med_201 :")
 #
     VERBOSE = True
-    D_CORRES_TYPE = cv_systus_med_30 (VERBOSE)
+    D_CORRES_TYPE = cv_systus_med_200 (VERBOSE)
 #
 # ==============================================================
 #
-    print ("\nTest de cv_systus_med_31 :")
+    print ("\nTest de cv_systus_med_201 :")
 #
     VERBOSE = True
-    D_NUM_LOCAL = cv_systus_med_31 (VERBOSE)
+    D_NUM_LOCAL = cv_systus_med_201 (VERBOSE)
 #
 # ==============================================================
 #
