@@ -1,14 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os.path as osp
 import numpy as np
 from operator import itemgetter
-from time import time
-from glob import glob
+
+import MEDLoader as ml
 
 def read_asc_mesh(filename):
 
-    lines = open(filename, 'r')
+    with open(filename, 'r') as f :
+        lines = f.readlines()
 
-
+    name = lines[1].strip() if lines[1].strip() else 'MAILLAGE'
+    
     NODES, ELEMENTS, GROUPS = [], [], []
 
     flag = {'NODES' : 0,
@@ -30,7 +34,6 @@ def read_asc_mesh(filename):
         for key in ('ELEMENTS', 'GROUPS'):
             if "BEGIN_%s"%key in line : flag[key]+=1
             if "END_%s"%key   in line : flag[key]-=1
-    lines.close()
 
 
     idx = list(range(-sdim, 0, 1))
@@ -92,24 +95,47 @@ def read_asc_mesh(filename):
     groups_n = { item[0] : list(corr_nodes[k] for k in item[2:])  for item in GROUPS_N }
     groups_e = {dim : {name : list(corr_elements[dim][k] for k in item) for name, item in group.items()} for dim, group in GROUPS_E.items()}
 
-    return sdim, nodes, elements, groups_e, groups_n
+    return name, sdim, nodes, elements, groups_e, groups_n
 
 def asso_elem(code_systus):
     sdim, nb_nodes = int(str(code_systus)[0]), int(str(code_systus)[-2:])
-
-    if sdim == 3 and nb_nodes == 20:
-        code_aster = 'HEXA20'
-    elif sdim == 3 and nb_nodes == 15:
-        code_aster = 'PENTA15'
+   
+    if sdim == 0 and nb_nodes == 1 :
+        code_aster = 'POI'
+        
     elif sdim == 1 and nb_nodes == 2:
         code_aster = 'SEG2'
+    elif sdim == 2 and nb_nodes == 3:
+        code_aster = 'TRI3'
+    elif sdim == 2 and nb_nodes == 4:
+        code_aster = 'QUAD4'   
+    elif sdim == 3 and nb_nodes == 4:
+        code_aster = 'TETRA4'
+    elif sdim == 3 and nb_nodes == 8:
+        code_aster = 'HEXA8'
+    elif sdim == 3 and nb_nodes == 5:
+        code_aster = 'PYRA5'
+    elif sdim == 3 and nb_nodes == 6:
+        code_aster = 'PENTA6'
+
+
     elif sdim == 1 and nb_nodes == 3:
         code_aster = 'SEG3'
     elif sdim == 2 and nb_nodes == 6:
         code_aster = 'TRI6'
     elif sdim == 2 and nb_nodes == 8:
-        code_aster = 'QUAD8'
+        code_aster = 'QUAD8'   
+    elif sdim == 3 and nb_nodes == 10:
+        code_aster = 'TETRA10'
+    elif sdim == 3 and nb_nodes == 20:
+        code_aster = 'HEXA20'
+    elif sdim == 3 and nb_nodes == 13:
+        code_aster = 'PYRA13'
+    elif sdim == 3 and nb_nodes == 15:
+        code_aster = 'PENTA15'
+
     else :
         raise KeyError(code_systus)
     
     return sdim, code_aster
+
