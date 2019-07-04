@@ -9,9 +9,11 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V04.04"
+__revision__ = "V04.0"
 #
 #========================= Les imports - Début ===================================
+#
+import numpy as np
 #
 import MEDLoader as ml
 #
@@ -341,11 +343,12 @@ Sorties :
     if verbose :
       texte = ".. Enregistrement du niveau %d" % niveau
       print (texte)
+#
     meshmedfile.setMeshAtLevel(niveau, le_maillage_niveau[niveau])
 #
     maillage_nom = le_maillage_niveau[niveau].getName()
 #
-    #meshmedfile.setGroupsAtLevel(niveau, d_groupes[niveau])
+    meshmedfile.setGroupsAtLevel(niveau, d_groupes[niveau])
 #
 # 3. Nom du maillage
 #
@@ -391,6 +394,7 @@ Entrées/Sorties :
 #
   dau_m = ml.DataArrayInt(np.array(tableau, dtype=np.int32))
   dau_m.setName(str(group_n))
+  #print ("dau_m :\n", dau_m)
 #
 # 3.2 Mémorisation pour ce niveau
 #
@@ -405,8 +409,6 @@ Entrées/Sorties :
 #==================================================================================
 #
 if __name__ == "__main__" :
-#
-  import numpy as np
 #
   ERREUR = 0
   while not ERREUR :
