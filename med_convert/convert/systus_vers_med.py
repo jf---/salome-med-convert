@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.07"
+__revision__ = "V03.08"
 #
 #========================= Les imports - Début ===================================
 #
@@ -19,6 +19,8 @@ from .util import get_caract_mailles
 from .util import gettabrecip
 from .util import creation_groupe
 from .util import print_bilan
+#
+from .read_asc import read_asc_mesh
 #
 import MEDLoader as ml
 #
@@ -45,7 +47,6 @@ Sorties :
   erreur = 0
   message = ""
   le_maillage_niveau = None
-  d_groupes = None
 #
   while ( not erreur ) :
 #
@@ -61,17 +62,18 @@ Sorties :
 #
 # 3. Création des maillages par niveau
 #
-    erreur, message, le_maillage_niveau, d_groupes = cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max )
+    erreur, message, le_maillage_niveau, d_niveau = cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max )
     if erreur:
       break
 #
-# 4. Aggrégation du maillage du maillage
+# 4. Création du contenu des groupes
+#
+    d_groupes = cv_systus_med_3 ( les_lignes, d_niveau, verbose, verbose_max )
+#
+# 5. Aggrégation des maillages
 #
     meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, verbose_max)
 #
-# 5. Création des groupes
-#
-#def cv_systus_med_3 ( meshmedfile, les_lignes, d_nro_section, nbr_entites, nbr_mailles_dim, tb_renum_node, tb_type_elem, verbose, verbose_max ) :
 #
     break
 #
@@ -373,7 +375,7 @@ Sorties :
   :erreur: code d'erreur
   :message: message d'erreur
   :le_maillage_niveau: dictionnaire des maillages par niveau
-  :d_groupes: dictionnaire des groupes par niveau
+  :d_niveau: dictionnaire de la dimension par niveau
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_2"
@@ -402,7 +404,7 @@ Sorties :
 # 3. Les maillages par niveau
 #
     le_maillage_niveau = dict()
-    d_groupes = dict()
+    d_niveau = dict()
 #
     niveau = 1
     for ndim in range (sdim, 0, -1 ) :
@@ -416,6 +418,7 @@ Sorties :
 #
         if ( niveau > 0 ) :
           niveau = 0
+        d_niveau[niveau] = ndim
 #
 # 3.1. Création de la structure du maillage
 #
@@ -436,7 +439,7 @@ Sorties :
 #
     break
 #
-  return erreur, message, le_maillage_niveau, d_groupes
+  return erreur, message, le_maillage_niveau, d_niveau
 #
 #===========================  Fin de la fonction =================================
 #
@@ -622,22 +625,14 @@ Sorties :
 # 4. Mailles 3D
 #
   num_local_dans_med[ml.NORM_TETRA4] = [0, 2, 1, 3]
-  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1,
-                                       7, 4, 5, 6]
+  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1,    7, 4, 5, 6]
   num_local_dans_med[ml.NORM_PYRA5] = list()
-  num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1,
-                                        3, 5, 4]
+  num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1,   3, 5, 4]
 #
-  num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,
-                                          7,  9,  8,
-                                          3 ]
-  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,
-                                         16, 19, 18, 17,
-                                         4, 15,  7, 14,  6, 13,  5, 12 ]
+  num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,    7,  9,  8,   3 ]
+  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,   16, 19, 18, 17,          4, 15,  7, 14,  6, 13,  5, 12 ]
   num_local_dans_med[ml.NORM_PYRA13] = list()
-  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,
-                                          12, 14, 13,
-                                          3, 11,  5, 10,  4,  9]
+  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,    12, 14, 13,    3, 11,  5, 10,  4,  9]
 #
   if verbose:
     texte  = "num_local_dans_med :"
@@ -649,24 +644,14 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_3 ( meshmedfile, les_lignes, d_nro_section, nbr_entites, nbr_mailles_dim, tb_renum_node, tb_type_elem, verbose, verbose_max ) :
+def cv_systus_med_3 ( les_lignes, d_niveau, verbose, verbose_max ) :
   """Création des groupes
 
 Entrées:
   :les_lignes: les lignes du fichier à convertir
-  :d_nro_section: dictionnaire des numéros des lignes des repères
-    . clé : nom parmi ("l_bn", "l_en", "l_be", "l_ee", "l_bg", "l_eg")
-    . valeur : le numéro de la ligne
-  :nbr_entites: dictionnaire du nombre d'entités par type
-  :nbr_mailles_dim: nombre de mailles par dimension
-  :tb_renum_node: tableau de renumérotation des noeuds
-  :tb_type_elem: tableau de typage des éléments
+  :d_niveau: dictionnaire de la dimension par niveau
 Sorties :
-  :erreur: code d'erreur
-  :message: message d'erreur
   :d_groupes: dictionnaire des groupes par niveau
-Entrées/Sorties :
-  :meshmedfile: le maillage total
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_3"
@@ -675,38 +660,49 @@ Entrées/Sorties :
     texte = blabla
     print (texte)
 #
-  erreur = 0
-  message = ""
+# 1. Récupération des groupes du point de vue de SYSTUS
+#
+#  groups_n : dictionnaire des groupes de noeuds en SYSTUS
+#    . clé : nom du groupe
+#    . valeur : liste des numéros des noeuds
+#  groups_e : dictionnaire des groupes d'éléments en SYSTUS
+#    . clé : dimension sous forme "nD"
+#    . valeur : dictionnaire des groupes pour la dimension concernée :
+#      . clé : nom du groupe
+#      . valeur : liste des numéros des noeuds
+#
+  _, _, _, _, d_gr_elements, d_gr_noeuds = read_asc_mesh (les_lignes)
+#
+# 2. Exploration de chaque niveau pour les groupes d'éléments
+#
   d_groupes = dict()
 #
-  while ( not erreur ) :
+  for niveau in d_niveau:
 #
-# 1.
+    d_groupes[niveau] = list()
 #
-# 1. Ajout du groupe dans le maillage total
+    ndim = "%dD" % d_niveau[niveau]
 #
-      #creation_groupe (meshmedfile, group_n, tableau, niveau, verbose)
+    if ndim in d_gr_elements:
 #
-    break
+      for group_n, l_elem in d_gr_elements[ndim].items():
+#
+#       Création du DataArrayInt pour ce groupe d'élément
+#
+        creation_groupe (group_n, l_elem, niveau, d_groupes, verbose)
+#
+# 3. Les groupes de noeuds
+#
+  d_groupes[1] = list()
+#
+  for group_n, l_elem in d_gr_noeuds.items():
+#
+#   Création du DataArrayInt pour ce groupe de noeuds
+#
+    creation_groupe (group_n, l_elem, 1, d_groupes, verbose)
 #
 #
-#
-    break
-#
-  return erreur, message, d_groupes
-#
-#===========================  Fin de la fonction =================================
-#
-#===========================  Fin de la fonction =================================
-#
-#=========================== Début de la fonction ================================
-#
-#
-#===========================  Fin de la fonction =================================
-#
-#===========================  Fin de la fonction =================================
-#
-#=========================== Début de la fonction ================================
+  return d_groupes
 #
 #===========================  Fin de la fonction =================================
 #
