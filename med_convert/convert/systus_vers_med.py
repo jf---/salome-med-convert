@@ -7,12 +7,13 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.04"
+__revision__ = "V03.05"
 #
 #========================= Les imports - Début ===================================
 #
 import numpy as np
 #
+from .util import aggregation_maillage
 from .util import cree_maillage_par_niveau_0
 from .util import get_caract_mailles
 from .util import gettabrecip
@@ -32,8 +33,7 @@ Entrées :
 Sorties :
   :erreur: code d'erreur
   :message: message d'erreur
-  :le_maillage_niveau: dictionnaire des maillages par niveau
-  :d_groupes: dictionnaire des groupes par niveau
+  :meshmedfile: le maillage total
   """
 #
   nom_fonction = __name__ + "/cv_systus_vers_med"
@@ -64,10 +64,14 @@ Sorties :
     if erreur:
       break
 #
+# 4. Aggrégation du maillage du maillage
+#
+    meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, verbose_max)
+#
     break
 #
 #
-  return erreur, message, le_maillage_niveau, d_groupes
+  return erreur, message, meshmedfile
 #
 #===========================  Fin de la fonction =================================
 #

@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V02.03"
+__revision__ = "V02.04"
 #
 #========================= Les imports - Début ===================================
 #
@@ -19,8 +19,6 @@ import MEDLoader as ml
 #
 from .systus_vers_med import cv_systus_vers_med
 from .med_vers_systus import cv_med_vers_systus
-#
-from .util import aggregation_maillage
 #
 #========================== Les imports - Fin ====================================
 #
@@ -377,7 +375,7 @@ Sorties :
 #
       if ( self._type_externe == "SYSTUS" ):
 #
-        erreur, message, le_maillage_niveau, d_groupes = cv_systus_vers_med (les_lignes, self._verbose, self._verbose_max)
+        erreur, message, meshmedfile = cv_systus_vers_med (les_lignes, self._verbose, self._verbose_max)
 #
 # 2.2. Rien d'autre pour le moment
 #
@@ -387,11 +385,7 @@ Sorties :
         erreur = 2
         break
 #
-# 3. Aggrégation du maillage du maillage
-#
-      meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, self._verbose_max)
-#
-# 4. Ecriture du maillage
+# 3. Ecriture du maillage
 #
       texte = "\n. Ecriture du fichier :\n%s" % self._ficmed
       print (texte)
