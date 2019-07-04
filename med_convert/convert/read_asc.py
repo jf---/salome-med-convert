@@ -6,8 +6,8 @@ from glob import glob
 
 def read_asc_mesh(filename):
 
-    with open(mesh) as f :
-        lines = f.readlines()
+    lines = open(filename, 'r')
+
 
     NODES, ELEMENTS, GROUPS = [], [], []
 
@@ -30,6 +30,7 @@ def read_asc_mesh(filename):
         for key in ('ELEMENTS', 'GROUPS'):
             if "BEGIN_%s"%key in line : flag[key]+=1
             if "END_%s"%key   in line : flag[key]-=1
+    lines.close()
 
 
     idx = list(range(-sdim, 0, 1))
@@ -53,25 +54,29 @@ def read_asc_mesh(filename):
             raise ValueError(edim)
     
     GROUPS_N = [[item.split()[1]] + [int(i) for i in item.split()[4:] if i.isdigit()] for item in GROUPS[:-1] if int(item.split()[2]) == 1]
-    ALL_GROUPS_E = [[item.split()[1]] + [int(i) for i in item.split()[4:] if i.isdigit()] for item in GROUPS[:-1] if int(item.split()[2]) == 2]
+    ALL_GROUPS_E = {item.split()[1] : [int(i) for i in item.split()[4:] if i.isdigit()] for item in GROUPS[:-1] if int(item.split()[2]) == 2}
 
     corr_nodes = { i[1] : i[0] for i in NODES}
     corr_elements = { dim : { i[1] : i[0] for i in ELEMENTS[dim]} for dim in ELEMENTS.keys()}
 
-    GROUPS_E = {'1D' : [],
-                '2D' : [],
-                '3D' : [],
+    GROUPS_E = {'1D' : {},
+                '2D' : {},
+                '3D' : {},
             }
     
-    for item in ALL_GROUPS_E :
-        if item[1] in corr_elements['1D'].keys():
-            GROUPS_E['1D'].append(item)
-        elif item[1] in corr_elements['2D'].keys():
-            GROUPS_E['2D'].append(item)
-        elif item[1] in corr_elements['3D'].keys():
-            GROUPS_E['3D'].append(item)
-        else :
-            raise ValueError(item[1])
+    for name, item in ALL_GROUPS_E.items() :
+        for el in item :
+            if el in corr_elements['1D']:
+                if not name in GROUPS_E['1D']:  GROUPS_E['1D'][name] = []
+                GROUPS_E['1D'][name].append(el)
+            elif el in corr_elements['2D']:
+                if not name in GROUPS_E['2D']:  GROUPS_E['2D'][name] = []
+                GROUPS_E['2D'][name].append(el)
+            elif el in corr_elements['3D']:
+                if not name in GROUPS_E['3D']:  GROUPS_E['3D'][name] = []
+                GROUPS_E['3D'][name].append(el)
+            else :
+                raise ValueError(item[1])
 
     nodes = np.array(NODES)[:,2:]
 
@@ -85,12 +90,11 @@ def read_asc_mesh(filename):
             
             
     groups_n = { item[0] : list(corr_nodes[k] for k in item[2:])  for item in GROUPS_N }
-    groups_e = {dim : {item[0] : list(corr_elements[dim][k] for k in item[1:]) for item in group} for dim, group in GROUPS_E.items()}
+    groups_e = {dim : {name : list(corr_elements[dim][k] for k in item) for name, item in group.items()} for dim, group in GROUPS_E.items()}
 
-    return nodes, elements, groups_e, groups_n
+    return sdim, nodes, elements, groups_e, groups_n
 
 def asso_elem(code_systus):
-    
     sdim, nb_nodes = int(str(code_systus)[0]), int(str(code_systus)[-2:])
 
     if sdim == 3 and nb_nodes == 20:
