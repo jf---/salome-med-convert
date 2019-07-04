@@ -83,7 +83,7 @@
         <translation>Etes-vous sûr de vouloir quitter l&apos;application?</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="320"/>
+        <location filename="../../med_convert/gui/gui.py" line="323"/>
         <source>Select a file</source>
         <translation>Choirir un fichier</translation>
     </message>

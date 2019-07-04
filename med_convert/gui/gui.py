@@ -305,6 +305,9 @@ class MainWindow(Q.QDialog):
         title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
+        filters.append("Systus (*.ASC)")
+        filters.append("Salome (*.med)")
+        filters.append("All files (*)")
         file_name = get_file_name(self, 1, title, '', filters, suffix)
         if file_name:
             edit.setText(file_name)
@@ -319,6 +322,8 @@ class MainWindow(Q.QDialog):
         title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
+        filters.append("Salome (*.med)")
+        filters.append("All files (*)")
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
             edit.setText(file_name)
