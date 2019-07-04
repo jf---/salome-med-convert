@@ -25,7 +25,7 @@ import os
 # # REPSCRIPT = répertoire des scripts
 # REPSCRIPT = os.path.join(REP_EXTERNE, "med_convert", "convert")
 # sys.path.append(REPSCRIPT)
-from cv_externe_med import ExterneMED
+from med_convert.convert.cv_externe_med import ExterneMED
 #=================================================================================
 #
 #==================================================================================
