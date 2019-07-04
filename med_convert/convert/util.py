@@ -9,7 +9,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V04.03"
+__revision__ = "V04.04"
 #
 #========================= Les imports - Début ===================================
 #
@@ -342,7 +342,9 @@ Sorties :
       texte = ".. Enregistrement du niveau %d" % niveau
       print (texte)
     meshmedfile.setMeshAtLevel(niveau, le_maillage_niveau[niveau])
+#
     maillage_nom = le_maillage_niveau[niveau].getName()
+#
     #meshmedfile.setGroupsAtLevel(niveau, d_groupes[niveau])
 #
 # 3. Nom du maillage
@@ -359,17 +361,18 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def mc_add_group (meshmedfile, group_n, tableau, niveau, verbose=False):
-  """Ajoute un groupe dans un maillage
+def creation_groupe (group_n, tableau, niveau, d_groupes, verbose=False):
+  """Crée un groupe dans un niveau
 
-Input:
-  :meshmedfile: le maillage total
+Entrées :
   :group_n: le nom du groupe
   :tableau: tableau des indices pour le groupe
   :niveau: niveau du groupe
+Entrées/Sorties :
+  :d_groupes: dictionnaire des groupes par niveau
   """
 #
-  nom_fonction = __name__ + "/mc_add_group"
+  nom_fonction = __name__ + "/creation_groupe"
   blabla = "\nDans " + nom_fonction
   if verbose :
     texte = blabla+"\n"
@@ -378,13 +381,20 @@ Input:
     print (texte)
     #print (".. tableau: ", tableau, type(tableau))
 #
+# 1. Les indices doivent être triés
+#
   if isinstance(tableau, list):
     tableau.sort()
   #print (".. tableau: ", tableau)
 #
+# 2. Mise en forme du tableau pour le groupe
+#
   dau_m = ml.DataArrayInt(np.array(tableau, dtype=np.int32))
   dau_m.setName(str(group_n))
-  meshmedfile.addGroup(niveau, dau_m)
+#
+# 3.2 Mémorisation pour ce niveau
+#
+  d_groupes[niveau].append(dau_m)
 #
   return
 #
