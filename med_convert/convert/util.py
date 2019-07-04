@@ -9,7 +9,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V04.02"
+__revision__ = "V04.03"
 #
 #========================= Les imports - Début ===================================
 #
@@ -321,6 +321,8 @@ def aggregation_maillage ( le_maillage_niveau, d_groupes, verbose=False ) :
 Entrées :
   :le_maillage_niveau: dictionnaire des maillages par niveau
   :d_groupes: dictionnaire des groupes par niveau
+Sorties :
+  :meshmedfile: le maillage total
   """
 #
   nom_fonction = __name__ + "/aggregation_maillage"
@@ -352,6 +354,39 @@ Entrées :
   meshmedfile.rearrangeFamilies()
 #
   return meshmedfile
+#
+#===========================  Fin de la fonction =================================
+#
+#=========================== Début de la fonction ================================
+#
+def mc_add_group (meshmedfile, group_n, tableau, niveau, verbose=False):
+  """Ajoute un groupe dans un maillage
+
+Input:
+  :meshmedfile: le maillage total
+  :group_n: le nom du groupe
+  :tableau: tableau des indices pour le groupe
+  :niveau: niveau du groupe
+  """
+#
+  nom_fonction = __name__ + "/mc_add_group"
+  blabla = "\nDans " + nom_fonction
+  if verbose :
+    texte = blabla+"\n"
+    texte += ".. Dans le niveau niveau %d," % niveau
+    texte += " création du groupe : '%s'" % group_n
+    print (texte)
+    #print (".. tableau: ", tableau, type(tableau))
+#
+  if isinstance(tableau, list):
+    tableau.sort()
+  #print (".. tableau: ", tableau)
+#
+  dau_m = ml.DataArrayInt(np.array(tableau, dtype=np.int32))
+  dau_m.setName(str(group_n))
+  meshmedfile.addGroup(niveau, dau_m)
+#
+  return
 #
 #===========================  Fin de la fonction =================================
 #
