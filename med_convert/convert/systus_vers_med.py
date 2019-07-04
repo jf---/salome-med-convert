@@ -631,13 +631,13 @@ Sorties :
   num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,
                                           7,  9,  8,
                                           3 ]
-  num_local_dans_med[ml.NORM_HEXA20] = [ 00, 11,  3, 10,  2,  9,  1,  8,
+  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,
                                          16, 19, 18, 17,
-                                         04, 15,  7, 14,  6, 13,  5, 12 ]
+                                         4, 15,  7, 14,  6, 13,  5, 12 ]
   num_local_dans_med[ml.NORM_PYRA13] = list()
-  num_local_dans_med[ml.NORM_PENTA15] = [ 00,  8,  2,  7,  1,  6,
+  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,
                                           12, 14, 13,
-                                          03, 11,  5, 10,  4,  9]
+                                          3, 11,  5, 10,  4,  9]
 #
   if verbose:
     texte  = "num_local_dans_med :"
