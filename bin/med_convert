@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-"""Main start-up point of *Mac3Coeur* plugin's standalone application."""
-
-from __future__ import unicode_literals
+"""Main start-up point of *MedConvert* plugin's standalone application."""
 
 import os
 import os.path as osp
@@ -12,7 +10,6 @@ import signal
 
 from PyQt5 import Qt as Q
 from med_convert.gui.gui import load_language, MainWindow
-from med_convert.gui.settings import Settings
 
 #Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -24,17 +21,12 @@ def main():
     app = Q.QApplication(sys.argv)
     app.lastWindowClosed.connect(app.quit)
 
-    lang = 'en'
-    if 'fr' in Q.QLocale.system().name():
-        lang = 'fr'
-
-
-    # settings = Settings()
-
-    translator = load_language(lang)
     main_window = MainWindow()
+
+    lang = 'en' if not 'fr' in Q.QLocale.system().name() else 'fr'
+    translator = load_language(lang)
     translator.setParent(main_window)
-  #  main_window.from_settings(settings)
+
     main_window.exec_()
 
 if __name__ == "__main__":
