@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.06"
+__revision__ = "V03.07"
 #
 #========================= Les imports - Début ===================================
 #
@@ -17,6 +17,7 @@ from .util import aggregation_maillage
 from .util import cree_maillage_par_niveau_0
 from .util import get_caract_mailles
 from .util import gettabrecip
+from .util import creation_groupe
 from .util import print_bilan
 #
 import MEDLoader as ml
@@ -70,6 +71,7 @@ Sorties :
 #
 # 5. Création des groupes
 #
+#def cv_systus_med_3 ( meshmedfile, les_lignes, d_nro_section, nbr_entites, nbr_mailles_dim, tb_renum_node, tb_type_elem, verbose, verbose_max ) :
 #
     break
 #
@@ -440,7 +442,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_2_0 ( les_lignes, d_corres_type, num_local_dans_med, ndim, maillage, tb_type_elem, d_tab_recip, verbose=False ) :
+def cv_systus_med_2_0 ( les_lignes, d_corres_type, num_local_dans_med, ndim, mail_du_niveau, tb_type_elem, d_tab_recip, verbose=False ) :
   """Ajout des mailles dans le maillage d'un niveau
 
 Entrées:
@@ -455,7 +457,7 @@ Entrées:
   :tb_type_elem: tableau de typage des éléments
   :d_tab_recip: tableau réciproque de la renumérotation des noeuds
 Entrées/Sorties :
-  :maillage: le maillage à compléter
+  :mail_du_niveau: le maillage à compléter
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_2_0"
@@ -469,30 +471,35 @@ Entrées/Sorties :
 #
   tb_nodes = np.zeros(27, dtype=np.int32)
 #
-  for iaux, t_element in enumerate(tb_type_elem):
+# 1. Pour tous les éléments :
+#    On filtre sur la bonne dimension
 #
-# On filtre sur la bonne dimension
+  for iaux, t_element in enumerate(tb_type_elem):
 #
     if ( d_corres_type[t_element][0] == ndim ):
 #
       nbn = d_corres_type[t_element][1]
       type_med = d_corres_type[t_element][2]
 #
-# 1. La liste des noeuds dans la numérotation SYSTUS
+# 1.1. La liste des noeuds dans la numérotation SYSTUS
 #
       laux = les_lignes[iaux].split()
       #print (laux[-nbn:])
 #
-# 2. La liste des noeuds dans la numérotation MED
+# 1.2. La liste des noeuds dans la numérotation MED
 #
       for jaux, n_systus in enumerate(laux[-nbn:]):
         #print (jaux,d_tab_recip[int(n_systus)])
         tb_nodes[num_local_dans_med[type_med][jaux]] = d_tab_recip[int(n_systus)]
       #print ("... tb_nodes =", tb_nodes[:nbn])
 #
-# 3. Insertion des noeuds dans le maillage medcoupling
+# 1.3. Insertion des noeuds dans le maillage medcoupling
 #
-      maillage.insertNextCell(type_med, nbn, ml.DataArrayInt(tb_nodes))
+      mail_du_niveau.insertNextCell(type_med, nbn, ml.DataArrayInt(tb_nodes))
+#
+# 2. Finalisation des insertions
+#
+  mail_du_niveau.finishInsertingCells()
 #
   return
 #
@@ -639,6 +646,56 @@ Sorties :
       print ("%2d :" % cle, num_local_dans_med[cle])
 #
   return num_local_dans_med
+#
+#=========================== Début de la fonction ================================
+#
+def cv_systus_med_3 ( meshmedfile, les_lignes, d_nro_section, nbr_entites, nbr_mailles_dim, tb_renum_node, tb_type_elem, verbose, verbose_max ) :
+  """Création des groupes
+
+Entrées:
+  :les_lignes: les lignes du fichier à convertir
+  :d_nro_section: dictionnaire des numéros des lignes des repères
+    . clé : nom parmi ("l_bn", "l_en", "l_be", "l_ee", "l_bg", "l_eg")
+    . valeur : le numéro de la ligne
+  :nbr_entites: dictionnaire du nombre d'entités par type
+  :nbr_mailles_dim: nombre de mailles par dimension
+  :tb_renum_node: tableau de renumérotation des noeuds
+  :tb_type_elem: tableau de typage des éléments
+Sorties :
+  :erreur: code d'erreur
+  :message: message d'erreur
+  :d_groupes: dictionnaire des groupes par niveau
+Entrées/Sorties :
+  :meshmedfile: le maillage total
+  """
+#
+  nom_fonction = __name__ + "/cv_systus_med_3"
+  blabla = "\nDans " + nom_fonction
+  if verbose_max:
+    texte = blabla
+    print (texte)
+#
+  erreur = 0
+  message = ""
+  d_groupes = dict()
+#
+  while ( not erreur ) :
+#
+# 1.
+#
+# 1. Ajout du groupe dans le maillage total
+#
+      #creation_groupe (meshmedfile, group_n, tableau, niveau, verbose)
+#
+    break
+#
+#
+#
+    break
+#
+  return erreur, message, d_groupes
+#
+#===========================  Fin de la fonction =================================
 #
 #===========================  Fin de la fonction =================================
 #
