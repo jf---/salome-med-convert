@@ -47,22 +47,23 @@ def docs_path():
     return path
 
 
-def data_path():
+def data_path(private=False):
     """
     Get path to data test folder.
 
     Returns:
         str: Path to the data test folder.
     """
-    if hasattr(data_path, 'path'):
-        return data_path.path
+    data = 'data_private' if private else 'data'
+    if hasattr(data_path, data):
+        return getattr(data_path, data)
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
     path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
                                 os.pardir, 'share', 'salome',
-                                'med_convert_test', 'data'))
+                                'med_convert_test', data))
     if not osp.isdir(path):
-        path = osp.join(install_root, 'test', 'data')
+        path = osp.join(install_root, 'test', data)
 
     data_path.path = path
     return path
