@@ -1,3 +1,4 @@
 syntax: regexp
 ^install/
 \.pyc$
+^test/data_private/

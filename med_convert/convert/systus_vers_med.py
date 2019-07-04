@@ -418,6 +418,7 @@ Sorties :
 #
         cv_systus_med_2_0 ( les_lignes[d_nro_section["l_be"]+1:], d_corres_type, num_local_dans_med, ndim, le_maillage_niveau[niveau], tb_type_elem, d_tab_recip, verbose_max )
 #
+        le_maillage_niveau[niveau].sortCellsInMEDFileFrmt()
       if ( niveau <= 0 ) :
         niveau -= 1
 #
@@ -602,27 +603,27 @@ Sorties :
   num_local_dans_med[ml.NORM_TRI3] = [0, 1, 2]
   num_local_dans_med[ml.NORM_QUAD4] = [0, 1, 3, 2]
 #
-  num_local_dans_med[ml.NORM_TRI6] = [0, 2, 4, 1, 3, 5]
+  num_local_dans_med[ml.NORM_TRI6] = [0, 3, 1, 4, 2, 5]
   num_local_dans_med[ml.NORM_QUAD8] = [0, 4, 1, 5, 2, 6, 3, 7]
 #
 # 4. Mailles 3D
 #
   num_local_dans_med[ml.NORM_TETRA4] = [0, 2, 1, 3]
-  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1, \
+  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1,
                                        7, 4, 5, 6]
   num_local_dans_med[ml.NORM_PYRA5] = list()
-  num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1, \
+  num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1,
                                         3, 5, 4]
 #
-  num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4, \
-                                          7,  9,  8, \
+  num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,
+                                          7,  9,  8,
                                           3 ]
-  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8, \
-                                        16, 19, 18, 17, \
+  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,
+                                        16, 19, 18, 17,
                                          4, 15,  7, 14,  6, 13,  5, 12 ]
   num_local_dans_med[ml.NORM_PYRA13] = list()
-  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6, \
-                                         12, 14, 13, \
+  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,
+                                         12, 14, 13,
                                           3, 11,  5, 10,  4,  9]
 #
   if verbose:

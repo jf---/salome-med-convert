@@ -51,13 +51,14 @@ class Fmt:
         }.get(format, "Unknown")
 
 
-def convert(input_file, format, output_file):
+def convert(input_file, format, output_file, verbose=False):
     """Main entry point of the converter.
 
     Arguments:
         input_file (str): Path to the input file.
         format (*Fmt*): Format of the input file.
         output_file (str): Path to the output file.
+        verbose (bool): Verbosity.
 
     Returns:
         bool: Status of the conversion: *True* in case of success, *False*
@@ -72,6 +73,8 @@ def convert(input_file, format, output_file):
         '--ficexterne={0}'.format(input_file),
         '--ficmed={0}'.format(output_file),
     ]
+    if verbose:
+        opts.append('-vmax')
     converter = ExterneMED(opts)
     converter.lancement()
     return True
