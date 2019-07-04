@@ -41,24 +41,26 @@ if __name__ == "__main__" :
   HOME = os.environ["HOME"]
   REP_DATA = os.path.join(HOME, "MAILLAGE", "SYSTUS")
 #
-  REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Complexes", "CUVE")
-  NOM_FICHIER = "01_CUVE_900_DONN20"
-  NOM_FICHIER = "07_CUVE_900_REVET_FISS_DONN20"
-#
   REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Complexes", "COUDES")
   NOM_FICHIER = "Coude_A_quad_DONN1000"
   NOM_FICHIER = "Coude_A_DONN1000"
+#
+  REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Complexes", "CUVE")
+  NOM_FICHIER = "01_CUVE_900_DONN20"
+  NOM_FICHIER = "07_CUVE_900_REVET_FISS_DONN20"
 #
   REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Complexes", "PIQUAGE")
   NOM_FICHIER = "PIQUAGE_RIS_900_INSTA_DONN1005"
   NOM_FICHIER = "PIQUAGE_RIS_900_SAIN_DONN1005"
 #
   REP_TRAV = os.path.join(REP_DATA, "Conversion_Systus_Aster", "Maillages", "Maillages_Simples")
-  NOM_FICHIER = "CARRE_DONN1.mod"
-  NOM_FICHIER = "RECTANGLE_DONN1"
-  NOM_FICHIER = "COURONNE_DONN1"
-  NOM_FICHIER = "MOTIF_DONN1"
   NOM_FICHIER = "CARRE_DONN1"
+  NOM_FICHIER = "CARRE_DONN1.mod"
+  NOM_FICHIER = "MOTIF_DONN1.mod"
+  NOM_FICHIER = "COURONNE_DONN1"
+  NOM_FICHIER = "RECTANGLE_DONN1"
+  NOM_FICHIER = "MOTIF_DONN1.mod"
+  NOM_FICHIER = "MOTIF_DONN1"
 #
   FICEXTERNE = os.path.join(REP_TRAV, NOM_FICHIER+".ASC")
 #
