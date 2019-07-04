@@ -9,7 +9,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V04.01"
+__revision__ = "V04.02"
 #
 #========================= Les imports - Début ===================================
 #
@@ -235,7 +235,6 @@ Sorties :
   :erreur: code d'erreur
   :message: message d'erreur
   :le_maillage_niveau: dictionnaire des maillages par niveau
-  :d_niveau: dictionnaire des niveau par dimension
   """
 #
   nom_fonction = __name__ + "/cree_maillage_par_niveau"
@@ -252,7 +251,6 @@ Sorties :
   le_maillage_niveau = dict()
 #
   niveau = 1
-  d_niveau = dict()
   for ndim in range (sdim, 0, -1 ) :
 #
     if ( nbr_mailles_dim[ndim] > 0 ) :
@@ -260,20 +258,20 @@ Sorties :
       if ( niveau > 0 ) :
         niveau = 0
 #
-      cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, d_niveau, le_maillage_niveau, verbose )
+      cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, le_maillage_niveau, verbose )
 #
     if ( niveau <= 0 ) :
       niveau -= 1
 #
 #
-  return le_maillage_niveau, d_niveau
+  return le_maillage_niveau
 #
 #
 #===========================  Fin de la fonction =================================
 #
 #=========================== Début de la fonction ================================
 #
-def cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, d_niveau, le_maillage_niveau, verbose=False ) :
+def cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, le_maillage_niveau, verbose=False ) :
   """Création du maillage d'un niveau
 
 Entrées:
@@ -284,7 +282,6 @@ Entrées:
   :nbr_mailles_dim: nombre de mailles par dimension
 Entrées/Sorties :
   :le_maillage_niveau: dictionnaire des maillages par niveau
-  :d_niveau: dictionnaire des niveau par dimension
   """
 #
   nom_fonction = __name__ + "/cree_maillage_par_niveau_0"
@@ -297,7 +294,6 @@ Entrées/Sorties :
     texte += " sous le nom '%s'" % maillage_nom
     print (texte)
 #
-  d_niveau[ndim] = niveau
   le_maillage_niveau[niveau] = ml.MEDCouplingUMesh(maillage_nom, 2)
   le_maillage_niveau[niveau].setMeshDimension(ndim)
 #

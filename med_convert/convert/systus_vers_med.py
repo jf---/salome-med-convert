@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.03"
+__revision__ = "V03.04"
 #
 #========================= Les imports - Début ===================================
 #
@@ -60,7 +60,7 @@ Sorties :
 #
 # 3. Création des maillages par niveau
 #
-    erreur, message, le_maillage_niveau, d_groupes, d_niveau = cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max )
+    erreur, message, le_maillage_niveau, d_groupes = cv_systus_med_2 ( les_lignes, d_nro_section, maillage_nom, sdim, nbr_entites, nbr_mailles_dim, coordinates, tb_renum_node, tb_type_elem, verbose, verbose_max )
     if erreur:
       break
 #
@@ -365,7 +365,6 @@ Sorties :
   :message: message d'erreur
   :le_maillage_niveau: dictionnaire des maillages par niveau
   :d_groupes: dictionnaire des groupes par niveau
-  :d_niveau: dictionnaire des niveau par dimension
   """
 #
   nom_fonction = __name__ + "/cv_systus_med_2"
@@ -397,7 +396,6 @@ Sorties :
     d_groupes = dict()
 #
     niveau = 1
-    d_niveau = dict()
     for ndim in range (sdim, 0, -1 ) :
 #
       if ( nbr_mailles_dim[ndim] > 0 ) :
@@ -412,20 +410,24 @@ Sorties :
 #
 # 3.1. Création de la structure du maillage
 #
-        cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, d_niveau, le_maillage_niveau, verbose_max )
+        cree_maillage_par_niveau_0 ( maillage_nom, niveau, ndim, les_coords, nbr_mailles_dim, le_maillage_niveau, verbose_max )
 #
 # 3.2. Ajout des mailles du niveau
 #
         cv_systus_med_2_0 ( les_lignes[d_nro_section["l_be"]+1:], d_corres_type, num_local_dans_med, ndim, le_maillage_niveau[niveau], tb_type_elem, d_tab_recip, verbose_max )
 #
-        le_maillage_niveau[niveau].sortCellsInMEDFileFrmt()
+# 3.3. Reordonnancement des mailles par type
+#
+        _ = le_maillage_niveau[niveau].sortCellsInMEDFileFrmt()
+        #tb_o2n = le_maillage_niveau[niveau].sortCellsInMEDFileFrmt()
+#
       if ( niveau <= 0 ) :
         niveau -= 1
 #
 #
     break
 #
-  return erreur, message, le_maillage_niveau, d_groupes, d_niveau
+  return erreur, message, le_maillage_niveau, d_groupes
 #
 #===========================  Fin de la fonction =================================
 #
@@ -460,7 +462,6 @@ Entrées/Sorties :
 #
   tb_nodes = np.zeros(27, dtype=np.int32)
 #
-  nrmail = 0
   for iaux, t_element in enumerate(tb_type_elem):
 #
 # On filtre sur la bonne dimension
@@ -485,8 +486,6 @@ Entrées/Sorties :
 # 3. Insertion des noeuds dans le maillage medcoupling
 #
       maillage.insertNextCell(type_med, nbn, ml.DataArrayInt(tb_nodes))
-#
-      nrmail += 1
 #
   return
 #
@@ -618,13 +617,13 @@ Sorties :
   num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,
                                           7,  9,  8,
                                           3 ]
-  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,
-                                        16, 19, 18, 17,
-                                         4, 15,  7, 14,  6, 13,  5, 12 ]
+  num_local_dans_med[ml.NORM_HEXA20] = [ 00, 11,  3, 10,  2,  9,  1,  8,
+                                         16, 19, 18, 17,
+                                         04, 15,  7, 14,  6, 13,  5, 12 ]
   num_local_dans_med[ml.NORM_PYRA13] = list()
-  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,
-                                         12, 14, 13,
-                                          3, 11,  5, 10,  4,  9]
+  num_local_dans_med[ml.NORM_PENTA15] = [ 00,  8,  2,  7,  1,  6,
+                                          12, 14, 13,
+                                          03, 11,  5, 10,  4,  9]
 #
   if verbose:
     texte  = "num_local_dans_med :"
