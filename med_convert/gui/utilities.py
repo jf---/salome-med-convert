@@ -220,3 +220,18 @@ def to_list(*args):
         elif value is not None:
             result.append(value)
     return [i for i in result if i is not None]
+
+
+def publish_meshes(medfile):
+    """Import meshes from a med file into SMESH.
+
+    Arguments:
+        medfile (str): Path to the med file.
+
+    Returns:
+        list[Mesh]: List of SMESH Mesh objects.
+    """
+    from salome.smesh import smeshBuilder
+    smesh = smeshBuilder.New()
+    objs, _ = smesh.CreateMeshesFromMED(medfile)
+    return objs

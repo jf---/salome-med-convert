@@ -19,18 +19,20 @@
 Implementation of Graphical User Interface for *MedConvert* plugin.
 """
 
+import os
 import os.path as osp
 import sys
+import tempfile
 import traceback
 
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
-from ..utilities import translate
+from ..utilities import HAS_SALOME, translate
 from .services import convert
 from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,
-                        resources_path, to_list)
+                        publish_meshes, resources_path, to_list)
 
 UIFILE = osp.join(osp.dirname(__file__), "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
@@ -57,13 +59,8 @@ class MainDialog(BASE, FORM):
         self.setWindowTitle(title)
         self.setStatus("")
 
-        try:
-            import salome
-            has_salome = salome.myStudy is not None
-        except ImportError:
-            has_salome = False
-        self.smeshCheckBox.setEnabled(has_salome)
-        if not has_salome:
+        self.smeshCheckBox.setEnabled(HAS_SALOME)
+        if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
             self.smeshCheckBox.setText(self.smeshCheckBox.text()
                                        + " (SALOME is not available)")
@@ -139,15 +136,26 @@ class MainDialog(BASE, FORM):
     def do_convert(self):
         """Execute the mesh conversion."""
         settings = self.to_settings()
+        use_tmp = False
+        if not settings.output_file:
+            use_tmp = True
+            settings.output_file = tempfile.mkstemp(suffix=".med")[1]
         settings.dump(sys.stdout)
 
-        input_file = settings.input_file
-        output_file = settings.output_file
-
-        is_ok, err = convert(input_file, output_file, 0)
+        is_ok, err = convert(settings.input_file, settings.output_file, 0)
         self.setStatus("")
 
         if is_ok:
+            if self.smeshCheckBox.isChecked():
+                publish_meshes(settings.output_file)
+                self.setStatus(translate('MedConvert',
+                                         "Open the SMESH module and refresh "
+                                         "(F5) the objects browser<br/>"
+                                         "to see the newly created mesh."),
+                            color='#0000ff')
+                if use_tmp:
+                    os.remove(settings.output_file)
+
             title = translate("MedConvert", "Information")
             message = translate("MedConvert",
                                 "Conversion Done.")
