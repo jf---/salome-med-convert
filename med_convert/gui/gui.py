@@ -167,7 +167,8 @@ class MainDialog(BASE, FORM):
             mbox.setIcon(Q.QMessageBox.Critical)
             mbox.setText(translate("MedConvert",
                                    "Conversion Failed.\n{0}").format(err))
-            mbox.setDetailedText(traceback.format_exc())
+            mbox.setDetailedText("".join(
+                traceback.format_tb(err.__traceback__)))
             mbox.exec_()
 
     def update_controls(self):
