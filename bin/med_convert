@@ -3,31 +3,18 @@
 
 """Main start-up point of *MedConvert* plugin's standalone application."""
 
-import os
-import os.path as osp
 import sys
 import signal
 
-from PyQt5 import Qt as Q
-from med_convert.gui.gui import load_language, MainWindow
+from med_convert.gui.gui import start
 
-#Tell SIGINT to perform its default function.
+# Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def main():
     """Main function."""
-
-    # create application
-    app = Q.QApplication(sys.argv)
-    app.lastWindowClosed.connect(app.quit)
-
-    main_window = MainWindow()
-
-    lang = 'en' if not 'fr' in Q.QLocale.system().name() else 'fr'
-    translator = load_language(lang)
-    translator.setParent(main_window)
-
-    main_window.exec_()
+    start()
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

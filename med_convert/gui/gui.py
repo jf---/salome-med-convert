@@ -23,15 +23,20 @@ import os.path as osp
 import sys
 
 from PyQt5 import Qt as Q
+from PyQt5 import QtCore, uic
 
 from ..utilities import translate
 from .services import convert
-from .settings import FileType, Settings
+from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,
-                        resources_path, set_mandatory, to_list, update_palette)
+                        resources_path, to_list)
+
+UIFILE = osp.join(osp.dirname(__file__), "MainDialog.ui")
+BASE, FORM = uic.loadUiType(UIFILE)
 
 
-class MainWindow(Q.QDialog):
+class MainDialog(BASE, FORM):
+
     """
     Main window of *MedConvert* plugin.
     """
@@ -43,164 +48,39 @@ class MainWindow(Q.QDialog):
         Arguments:
             parent (Optional[QWidget]): Window's parent. Defaults to *None*.
         """
-        super(MainWindow, self).__init__(parent)
-
-        self._mandatory_ctrls = []
-
-        self.setObjectName("med_convert_main_window")
-        self.setModal(True)
-        self.setAttribute(Q.Qt.WA_DeleteOnClose, True)
+        super().__init__(parent)
+        self.setupUi(self)
 
         title = translate("MedConvert",
                           "Mesh Converter")
         self.setWindowTitle(title)
+        self.setStatus("")
 
-        margin = 9
-        spacing = 6
-
-        # Create group-box for files description
-        title = translate("MedConvert", "Files Selection")
-        groupbox_files = Q.QGroupBox(title)
-
-        # Create controls for output file parameter
-        title = translate("MedConvert", "Output File")
-        outputfile_label = Q.QLabel(groupbox_files)
-        outputfile_label.setObjectName("outputfile_label")
-        outputfile_label.setText(title)
-        set_mandatory(outputfile_label)
-        #--
-        self.outputfile_edit = Q.QLineEdit(groupbox_files)
-        self.outputfile_edit.setObjectName("outputfile_edit")
-        self.outputfile_edit.setMinimumWidth(200)
-        self.add_mandatory_ctrl(self.outputfile_edit)
-        outputfile_label.setBuddy(self.outputfile_edit)
-        #--
-        title = translate("MedConvert", "Browse...")
-        self.outputfile_btn = Q.QPushButton(groupbox_files)
-        self.outputfile_btn.setObjectName("outputfile_btn")
-        self.outputfile_btn.setText(title)
-
-        # Create controls for input file parameter
-        title = translate("MedConvert", "Input File")
-        inputfile_label = Q.QLabel(groupbox_files)
-        inputfile_label.setObjectName("inputfile_label")
-        inputfile_label.setText(title)
-        set_mandatory(inputfile_label)
-        #--
-        self.inputfile_edit = Q.QLineEdit(groupbox_files)
-        self.inputfile_edit.setObjectName("inputfile_edit")
-        self.inputfile_edit.setMinimumWidth(200)
-        self.add_mandatory_ctrl(self.inputfile_edit)
-        inputfile_label.setBuddy(self.inputfile_edit)
-        #--
-        title = translate("MedConvert", "Browse...")
-        self.inputfile_btn = Q.QPushButton(groupbox_files)
-        self.inputfile_btn.setObjectName("inputfile_btn")
-        self.inputfile_btn.setText(title)
-
-        # Lay out files controls
-        grid_layout_files = Q.QGridLayout()
-        grid_layout_files.setObjectName("grid_layout_files")
-        grid_layout_files.setContentsMargins(margin, margin, margin, margin)
-
-        grid_layout_files.addWidget(inputfile_label, 0, 0)
-        grid_layout_files.addWidget(self.inputfile_edit, 0, 1)
-        grid_layout_files.addWidget(self.inputfile_btn, 0, 2)
-
-        grid_layout_files.addWidget(outputfile_label, 1, 0)
-        grid_layout_files.addWidget(self.outputfile_edit, 1, 1)
-        grid_layout_files.addWidget(self.outputfile_btn, 1, 2)
-
-        grid_layout_files.setColumnStretch(1, 1)
-        groupbox_files.setLayout(grid_layout_files)
-
-        # Create group-box for launch conversion parameters
-        title = translate("MedConvert", "Conversion Type")
-        groupbox_conv = Q.QGroupBox(title)
-
-        # Create controls for conversion_type choice
-        #--
-        title = FileType.value2str(FileType.SALOME_TO_SYSTUS)
-        self.salome_to_systus_radio = Q.QRadioButton(groupbox_conv)
-        self.salome_to_systus_radio.setObjectName("salome_to_systus_radio")
-        self.salome_to_systus_radio.setText(title)
-        #--
-        title = FileType.value2str(FileType.SYSTUS_TO_SALOME)
-        self.systus_to_salome_radio = Q.QRadioButton(groupbox_conv)
-        self.systus_to_salome_radio.setObjectName("systus_to_salome_radio")
-        self.systus_to_salome_radio.setText(title)
-        #--
-        self.conversion_type_group = Q.QButtonGroup(self)
-        self.conversion_type_group.setExclusive(True)
-        self.conversion_type_group.addButton(self.salome_to_systus_radio, FileType.SALOME_TO_SYSTUS)
-        self.conversion_type_group.addButton(self.systus_to_salome_radio, FileType.SYSTUS_TO_SALOME)
-
-        # Lay out launch calculation parameters
-        vbox_layout_conv = Q.QVBoxLayout()
-        vbox_layout_conv.setObjectName("vbox_layout_conv")
-        vbox_layout_conv.setContentsMargins(margin, margin, margin, margin)
-        vbox_layout_conv.addWidget(self.systus_to_salome_radio)
-        vbox_layout_conv.addWidget(self.salome_to_systus_radio)
-        groupbox_conv.setLayout(vbox_layout_conv)
-
-        # Create horizontal separator to show above the buttons group
-        separator = Q.QFrame()
-        separator.setFrameShape(Q.QFrame.HLine)
-        separator.setFrameShadow(Q.QFrame.Sunken)
-
-        # Create Help button
-        help_btn = Q.QPushButton(self)
-        help_btn.setObjectName("help_btn")
-        help_btn.setText(translate("MedConvert", "&Help"))
-
-        # Create Launch button
-        self._launch_btn = Q.QPushButton(self)
-        self._launch_btn.setObjectName("launch_btn")
-        self._launch_btn.setText(translate("MedConvert", "Launch"))
-
-        # Create Close button
-        close_btn = Q.QPushButton(self)
-        close_btn.setObjectName("close_btn")
-        close_btn.setText(translate("MedConvert", "&Close"))
-
-        # Lay out buttons
-        hbox_layout_btn = Q.QHBoxLayout()
-        hbox_layout_btn.setObjectName("hbox_layout_btn")
-        hbox_layout_btn.setContentsMargins(margin, margin, margin, margin)
-        hbox_layout_btn.setSpacing(spacing)
-        hbox_layout_btn.addWidget(help_btn)
-        hbox_layout_btn.addStretch()
-        hbox_layout_btn.addWidget(self._launch_btn)
-        hbox_layout_btn.addStretch()
-        hbox_layout_btn.addWidget(close_btn)
-
-        # Lay out top-level widgets
-        top_layout = Q.QGridLayout(self)
-        top_layout.setObjectName("vbox_layout")
-        top_layout.setContentsMargins(0, 0, 0, 0)
-        top_layout.setSpacing(spacing)
-        top_layout.addWidget(groupbox_files, 0, 2)
-        top_layout.addWidget(groupbox_conv, 1, 2)
-        top_layout.setRowMinimumHeight(2, 20)
-        top_layout.setRowStretch(2, 1)
-        top_layout.addWidget(separator, 3, 0, 1, 3)
-        top_layout.addLayout(hbox_layout_btn, 4, 0, 1, 3)
-
-        # # connections
-        connect(self.outputfile_edit.textChanged, self.update_controls)
-        connect(self.outputfile_btn.clicked, self.browse_file_out)
-        connect(self.inputfile_edit.textChanged, self.update_controls)
-        connect(self.inputfile_btn.clicked, self.browse_file_in)
-        connect(self.conversion_type_group.buttonToggled, self.update_controls)
-        connect(self._launch_btn.clicked, self.launch)
-        connect(close_btn.clicked, self.reject)
-        connect(help_btn.clicked, self.show_help)
+        connect(self.inFileLineEdit.textChanged, self.update_controls)
+        connect(self.inFileButton.clicked, self.browse_file_in)
+        connect(self.outFileCheckBox.stateChanged, self.update_controls)
+        connect(self.outFileLineEdit.textChanged, self.update_controls)
+        connect(self.outFileButton.clicked, self.browse_file_out)
+        connect(self.smeshCheckBox.stateChanged, self.update_controls)
+        connect(self.smeshLineEdit.textChanged, self.update_controls)
+        connect(self.applyButton.clicked, self.launch)
+        connect(self.closeButton.clicked, self.close)
+        connect(self.helpButton.clicked, self.show_help)
 
         # initialize default values
         self.from_settings(Settings())
 
         # Update state
         self.update_controls()
+
+    def setStatus(self, text, color="#ff0000"):
+        """Set the text of the status line.
+
+        Arguments:
+            text (str): Text to be shown.
+        """
+        self.statusText.setText("<font color='{1}'><i>{0}</i></font>"
+                                .format(text, color))
 
     def from_settings(self, settings):
         """
@@ -209,9 +89,9 @@ class MainWindow(Q.QDialog):
         Arguments:
             settings (Settings): Settings object.
         """
-        self.outputfile_edit.setText(settings.output_file)
-        self.inputfile_edit.setText(settings.input_file)
-        self.conversion_type_group.button(settings.conversion_type).setChecked(True)
+        self.outFileLineEdit.setText(settings.output_file)
+        self.inFileLineEdit.setText(settings.input_file)
+        self.smeshLineEdit.setText(settings.smesh_name)
 
     def to_settings(self):
         """
@@ -222,9 +102,9 @@ class MainWindow(Q.QDialog):
         """
         settings = Settings()
 
-        settings.output_file = self.outputfile_edit.text()
-        settings.input_file = self.inputfile_edit.text()
-        settings.conversion_type = self.conversion_type_group.checkedId()
+        settings.output_file = self.outFileLineEdit.text()
+        settings.input_file = self.inFileLineEdit.text()
+        settings.smesh_name = self.smeshLineEdit.text()
         return settings
 
     @Q.pyqtSlot()
@@ -244,21 +124,26 @@ class MainWindow(Q.QDialog):
         message = translate("MedConvert", "Help is not available.")
         Q.QMessageBox.warning(self, title, message)
 
-
     @Q.pyqtSlot()
     def launch(self):
-        """Called when user clicks *Launch* button."""
+        """Called when user clicks *Apply* button."""
+        self.setStatus(translate('MedConvert',
+                                 'Converting mesh, please wait...'),
+                       color='#0000ff')
+        QtCore.QTimer.singleShot(50, self.do_convert)
 
-        current_settings = self.to_settings()
-        current_settings.dump(sys.stdout)
+    def do_convert(self):
+        """Execute the mesh conversion."""
+        settings = self.to_settings()
+        settings.dump(sys.stdout)
 
-        input_file = current_settings.input_file
-        output_file = current_settings.output_file
-        conversion_type = current_settings.conversion_type
+        input_file = settings.input_file
+        output_file = settings.output_file
 
-        is_ok, msg = convert(input_file, output_file, conversion_type)
+        is_ok, err = convert(input_file, output_file, 0)
+        self.setStatus("")
 
-        if  is_ok:
+        if is_ok:
             title = translate("MedConvert", "Information")
             message = translate("MedConvert",
                                 "Conversion Done.")
@@ -267,58 +152,56 @@ class MainWindow(Q.QDialog):
         else:
             title = translate("MedConvert", "Error")
             message = translate("MedConvert",
-                                "Conversion Failed.") + '\n%s'%msg
+                                "Conversion Failed.\n{0}").format(err)
             Q.QMessageBox.critical(self, title, message)
-
-
-    def reject(self):
-        """
-        Called when user presses *Escape* key or clicks *Cancel* or <X>(*Close*)
-        button.
-        """
-        title = translate("MedConvert", "Exit")
-        message = translate("MedConvert", "Are you sure you want to quit?")
-        reply = Q.QMessageBox.question(self, title, message,
-                                       Q.QMessageBox.Yes, Q.QMessageBox.No)
-        if reply == Q.QMessageBox.Yes:
-            super(MainWindow, self).reject()
-            self.close()
 
     def update_controls(self):
         """Update dialog's widgets."""
+        self.applyButton.setEnabled(self.is_valid())
+        self.smeshLineEdit.setEnabled(self.smeshCheckBox.isChecked())
+        self.outFileLineEdit.setEnabled(self.outFileCheckBox.isChecked())
+        self.outFileButton.setEnabled(self.outFileCheckBox.isChecked())
 
-        enable_launch_btn = True
-        current_settings = self.to_settings()
-        if not (current_settings.input_file and current_settings.output_file):
-            enable_launch_btn = False
+    def is_valid(self):
+        """Tell if the settings are valid, the conversion can be launched.
 
-        self._launch_btn.setEnabled(enable_launch_btn)
-
+        Returns:
+            bool: *True* if the required data are set, *False* otherwise.
+        """
+        settings = self.to_settings()
+        if not settings.input_file:
+            self.setStatus(translate('MedConvert',
+                                     'Please select the input mesh file.'))
+            return False
+        if not (self.outFileCheckBox.isChecked()
+                or self.smeshCheckBox.isChecked()):
+            self.setStatus(translate('MedConvert',
+                                     'Please select at least one output type.'))
+            return False
+        if self.outFileCheckBox.isChecked() and not settings.output_file:
+            self.setStatus(translate('MedConvert',
+                                     'Please select the output file.'))
+            return False
+        if self.smeshCheckBox.isChecked() and not settings.smesh_name:
+            self.setStatus(translate('MedConvert',
+                                     'Please enter a valid mesh name.'))
+            return False
+        self.setStatus("")
+        return True
 
     def browse_file_in(self):
         """Called when user presses *Browse* button to select a input file."""
-
-        button = self.sender()
-        edit_name = button.objectName().replace('btn', 'edit')
-        edit = self.findChild(Q.QLineEdit, edit_name)
-
         title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
         filters.append("Systus (*.ASC)")
-        filters.append("Salome (*.med)")
         filters.append("All files (*)")
         file_name = get_file_name(self, 1, title, '', filters, suffix)
         if file_name:
-            edit.setText(file_name)
+            self.inFileLineEdit.setText(file_name)
 
     def browse_file_out(self):
         """Called when user presses *Browse* button to select a output file."""
-
-        button = self.sender()
-        edit_name = button.objectName().replace('btn', 'edit')
-        edit = self.findChild(Q.QLineEdit, edit_name)
-
         title = translate("MedConvert", "Select a file")
         filters = []
         suffix = ""
@@ -326,17 +209,7 @@ class MainWindow(Q.QDialog):
         filters.append("All files (*)")
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
-            edit.setText(file_name)
-
-
-    def add_mandatory_ctrl(self, ctrl):
-        """
-        Register given control as a mandatory one.
-
-        Arguments:
-            ctrl (QWidget): Control widget.
-        """
-        self._mandatory_ctrls.append(ctrl)
+            self.outFileLineEdit.setText(file_name)
 
 
 def load_language(language='en'):
@@ -372,22 +245,30 @@ def start(context=None):
     Arguments:
         context: SALOME GUI context.
     """
-    language = context.sg.stringSetting('language', 'language') \
-        if context is not None else 'en'
+    if context:
+        lang = context.sg.stringSetting('language', 'language')
+        parent = context.sg.getDesktop()
+    else:
+        # create application
+        app = Q.QApplication(sys.argv)
+        app.lastWindowClosed.connect(app.quit)
+        lang = 'en' if not 'fr' in Q.QLocale.system().name() else 'fr'
+        parent = None
+
     parent = context.sg.getDesktop() \
         if context is not None else None
 
-    translator = load_language(language)
-    main_window = MainWindow(parent)
+    translator = load_language(lang)
+    main_window = MainDialog(parent)
     translator.setParent(main_window)
 
-    if context is not None:
-        rect = context.sg.getDesktop().geometry()
-    else:
-        rect = Q.QApplication.desktop().availableGeometry()
-    window_size = main_window.size()
-    x_pos = max((rect.width() - window_size.width()) / 2, 0) + rect.x()
-    y_pos = max((rect.height() - window_size.height()) / 2, 0) + rect.y()
-    main_window.move(x_pos, y_pos)
+    # if context is not None:
+    #     rect = context.sg.getDesktop().geometry()
+    # else:
+    #     rect = Q.QApplication.desktop().availableGeometry()
+    # window_size = main_window.size()
+    # x_pos = max((rect.width() - window_size.width()) / 2, 0) + rect.x()
+    # y_pos = max((rect.height() - window_size.height()) / 2, 0) + rect.y()
+    # main_window.move(x_pos, y_pos)
 
     main_window.exec_()

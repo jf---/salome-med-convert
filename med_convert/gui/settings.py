@@ -23,35 +23,6 @@ from collections import OrderedDict
 from ..utilities import translate
 
 
-class FileType(object):
-    """
-    Enumerator for cluster choice.
-    """
-
-    SYSTUS_TO_SALOME = 0
-    SALOME_TO_SYSTUS = 1
-
-    @staticmethod
-    def value2str(value):
-        """
-        Get text representation of given value.
-
-        Arguments:
-            value (FileType): Cluster choice.
-
-        Returns:
-            str: String representation of given value.
-
-        Raises:
-            KeyError: If wrong value is specified.
-        """
-        if value in (FileType.SALOME_TO_SYSTUS,):
-            return translate("MedConvert", "Salome to Systus")
-        elif value in (FileType.SYSTUS_TO_SALOME,):
-            return translate("MedConvert", "Systus to Salome")
-        raise KeyError("Unsupported value {}".format(value))
-
-
 class Settings(object):
     """
     Class that stores settings data.
@@ -87,15 +58,15 @@ class Settings(object):
         self._data['Input File'] = input_file
 
     @property
-    def conversion_type(self):
+    def smesh_name(self):
         """
-        FileType: Attribute that holds conversion type choice.
+        str: Attribute that holds the mesh name.
         """
-        return self._data.get('Conversion Type Choice')
+        return self._data.get('Mesh Name')
 
-    @conversion_type.setter
-    def conversion_type(self, conversion_type):
-        self._data['Conversion Type Choice'] = conversion_type
+    @smesh_name.setter
+    def smesh_name(self, name):
+        self._data['Mesh Name'] = name
 
     def from_defaults(self):
         """
@@ -106,8 +77,7 @@ class Settings(object):
         """
         self.input_file = ''
         self.output_file = ''
-        self.conversion_type = FileType.SYSTUS_TO_SALOME
-
+        self.smesh_name = 'Mesh'
 
     def dump(self, stream):
         """
@@ -123,5 +93,5 @@ class Settings(object):
         stream.write('{:<35}: {}\n'.format(title, self.input_file))
         title = translate("MedConvert", "Output File")
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
-        title = translate("MedConvert", "Conversion Type")
-        stream.write('{:<35}: {}\n'.format(title, FileType.value2str(self.conversion_type)))
+        title = translate("MedConvert", "Mesh Name")
+        stream.write('{:<35}: {}\n'.format(title, self.smesh_name))

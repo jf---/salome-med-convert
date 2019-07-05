@@ -19,6 +19,8 @@
 The module implement *MedConvert* plugin's services.
 """
 
+import traceback
+
 from ..convert import Fmt, convert as convert_engine
 from ..utilities import translate
 
@@ -34,4 +36,5 @@ def convert(input_file, output_file, conversion_type):
         return True, ''
 
     except Exception as err:
+        traceback.print_exc()
         return False, err
