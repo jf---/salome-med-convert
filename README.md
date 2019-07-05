@@ -24,6 +24,8 @@ salome shell -- make
 
 # Executing the plugin using the development files
 
+## Using the graphical interface
+
 In stand-alone mode:
 
 ``` bash
@@ -35,6 +37,16 @@ or in a SALOME graphical session:
 ``` bash
 SALOME_PLUGINS_PATH=$(pwd) salome
 ```
+
+## Using the command line
+
+Example:
+
+``` bash
+./bin/med_convert -i test/data/MOTIF_DONN1.ASC -o /tmp/motif.med
+```
+
+See `./bin/med_convert --help` for the available arguments.
 
 
 # Testing
