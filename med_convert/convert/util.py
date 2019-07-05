@@ -13,8 +13,10 @@ __revision__ = "V04.0"
 #
 #========================= Les imports - Début ===================================
 #
+
+from .logger import logger
 import numpy as np
-#
+
 import MEDLoader as ml
 #
 #========================== Les imports - Fin ====================================
@@ -31,11 +33,9 @@ Sorties:
     . clé : la valeur dans le tableau
     . valeur : la position de la valeur dans le tableau
   """
-#
-  nom_fonction = __name__ + "/gettabrecip"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
+  blabla = "Dans %s.gettabrecip"%(__name__)
+  logger.debug(blabla)
+
 #
   d_tab_recip = dict()
 #
@@ -58,10 +58,10 @@ Sorties :
     . la donnée est le triplet (nombre de noeuds, code medcoupling, dimension)
   """
 #
-  nom_fonction = __name__ + "/get_caract_mailles"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
+
+  blabla = "Dans %s.get_caract_mailles"%(__name__)
+  logger.debug(blabla)
+ 
 #
   caract_maille = dict()
 #
@@ -83,12 +83,12 @@ Sorties :
   caract_maille["PYR13"] = (13, ml.NORM_PYRA13,  3)
   caract_maille["PEN15"] = (15, ml.NORM_PENTA15, 3)
 #
-  if verbose:
-    laux = sorted(caract_maille.keys())
-    texte = ""
-    for type_maille in laux:
-      texte += "\n... Type '%5s' : nombre de noeuds = %2d, code medcoupling = %2d, dimension = %d" % (type_maille, caract_maille[type_maille][0], caract_maille[type_maille][1], caract_maille[type_maille][2])
-    print (texte)
+
+  laux = sorted(caract_maille.keys())
+  texte = ""
+  for type_maille in laux:
+    texte += "\n... Type '%5s' : nombre de noeuds = %2d, code medcoupling = %2d, dimension = %d" % (type_maille, caract_maille[type_maille][0], caract_maille[type_maille][1], caract_maille[type_maille][2])
+  logger.debug(texte)
 #
   return caract_maille
 #
@@ -106,10 +106,8 @@ Sorties :
     . valeur : la liste des types de mailles associés
   """
 #
-  nom_fonction = __name__ + "/get_l_type_mailles"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
+  blabla = "Dans %s.get_l_type_mailles"%(__name__)
+  logger.debug(blabla)
 #
 # 1. Récupération des caractéristiques des mailles
 #
@@ -158,12 +156,11 @@ Entrées :
 Sorties:
   :nbr_mailles_dim: nombre de mailles par dimension
   """
-#
-  nom_fonction = __name__ + "/print_bilan"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
-#
+
+  blabla = "Dans %s.print_bilan"%(__name__)
+  logger.debug(blabla)
+
+  
 # 1. Récupération des des listes des types de mailles par dimension
 #
   l_type_mailles = get_l_type_mailles ()
@@ -193,11 +190,10 @@ Entrées :
 Entrées/Sorties:
   :nbr_mailles_dim: nombre de mailles par dimension
   """
-#
-  nom_fonction = __name__ + "/print_bilan_0"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
+
+  blabla = "Dans %s.print_bilan_0"%(__name__)
+  logger.debug(blabla)
+
 #
 # 1. Messages
 #
@@ -214,8 +210,7 @@ Entrées/Sorties:
     for type_maille in l_type_mailles[ndim] :
       if type_maille in nbr_entites:
         nbr_mailles_dim[ndim] += nbr_entites[type_maille]
-    if verbose:
-      print ( ".. Nombre de %14s : %8d" % (d_aux[ndim], nbr_mailles_dim[ndim]) )
+    logger.debug(".. Nombre de %14s : %8d" % (d_aux[ndim], nbr_mailles_dim[ndim]) )
 #
 #
   return
@@ -238,11 +233,10 @@ Sorties :
   :message: message d'erreur
   :le_maillage_niveau: dictionnaire des maillages par niveau
   """
-#
-  nom_fonction = __name__ + "/cree_maillage_par_niveau"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
+
+  blabla = "Dans %s.cree_maillage_par_niveau"%(__name__)
+  logger.debug(blabla)
+
 #
 # 1. Les coordonnées
 #
@@ -285,30 +279,27 @@ Entrées:
 Entrées/Sorties :
   :le_maillage_niveau: dictionnaire des maillages par niveau
   """
+
+  blabla = "Dans %s.cree_maillage_par_niveau_0"%(__name__)
+  logger.debug(blabla)
+  
 #
-  nom_fonction = __name__ + "/cree_maillage_par_niveau_0"
-  blabla = "\nDans " + nom_fonction
-  if verbose:
-    print (blabla)
-#
-  if verbose:
-    texte = "\n... Création du maillage de dimension %d" % ndim
-    texte += " sous le nom '%s'" % maillage_nom
-    print (texte)
+  texte = "\n... Création du maillage de dimension %d" % ndim
+  texte += " sous le nom '%s'" % maillage_nom
+  logger.debug(texte)
 #
   le_maillage_niveau[niveau] = ml.MEDCouplingUMesh(maillage_nom, 2)
   le_maillage_niveau[niveau].setMeshDimension(ndim)
 #
-  #print (les_coords)
-  if verbose:
-    texte = "... Enregistrement des coordonnées dans le maillage du niveau %d" % niveau
-    print (texte)
+ 
+
+  texte = "... Enregistrement des coordonnées dans le maillage du niveau %d" % niveau
+  logger.debug(texte)
   le_maillage_niveau[niveau].setCoords(les_coords)
 #
-  if verbose:
-    texte = "... Allocation pour %d cellules" % nbr_mailles_dim[ndim]
-    texte += " dans le maillage du niveau %d" % niveau
-    print (texte)
+  texte = "... Allocation pour %d cellules" % nbr_mailles_dim[ndim]
+  texte += " dans le maillage du niveau %d" % niveau
+  logger.debug(texte)
   le_maillage_niveau[niveau].allocateCells(nbr_mailles_dim[ndim])
 #
   return
@@ -327,10 +318,9 @@ Sorties :
   :meshmedfile: le maillage total
   """
 #
-  nom_fonction = __name__ + "/aggregation_maillage"
-  blabla = "\nDans " + nom_fonction
-  if verbose :
-    print (blabla)
+  blabla = "Dans %s.aggregation_maillage"%(__name__)
+  logger.debug(blabla)
+
 #
 # 1. Création d'un maillage global
 #
@@ -340,9 +330,8 @@ Sorties :
 #
   for niveau in le_maillage_niveau :
 #
-    if verbose :
-      texte = ".. Enregistrement du niveau %d" % niveau
-      print (texte)
+    texte = ".. Enregistrement du niveau %d" % niveau
+    logger.debug(texte)
 #
     meshmedfile.setMeshAtLevel(niveau, le_maillage_niveau[niveau])
 #
@@ -381,26 +370,26 @@ Entrées/Sorties :
   :d_groupes: dictionnaire des groupes par niveau
   """
 #
-  nom_fonction = __name__ + "/creation_groupe"
-  blabla = "\nDans " + nom_fonction
-  if verbose :
-    texte = blabla+"\n"
-    texte += ".. Dans le niveau niveau %d," % niveau
-    texte += " création du groupe : '%s'" % group_n
-    print (texte)
-    #print (".. tableau: ", tableau, type(tableau))
+  blabla = "Dans %s.creation_groupe"%(__name__)
+  logger.debug(blabla)
+
+
+  texte = ".. Dans le niveau niveau %d," % niveau
+  texte += " création du groupe : '%s'" % group_n
+  logger.debug(texte)
+
 #
 # 1. Les indices doivent être triés
 #
   if isinstance(tableau, list):
     tableau.sort()
-  #print (".. tableau: ", tableau)
+
 #
 # 2. Mise en forme du tableau pour le groupe
 #
   dau_m = ml.DataArrayInt(np.array(tableau, dtype=np.int32))
   dau_m.setName(str(group_n))
-  #print ("dau_m :\n", dau_m)
+
 #
 # 3.2 Mémorisation pour ce niveau
 #

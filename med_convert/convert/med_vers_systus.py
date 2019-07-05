@@ -7,10 +7,10 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V02.01"
 #
 #========================= Les imports - Début ===================================
 #
+from .logger import logger
 import numpy as np
 #
 import MEDLoader as ml
@@ -20,26 +20,24 @@ import MEDLoader as ml
 #=========================== Début de la fonction ================================
 #
 def cv_med_vers_systus (meshmedfileread, verbose, verbose_max=False):
-  """Conversion du maillage du format MED vers le format SYSTUS
+    """Conversion du maillage du format MED vers le format SYSTUS
 
-Entrées :
-  :meshmedfileread: fichier au format MED
-Sorties :
-  :erreur: code d'erreur
-  :message: message d'erreur
-  :les_lignes: les lignes du fichier à écrire
+    Entrées :
+    :meshmedfileread: fichier au format MED
+    Sorties :
+    :erreur: code d'erreur
+    :message: message d'erreur
+    :les_lignes: les lignes du fichier à écrire
     """
-#
-  nom_fonction = __name__ + "/cv_med_vers_systus"
-  blabla = "\nDans " + nom_fonction
-  if verbose_max:
-    print (blabla)
-#
-  erreur = 0
-  message = ""
-  les_lignes = ""
-#
-  return erreur, message, les_lignes
+    
+    blabla = "Dans %s.cv_med_vers_systus"%(__name__)
+    logger.debug(blabla)
+    #
+    erreur = 0
+    message = ""
+    les_lignes = ""
+    #
+    return erreur, message, les_lignes
 #
 #===========================  Fin de la fonction =================================
 #

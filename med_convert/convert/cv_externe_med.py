@@ -19,6 +19,7 @@ import MEDLoader as ml
 #
 from .systus_vers_med import cv_systus_vers_med
 from .med_vers_systus import cv_med_vers_systus
+from .logger import logger
 #
 #========================== Les imports - Fin ====================================
 #
@@ -146,8 +147,7 @@ Le reste est stocké dans une liste qui sera décodée plus tard en tant que de 
 #
   def __del__(self):
     """A la suppression de l'instance de classe"""
-    if self._verbose_max :
-      print("Suppression de l'instance de la classe.")
+    logger.debug("Suppression de l'instance de la classe.")
 #
 #===========================  Fin de la méthode ==================================
 #
@@ -163,14 +163,11 @@ Sorties :
 #
 # 1. Préalables
 #
-    nom_fonction = __name__ + "/_arguments"
-    blabla = "\nDans " + nom_fonction
-    if self._verbose_max :
-      print (blabla)
+    blabla = "Dans %s._argument"%(__name__)
+    logger.debug(blabla)
 #
-    if self._verbose_max :
-      print ("arguments :", self.commande_arg)
-#
+    logger.debug("arguments : %s"%self.commande_arg)
+
     erreur = 0
     message = ""
 #
@@ -225,13 +222,11 @@ Sorties :
 #
 # 1. Préalables
 #
-    nom_fonction = __name__ + "/_controle_arguments"
-    blabla = "\nDans " + nom_fonction
-    if self._verbose_max :
-      print (blabla)
+    blabla = "Dans %s._controle_arguments"%(__name__)
+    logger.debug(blabla)
 #
-    if self._verbose_max :
-      print ("arguments :", self.commande_arg)
+    logger.debug("arguments : %s"%self.commande_arg)
+
 #
     erreur = 0
     message = ""
@@ -298,7 +293,7 @@ Sorties :
       #texte += ". num_iter  : %d\n" % self._num_iter
       #texte += ". num_ordre : %d" % self._num_ordre
 #
-    print (texte)
+    logger.info(texte)
 #
     return erreur, message
 #
@@ -316,13 +311,13 @@ Sorties :
 #
     nom_fonction = __name__ + "/_cv_maillage"
     blabla = "\nDans %s :\n" % nom_fonction
-    if self._verbose_max :
-      texte  = blabla
-      if self._ficexterne != None :
-        texte += ". ficexterne : %s\n" % self._ficexterne
-      if self._ficexterne != None :
-        texte += ". ficmed     : %s\n" % self._ficmed
-      print (texte)
+  
+    texte  = blabla
+    if self._ficexterne != None :
+      texte += ". ficexterne : %s\n" % self._ficexterne
+    if self._ficexterne != None :
+      texte += ". ficmed     : %s\n" % self._ficmed
+    logger.debug(texte)
 #
 # 1. Du format externe externe vers le format MED
 #
@@ -352,10 +347,9 @@ Sorties :
 #
     nom_fonction = __name__ + "/_cv_externe_vers_med"
     blabla = "\nDans %s :\n" % nom_fonction
-    if self._verbose_max :
-      texte  = blabla
-      texte += ". type_externe : %s\n" % self._type_externe
-      print (texte)
+    texte  = blabla
+    texte += ". type_externe : %s\n" % self._type_externe
+    logger.debug(texte)
 #
     erreur = 0
     message = ""
@@ -365,7 +359,7 @@ Sorties :
 # 1. Lecture du maillage sous forme de la liste des lignes
 #
       texte = "\n. Lecture du fichier :\n%s" % self._ficexterne
-      print (texte)
+      logger.info(texte)
 #
       with open (self._ficexterne, "r") as fichier :
         les_lignes = fichier.readlines()
@@ -388,7 +382,7 @@ Sorties :
 # 3. Ecriture du maillage
 #
       texte = "\n. Ecriture du fichier :\n%s" % self._ficmed
-      print (texte)
+      logger.info(texte)
 #
       meshmedfile.write(self._ficmed, 2)
 #
@@ -410,10 +404,9 @@ Sorties :
 #
     nom_fonction = __name__ + "/_cv_med_vers_externe"
     blabla = "\nDans %s :\n" % nom_fonction
-    if self._verbose_max :
-      texte  = blabla
-      texte += ". type_externe : %s\n" % self._type_externe
-      print (texte)
+    texte  = blabla
+    texte += ". type_externe : %s\n" % self._type_externe
+    logger.debug(texte)
 #
     erreur = 0
     message = ""
@@ -426,8 +419,7 @@ Sorties :
         print (".. Lecture du maillage sur : %s" % self._ficmed)
 #
       meshmedfileread = ml.MEDFileMesh.New(self._ficmed)
-      if self._verbose_max :
-        print (meshmedfileread)
+      logger.debug(meshmedfileread)
 #
 # 2. Conversion
 # 2.1. Vers SYSTUS
@@ -473,8 +465,8 @@ Sorties :
     nom_fonction = __name__ + "/lancement"
     blabla = "\nDans " + nom_fonction
 #
-    if self._verbose_max :
-      print (blabla)
+
+    logger.debug(blabla)
 #
 # 1. Préalables
 #
@@ -506,8 +498,9 @@ Sorties :
 #
 # 4. La fin
 #
-    if ( erreur and self._verbose_max ) :
-      print (blabla, message)
+    if ( erreur ) :
+      logger.debug(blabla)
+      logger.debug(message)
 #
     return erreur, message
 #

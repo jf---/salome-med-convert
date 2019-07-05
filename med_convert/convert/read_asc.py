@@ -58,8 +58,9 @@ def read_asc_mesh(lines):
         else :
             raise ValueError(edim)
     
-    GROUPS_N = [[item.split()[1]] + [int(i) for i in item.split()[4:] if i.isdigit()] for item in GROUPS[:-1] if int(item.split()[2]) == 1]
-    ALL_GROUPS_E = {item.split()[1] : [int(i) for i in item.split()[4:] if i.isdigit()] for item in GROUPS[:-1] if int(item.split()[2]) == 2}
+    GROUPS_N = [[item.split()[1]] + [int(i) for i in item.split('"')[-1].split()] for item in GROUPS[:-1] if int(item.split()[2]) == 1]
+    
+    ALL_GROUPS_E = {item.split()[1] : [int(i) for i in item.split('"')[-1].split()] for item in GROUPS[:-1] if int(item.split()[2]) == 2}
 
     corr_nodes = { i[1] : i[0] for i in NODES}
     corr_elements = { dim : { i[1] : i[0] for i in ELEMENTS[dim]} for dim in ELEMENTS.keys()}
@@ -92,7 +93,6 @@ def read_asc_mesh(lines):
             element_type = asso_elem(item[2])[1]
             if not element_type in elements[dim] : elements[dim][element_type] = []
             elements[dim][element_type].append(tuple(corr_nodes[k] for k in item[3:]))
-            
             
     groups_n = { item[0] : list(corr_nodes[k] for k in item[1:])  for item in GROUPS_N }
     groups_e = {dim : {name : list(corr_elements[dim][k] for k in item) for name, item in group.items()} for dim, group in GROUPS_E.items()}
