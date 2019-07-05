@@ -7,7 +7,7 @@ Gérald NICOLAS
 +33.1.78.19.43.52
 """
 #
-__revision__ = "V03.08"
+__revision__ = "V03.09"
 #
 #========================= Les imports - Début ===================================
 #
@@ -46,13 +46,13 @@ Sorties :
 #
   erreur = 0
   message = ""
-  le_maillage_niveau = None
+  meshmedfile = None
 #
   while ( not erreur ) :
 #
 # 1. Exploration des données
 #
-    erreur, message, d_nro_section, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem = cv_systus_med_1 ( les_lignes, verbose, verbose_max)
+    erreur, message, d_nro_section, maillage_nom, sdim, nbr_entites, coordinates, tb_renum_node, tb_renum_elem, tb_type_elem = cv_systus_med_1 ( les_lignes, verbose, verbose_max )
     if erreur:
       break
 #
@@ -72,7 +72,7 @@ Sorties :
 #
 # 5. Aggrégation des maillages
 #
-    meshmedfile = aggregation_maillage (le_maillage_niveau, d_groupes, verbose_max)
+    meshmedfile = aggregation_maillage ( le_maillage_niveau, d_groupes, verbose_max )
 #
 #
     break
@@ -112,8 +112,12 @@ Sorties :
 #
   erreur = 0
   message = ""
-  coordinates = None
+  sdim = np.inf
   nbr_entites = dict()
+  coordinates = None
+  tb_renum_node = None
+  tb_renum_elem = None
+  tb_type_elem = None
 #
   while ( not erreur ) :
 #
@@ -186,12 +190,13 @@ Sorties :
   while not erreur:
 #
 # 1. Les lignes de début de section et de fin des sections
-#    Remarque : on suppose que les groupes sont après les noeuds et les mailles
-#    Remarque : on n'utilise pas la fonction index car on ne sait pas comment est géré la fin de ligne
+#    Remarque : on n'utilise pas la fonction index car on ne sait pas comment est gérée la fin de ligne
 #
     d_nro_section = dict()
 #
     for iaux, ligne in enumerate(les_lignes) :
+#
+# 1.1. Stockage du numéro de ligne pour chaque début et fin de rubrique
 #
       if ( "BEGIN_NODES" in ligne ):
         d_nro_section["l_bn"] = iaux
@@ -205,6 +210,10 @@ Sorties :
         d_nro_section["l_bg"] = iaux
       elif ( "END_GROUPS" in ligne ):
         d_nro_section["l_eg"] = iaux
+#
+# 1.2. Tout est trouvé
+#
+      if ( len(d_nro_section) == 6 ) :
         break
 #
 # 2. Contrôle
@@ -617,7 +626,7 @@ Sorties :
 # 3. Mailles 2D
 #
   num_local_dans_med[ml.NORM_TRI3] = [0, 1, 2]
-  num_local_dans_med[ml.NORM_QUAD4] = [0, 1, 3, 2]
+  num_local_dans_med[ml.NORM_QUAD4] = [0, 1, 2, 3]
 #
   num_local_dans_med[ml.NORM_TRI6] = [0, 3, 1, 4, 2, 5]
   num_local_dans_med[ml.NORM_QUAD8] = [0, 4, 1, 5, 2, 6, 3, 7]
@@ -625,14 +634,14 @@ Sorties :
 # 4. Mailles 3D
 #
   num_local_dans_med[ml.NORM_TETRA4] = [0, 2, 1, 3]
-  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1,    7, 4, 5, 6]
+  num_local_dans_med[ml.NORM_HEXA8] = [0, 3, 2, 1,   4, 7, 6, 5]
   num_local_dans_med[ml.NORM_PYRA5] = list()
   num_local_dans_med[ml.NORM_PENTA6] = [0, 2, 1,   3, 5, 4]
 #
   num_local_dans_med[ml.NORM_TETRA10] = [ 0,  6,  2,  5,  1,  4,    7,  9,  8,   3 ]
-  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11,  3, 10,  2,  9,  1,  8,   16, 19, 18, 17,          4, 15,  7, 14,  6, 13,  5, 12 ]
+  num_local_dans_med[ml.NORM_HEXA20] = [ 0, 11, 3, 10, 2, 9, 1, 8,   16, 19, 18, 17,   4, 15, 7, 14, 6, 13, 5, 12 ]
   num_local_dans_med[ml.NORM_PYRA13] = list()
-  num_local_dans_med[ml.NORM_PENTA15] = [ 0,  8,  2,  7,  1,  6,    12, 14, 13,    3, 11,  5, 10,  4,  9]
+  num_local_dans_med[ml.NORM_PENTA15] = [ 0, 8, 2, 7, 1, 6,   12, 14, 13,   3, 11, 5, 10, 4, 9]
 #
   if verbose:
     texte  = "num_local_dans_med :"
@@ -661,15 +670,14 @@ Sorties :
     print (texte)
 #
 # 1. Récupération des groupes du point de vue de SYSTUS
-#
-#  groups_n : dictionnaire des groupes de noeuds en SYSTUS
-#    . clé : nom du groupe
-#    . valeur : liste des numéros des noeuds
-#  groups_e : dictionnaire des groupes d'éléments en SYSTUS
+#  d_gr_elements : dictionnaire des groupes d'éléments en SYSTUS
 #    . clé : dimension sous forme "nD"
 #    . valeur : dictionnaire des groupes pour la dimension concernée :
 #      . clé : nom du groupe
 #      . valeur : liste des numéros des noeuds
+#  d_gr_noeuds : dictionnaire des groupes de noeuds en SYSTUS
+#    . clé : nom du groupe
+#    . valeur : liste des numéros des noeuds
 #
   _, _, _, _, d_gr_elements, d_gr_noeuds = read_asc_mesh (les_lignes)
 #
@@ -688,6 +696,7 @@ Sorties :
       for group_n, l_elem in d_gr_elements[ndim].items():
 #
 #       Création du DataArrayInt pour ce groupe d'élément
+#       et stockage dans d_groupes
 #
         creation_groupe (group_n, l_elem, niveau, d_groupes, verbose)
 #
@@ -698,6 +707,7 @@ Sorties :
   for group_n, l_elem in d_gr_noeuds.items():
 #
 #   Création du DataArrayInt pour ce groupe de noeuds
+#   et stockage dans d_groupes
 #
     creation_groupe (group_n, l_elem, 1, d_groupes, verbose)
 #
