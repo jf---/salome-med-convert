@@ -110,19 +110,14 @@ class MainDialog(BASE, FORM):
     @Q.pyqtSlot()
     def show_help(self):
         """Called when user clicks *Help* button."""
-        try:
-            import SalomePyQt
-            sg_pyqt = SalomePyQt.SalomePyQt()
+        if not docs_path():
+            title = translate("MedConvert", "Warning")
+            message = translate("MedConvert", "Help is not available.")
+            Q.QMessageBox.warning(self, title, message)
+            return
 
-            if docs_path():
-                help_path = osp.join(docs_path(), 'index.html')
-                sg_pyqt.helpContext(help_path, "")
-                return
-        except ImportError:
-            pass
-        title = translate("MedConvert", "Warning")
-        message = translate("MedConvert", "Help is not available.")
-        Q.QMessageBox.warning(self, title, message)
+        url = osp.join(docs_path(), 'index.html')
+        Q.QDesktopServices.openUrl(Q.QUrl(url))
 
     @Q.pyqtSlot()
     def launch(self):
