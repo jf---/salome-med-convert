@@ -137,12 +137,9 @@
            <item>
             <widget class="QCheckBox" name="smeshCheckBox">
              <property name="text">
-              <string>Import mesh in SMESH as</string>
+              <string>Import mesh in SMESH</string>
              </property>
             </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="smeshLineEdit"/>
            </item>
           </layout>
          </item>

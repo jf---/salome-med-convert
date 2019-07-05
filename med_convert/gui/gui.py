@@ -21,6 +21,7 @@ Implementation of Graphical User Interface for *MedConvert* plugin.
 
 import os.path as osp
 import sys
+import traceback
 
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
@@ -56,13 +57,23 @@ class MainDialog(BASE, FORM):
         self.setWindowTitle(title)
         self.setStatus("")
 
+        try:
+            import salome
+            has_salome = salome.myStudy is not None
+        except ImportError:
+            has_salome = False
+        self.smeshCheckBox.setEnabled(has_salome)
+        if not has_salome:
+            self.outFileCheckBox.setChecked(True)
+            self.smeshCheckBox.setText(self.smeshCheckBox.text()
+                                       + " <i>not available</i>")
+
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
         connect(self.outFileCheckBox.stateChanged, self.update_controls)
         connect(self.outFileLineEdit.textChanged, self.update_controls)
         connect(self.outFileButton.clicked, self.browse_file_out)
         connect(self.smeshCheckBox.stateChanged, self.update_controls)
-        connect(self.smeshLineEdit.textChanged, self.update_controls)
         connect(self.applyButton.clicked, self.launch)
         connect(self.closeButton.clicked, self.close)
         connect(self.helpButton.clicked, self.show_help)
@@ -91,7 +102,6 @@ class MainDialog(BASE, FORM):
         """
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
-        self.smeshLineEdit.setText(settings.smesh_name)
 
     def to_settings(self):
         """
@@ -104,7 +114,6 @@ class MainDialog(BASE, FORM):
 
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
-        settings.smesh_name = self.smeshLineEdit.text()
         return settings
 
     @Q.pyqtSlot()
@@ -145,15 +154,17 @@ class MainDialog(BASE, FORM):
             Q.QMessageBox.information(self, title, message)
 
         else:
-            title = translate("MedConvert", "Error")
-            message = translate("MedConvert",
-                                "Conversion Failed.\n{0}").format(err)
-            Q.QMessageBox.critical(self, title, message)
+            mbox = Q.QMessageBox()
+            mbox.setWindowTitle(translate("MedConvert", "Error"))
+            mbox.setIcon(Q.QMessageBox.Critical)
+            mbox.setText(translate("MedConvert",
+                                   "Conversion Failed.\n{0}").format(err))
+            mbox.setDetailedText(traceback.format_exc())
+            mbox.exec_()
 
     def update_controls(self):
         """Update dialog's widgets."""
         self.applyButton.setEnabled(self.is_valid())
-        self.smeshLineEdit.setEnabled(self.smeshCheckBox.isChecked())
         self.outFileLineEdit.setEnabled(self.outFileCheckBox.isChecked())
         self.outFileButton.setEnabled(self.outFileCheckBox.isChecked())
 
@@ -176,10 +187,6 @@ class MainDialog(BASE, FORM):
         if self.outFileCheckBox.isChecked() and not settings.output_file:
             self.setStatus(translate('MedConvert',
                                      'Please select the output file.'))
-            return False
-        if self.smeshCheckBox.isChecked() and not settings.smesh_name:
-            self.setStatus(translate('MedConvert',
-                                     'Please enter a valid mesh name.'))
             return False
         self.setStatus("")
         return True

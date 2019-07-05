@@ -57,17 +57,6 @@ class Settings(object):
     def input_file(self, input_file):
         self._data['Input File'] = input_file
 
-    @property
-    def smesh_name(self):
-        """
-        str: Attribute that holds the mesh name.
-        """
-        return self._data.get('Mesh Name')
-
-    @smesh_name.setter
-    def smesh_name(self, name):
-        self._data['Mesh Name'] = name
-
     def from_defaults(self):
         """
         Reset settings data to default values.
@@ -77,7 +66,6 @@ class Settings(object):
         """
         self.input_file = ''
         self.output_file = ''
-        self.smesh_name = 'Mesh'
 
     def dump(self, stream):
         """
@@ -93,5 +81,3 @@ class Settings(object):
         stream.write('{:<35}: {}\n'.format(title, self.input_file))
         title = translate("MedConvert", "Output File")
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
-        title = translate("MedConvert", "Mesh Name")
-        stream.write('{:<35}: {}\n'.format(title, self.smesh_name))
