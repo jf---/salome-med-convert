@@ -34,7 +34,7 @@ from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,
                         publish_meshes, resources_path, to_list)
 
-UIFILE = osp.join(osp.dirname(__file__), "MainDialog.ui")
+UIFILE = osp.join(resources_path(), "med_convert", "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
 
 
@@ -150,7 +150,7 @@ class MainDialog(BASE, FORM):
                 publish_meshes(settings.output_file)
                 self.setStatus(translate('MedConvert',
                                          "Open the SMESH module and refresh "
-                                         "(F5) the objects browser<br/>"
+                                         "(F5) the object browser<br/>"
                                          "to see the newly created mesh."),
                             color='#0000ff')
                 if use_tmp:

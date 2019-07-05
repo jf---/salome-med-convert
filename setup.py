@@ -54,7 +54,7 @@ SCRIPTS = ["bin/med_convert",]
 DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
     ('share/salome/resources/med_convert',
-     glob('resources/med_convert/MedConvert_msg_fr.qm')),
+     glob('resources/med_convert/*.qm') + glob('resources/med_convert/*.ui')),
     ('share/salome/med_convert_test', glob('test/*.py')),
     ('share/salome/med_convert_test/data', glob('test/data/*')),
     ('share/doc/salome/gui/med_convert/html', glob('doc/*.html')),
