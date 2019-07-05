@@ -69,7 +69,7 @@ def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
         tmpdir (str): Path to the temporary directory.
         utest (*unittest.TestCase*): Test object.
         filename (str): Basename of the input mesh file.
-        nbcells (int): Expected number of cells.
+        nbcells (int): Expected number of cells of dimension 0.
         nbnodes (int): Expected number of nodes.
         private (bool): *True* for private meshes. *False* otherwise.
     """

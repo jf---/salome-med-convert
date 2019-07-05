@@ -28,10 +28,6 @@ class TestSimple(unittest.TestCase):
     def test_couronne(self):
         standard_conversion(self, "COURONNE_DONN1.ASC", 216, 720)
 
-    @unittest.skip("QUAD8 type not yet supported")
-    def test_motif(self):
-        standard_conversion(self, "MOTIF_DONN1.ASC", 114, 673)
-
     def test_motif_partial(self):
         # to be removed when test_motif is fixed
         standard_conversion(self, "MOTIF_DONN1.ASC", 96, 673)
