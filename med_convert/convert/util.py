@@ -350,11 +350,17 @@ Sorties :
 #
     meshmedfile.setGroupsAtLevel(niveau, d_groupes[niveau])
 #
-# 3. Nom du maillage
+# 3. Eventuels groupes de noeuds
+#
+  if ( 1 in d_groupes ):
+#
+    meshmedfile.setGroupsAtLevel(1, d_groupes[1])
+#
+# 4. Nom du maillage
 #
   meshmedfile.setName(maillage_nom)
 #
-# 4. Arrangement final des familles
+# 5. Arrangement final des familles
 #
   meshmedfile.rearrangeFamilies()
 #

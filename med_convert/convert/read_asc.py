@@ -94,7 +94,7 @@ def read_asc_mesh(lines):
             elements[dim][element_type].append(tuple(corr_nodes[k] for k in item[3:]))
             
             
-    groups_n = { item[0] : list(corr_nodes[k] for k in item[2:])  for item in GROUPS_N }
+    groups_n = { item[0] : list(corr_nodes[k] for k in item[1:])  for item in GROUPS_N }
     groups_e = {dim : {name : list(corr_elements[dim][k] for k in item) for name, item in group.items()} for dim, group in GROUPS_E.items()}
 
     return name, sdim, nodes, elements, groups_e, groups_n
