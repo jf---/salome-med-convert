@@ -6,10 +6,12 @@ from operator import itemgetter
 
 import MEDLoader as ml
 
-def read_asc_mesh(filename):
-
+def import_asc_mesh(filename):
     with open(filename, 'r') as f :
         lines = f.readlines()
+    return read_asc_mesh(lines)
+        
+def read_asc_mesh(lines):
 
     name = lines[1].strip() if lines[1].strip() else 'MAILLAGE'
     
