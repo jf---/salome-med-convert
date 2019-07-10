@@ -4,140 +4,157 @@ import os.path as osp
 import numpy as np
 from operator import itemgetter
 
-import MEDLoader as ml
-
 def import_asc_mesh(filename):
+
     with open(filename, 'r') as f :
         lines = f.readlines()
+
     return read_asc_mesh(lines)
         
 def read_asc_mesh(lines):
 
-    name = lines[1].strip() if lines[1].strip() else 'MAILLAGE'
-    
-    NODES, ELEMENTS, GROUPS = [], [], []
+    # Lecture du nom du maillage si disponible, sinon MAILLAGE
+    mesh_name = lines[1].strip() if lines[1].strip() else 'MAILLAGE'
 
+    # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
+    NODES, ELEMENTS, GROUPS = [], [], []
+    
     flag = {'NODES' : 0,
             'ELEMENTS' : 0,
             'GROUPS' : 0
         }
 
     for line in lines :
-        if flag['NODES'] == 1 : NODES.append(line)
-        if flag['ELEMENTS'] == 1 : ELEMENTS.append(line)
-        if flag['GROUPS'] == 1 : GROUPS.append(line)
+        
+        if flag['NODES'] is 1 : NODES.append(line)
+        elif flag['ELEMENTS'] is 1 : ELEMENTS.append(line)
+        elif flag['GROUPS'] is 1 : GROUPS.append(line)
 
-        key = 'NODES'
-        if "BEGIN_%s"%key in line :
-            flag[key]+=1
-            sdim = int(line.split()[2])
-        if "END_%s"%key  in line : flag[key]-=1
+        if "BEGIN_NODES" in line :
+            flag['NODES'] = 1
+            mesh_dim = int(line.split()[2])
+        elif "END_NODES"  in line :
+            flag['NODES'] =  0
 
-        for key in ('ELEMENTS', 'GROUPS'):
-            if "BEGIN_%s"%key in line : flag[key]+=1
-            if "END_%s"%key   in line : flag[key]-=1
+        elif "BEGIN_ELEMENTS" in line :
+            flag['ELEMENTS'] = 1
+        elif "END_ELEMENTS"   in line :
+            flag['ELEMENTS'] = 0
+
+        elif "BEGIN_GROUPS" in line :
+            flag['GROUPS'] = 1
+        elif "END_GROUPS"   in line :
+            flag['GROUPS'] = 0
 
 
-    idx = list(range(-sdim, 0, 1))
-    NODES = [[i] + [int(item.split()[0])] + list(map(float ,list(itemgetter(*idx)(item.split())))) for i, item in enumerate(NODES[:-1])]
-
-    ALL_ELEMENTS = [list(map(int, item.split()[:2] + item.split()[5:])) for item in ELEMENTS[:-1]]
-    ELEMENTS = {'1D' : [],
+    # Les noeuds du maillage
+    idx = (0,) + tuple(range(-mesh_dim, 0, 1))
+    NODES = tuple(tuple(map(float, itemgetter(*idx)(line.split()))) for line in NODES[:-1])
+    corresponding_nodes = { int(i[0]) : j for j, i in enumerate(NODES)}
+    nodes = np.array(NODES)[:,1:]
+        
+    elements = {'1D' : [],
                 '2D' : [],
                 '3D' : [],
             }
+    corresponding_elements = {'1D' : {},
+                     '2D' : {},
+                     '3D' : {},
+                 }
+
+    # Les elements, triés par dimension
     
-    for item in ALL_ELEMENTS :
-        edim = int(str(item[1])[0])
-        if edim == 1 :
-            ELEMENTS['1D'].append([len(ELEMENTS['1D'])] + item)
-        elif edim == 2 :
-            ELEMENTS['2D'].append([len(ELEMENTS['2D'])] + item)
-        elif edim == 3 :
-            ELEMENTS['3D'].append([len(ELEMENTS['3D'])] + item)
+    for line in ELEMENTS[:-1] :
+        spline = line.split()
+        type_element_systus = spline[1]
+        element_dim, type_element_aster = get_type_element_code_aster(type_element_systus)
+        values = tuple(map(int, spline[:2] + spline[5:]))
+        elements_aster = tuple(corresponding_nodes[k] for k in values[2:])
+        
+        if element_dim == 1 :
+            elements['1D'].append((type_element_aster, elements_aster))
+            corresponding_elements['1D'][values[0]] = len(corresponding_elements['1D'])
+        elif element_dim == 2 :
+            elements['2D'].append((type_element_aster, elements_aster))
+            corresponding_elements['2D'][values[0]] = len(corresponding_elements['2D'])
+        elif element_dim == 3 :
+            elements['3D'].append((type_element_aster, elements_aster))
+            corresponding_elements['3D'][values[0]] = len(corresponding_elements['3D'])
         else :
-            raise ValueError(edim)
-    
-    GROUPS_N = [[item.split()[1]] + [int(i) for i in item.split('"')[-1].split()] for item in GROUPS[:-1] if int(item.split()[2]) == 1]
-    
-    ALL_GROUPS_E = {item.split()[1] : [int(i) for i in item.split('"')[-1].split()] for item in GROUPS[:-1] if int(item.split()[2]) == 2}
+            raise ValueError(element_dim)
 
-    corr_nodes = { i[1] : i[0] for i in NODES}
-    corr_elements = { dim : { i[1] : i[0] for i in ELEMENTS[dim]} for dim in ELEMENTS.keys()}
-
-    GROUPS_E = {'1D' : {},
+        
+    # Les groups, triés par dimension
+    groups_n = {}
+    groups_e = {'1D' : {},
                 '2D' : {},
                 '3D' : {},
             }
     
-    for name, item in ALL_GROUPS_E.items() :
-        for el in item :
-            if el in corr_elements['1D']:
-                if not name in GROUPS_E['1D']:  GROUPS_E['1D'][name] = []
-                GROUPS_E['1D'][name].append(el)
-            elif el in corr_elements['2D']:
-                if not name in GROUPS_E['2D']:  GROUPS_E['2D'][name] = []
-                GROUPS_E['2D'][name].append(el)
-            elif el in corr_elements['3D']:
-                if not name in GROUPS_E['3D']:  GROUPS_E['3D'][name] = []
-                GROUPS_E['3D'][name].append(el)
-            else :
-                raise ValueError(item[1])
+    for line in GROUPS[:-1] :
+        spline = line.split()
+        values =  map(int, line.split('"')[-1].split())
+        group_name = spline[1]
+        group_dim = spline[2]
 
-    nodes = np.array(NODES)[:,2:]
+        if group_dim == '1' :
+            groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
 
-    elements = {}
-    for dim, element in ELEMENTS.items() :
-        elements[dim] = {}
-        for item in element :
-            element_type = asso_elem(item[2])[1]
-            if not element_type in elements[dim] : elements[dim][element_type] = []
-            elements[dim][element_type].append(tuple(corr_nodes[k] for k in item[3:]))
-            
-    groups_n = { item[0] : list(corr_nodes[k] for k in item[1:])  for item in GROUPS_N }
-    groups_e = {dim : {name : list(corr_elements[dim][k] for k in item) for name, item in group.items()} for dim, group in GROUPS_E.items()}
+        else :
+            for element_systus in values :
+                if element_systus in corresponding_elements['1D']:
+                    if not group_name in groups_e['1D']:  groups_e['1D'][group_name] = []
+                    groups_e['1D'][group_name].append(corresponding_elements['1D'][element_systus])
+                elif element_systus in corresponding_elements['2D']:
+                    if not group_name in groups_e['2D']:  groups_e['2D'][group_name] = []
+                    groups_e['2D'][group_name].append(corresponding_elements['2D'][element_systus])
+                elif element_systus in corresponding_elements['3D']:
+                    if not group_name in groups_e['3D']:  groups_e['3D'][group_name] = []
+                    groups_e['3D'][group_name].append(corresponding_elements['3D'][element_systus])
+                else :
+                    raise ValueError(element_systus)
 
-    return name, sdim, nodes, elements, groups_e, groups_n
+    
+    return mesh_name, mesh_dim, nodes, elements, groups_e, groups_n
 
-def asso_elem(code_systus):
-    sdim, nb_nodes = int(str(code_systus)[0]), int(str(code_systus)[-2:])
+def get_type_element_code_aster(type_code_systus):
+    dim, nb_nodes = int(str(type_code_systus)[0]), int(str(type_code_systus)[-2:])
    
-    if sdim == 0 and nb_nodes == 1 :
-        code_aster = 'POI'
+    if dim == 0 and nb_nodes == 1 :
+        type_code_aster = 'POI'
         
-    elif sdim == 1 and nb_nodes == 2:
-        code_aster = 'SEG2'
-    elif sdim == 2 and nb_nodes == 3:
-        code_aster = 'TRI3'
-    elif sdim == 2 and nb_nodes == 4:
-        code_aster = 'QUAD4'   
-    elif sdim == 3 and nb_nodes == 4:
-        code_aster = 'TETRA4'
-    elif sdim == 3 and nb_nodes == 8:
-        code_aster = 'HEXA8'
-    elif sdim == 3 and nb_nodes == 5:
-        code_aster = 'PYRA5'
-    elif sdim == 3 and nb_nodes == 6:
-        code_aster = 'PENTA6'
+    elif dim == 1 and nb_nodes == 2:
+        type_code_aster = 'SEG2'
+    elif dim == 2 and nb_nodes == 3:
+        type_code_aster = 'TRI3'
+    elif dim == 2 and nb_nodes == 4:
+        type_code_aster = 'QUAD4'   
+    elif dim == 3 and nb_nodes == 4:
+        type_code_aster = 'TETRA4'
+    elif dim == 3 and nb_nodes == 8:
+        type_code_aster = 'HEXA8'
+    elif dim == 3 and nb_nodes == 5:
+        type_code_aster = 'PYRA5'
+    elif dim == 3 and nb_nodes == 6:
+        type_code_aster = 'PENTA6'
 
 
-    elif sdim == 1 and nb_nodes == 3:
-        code_aster = 'SEG3'
-    elif sdim == 2 and nb_nodes == 6:
-        code_aster = 'TRI6'
-    elif sdim == 2 and nb_nodes == 8:
-        code_aster = 'QUAD8'   
-    elif sdim == 3 and nb_nodes == 10:
-        code_aster = 'TETRA10'
-    elif sdim == 3 and nb_nodes == 20:
-        code_aster = 'HEXA20'
-    elif sdim == 3 and nb_nodes == 13:
-        code_aster = 'PYRA13'
-    elif sdim == 3 and nb_nodes == 15:
-        code_aster = 'PENTA15'
+    elif dim == 1 and nb_nodes == 3:
+        type_code_aster = 'SEG3'
+    elif dim == 2 and nb_nodes == 6:
+        type_code_aster = 'TRI6'
+    elif dim == 2 and nb_nodes == 8:
+        type_code_aster = 'QUAD8'   
+    elif dim == 3 and nb_nodes == 10:
+        type_code_aster = 'TETRA10'
+    elif dim == 3 and nb_nodes == 20:
+        type_code_aster = 'HEXA20'
+    elif dim == 3 and nb_nodes == 13:
+        type_code_aster = 'PYRA13'
+    elif dim == 3 and nb_nodes == 15:
+        type_code_aster = 'PENTA15'
 
     else :
-        raise KeyError(code_systus)
+        raise KeyError(type_code_systus)
     
-    return sdim, code_aster
-
+    return dim, type_code_aster
