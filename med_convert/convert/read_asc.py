@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os.path as osp
-import numpy as np
+
 from operator import itemgetter
 
 def import_asc_mesh(filename):
@@ -12,7 +11,7 @@ def import_asc_mesh(filename):
     return read_asc_mesh(lines)
         
 def read_asc_mesh(lines):
-
+    
     # Lecture du nom du maillage si disponible, sinon MAILLAGE
     mesh_name = lines[1].strip() if lines[1].strip() else 'MAILLAGE'
 
@@ -32,7 +31,7 @@ def read_asc_mesh(lines):
 
         if "BEGIN_NODES" in line :
             flag['NODES'] = 1
-            mesh_dim = int(line.split()[2])
+            space_dim = int(line.split()[2])
         elif "END_NODES"  in line :
             flag['NODES'] =  0
 
@@ -48,21 +47,16 @@ def read_asc_mesh(lines):
 
 
     # Les noeuds du maillage
-    idx = (0,) + tuple(range(-mesh_dim, 0, 1))
+    idx = (0,) + tuple(range(-space_dim, 0, 1))
     NODES = tuple(tuple(map(float, itemgetter(*idx)(line.split()))) for line in NODES[:-1])
+    nb_nodes = len(NODES)
     corresponding_nodes = { int(i[0]) : j for j, i in enumerate(NODES)}
-    nodes = np.array(NODES)[:,1:]
+    nodes = tuple(coord for node in NODES for coord in node[1:])
         
-    elements = {'1D' : [],
-                '2D' : [],
-                '3D' : [],
-            }
-    corresponding_elements = {'1D' : {},
-                     '2D' : {},
-                     '3D' : {},
-                 }
-
     # Les elements, triés par dimension
+    elements = {}
+    corresponding_elements = {}
+    max_dim_elements = '0D'
     
     for line in ELEMENTS[:-1] :
         spline = line.split()
@@ -70,52 +64,37 @@ def read_asc_mesh(lines):
         element_dim, type_element_aster = get_type_element_code_aster(type_element_systus)
         values = tuple(map(int, spline[:2] + spline[5:]))
         elements_aster = tuple(corresponding_nodes[k] for k in values[2:])
-        
-        if element_dim == 1 :
-            elements['1D'].append((type_element_aster, elements_aster))
-            corresponding_elements['1D'][values[0]] = len(corresponding_elements['1D'])
-        elif element_dim == 2 :
-            elements['2D'].append((type_element_aster, elements_aster))
-            corresponding_elements['2D'][values[0]] = len(corresponding_elements['2D'])
-        elif element_dim == 3 :
-            elements['3D'].append((type_element_aster, elements_aster))
-            corresponding_elements['3D'][values[0]] = len(corresponding_elements['3D'])
-        else :
-            raise ValueError(element_dim)
 
-        
+        key = '%dD'%element_dim
+        if not key in elements : elements[key] = []
+        if not key in corresponding_elements : corresponding_elements[key] = {}
+        elements[key].append((type_element_aster, elements_aster))
+        corresponding_elements[key][values[0]] = len(corresponding_elements[key])
+        max_dim_elements = max(max_dim_elements, key)
+
     # Les groups, triés par dimension
     groups_n = {}
-    groups_e = {'1D' : {},
-                '2D' : {},
-                '3D' : {},
-            }
-    
+    groups_e = {}
+
     for line in GROUPS[:-1] :
         spline = line.split()
         values =  map(int, line.split('"')[-1].split())
         group_name = spline[1]
-        group_dim = spline[2]
+        group_tag_systus = spline[2]
 
-        if group_dim == '1' :
+        if group_tag_systus == '1' :
             groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
 
         else :
             for element_systus in values :
-                if element_systus in corresponding_elements['1D']:
-                    if not group_name in groups_e['1D']:  groups_e['1D'][group_name] = []
-                    groups_e['1D'][group_name].append(corresponding_elements['1D'][element_systus])
-                elif element_systus in corresponding_elements['2D']:
-                    if not group_name in groups_e['2D']:  groups_e['2D'][group_name] = []
-                    groups_e['2D'][group_name].append(corresponding_elements['2D'][element_systus])
-                elif element_systus in corresponding_elements['3D']:
-                    if not group_name in groups_e['3D']:  groups_e['3D'][group_name] = []
-                    groups_e['3D'][group_name].append(corresponding_elements['3D'][element_systus])
-                else :
-                    raise ValueError(element_systus)
+                for key in elements.keys():
+                    if element_systus in corresponding_elements[key]:
+                        if not key in groups_e : groups_e[key] = {}
+                        if not group_name in groups_e[key]:  groups_e[key][group_name] = []
+                        groups_e[key][group_name].append(corresponding_elements[key][element_systus])
 
     
-    return mesh_name, mesh_dim, nodes, elements, groups_e, groups_n
+    return mesh_name, space_dim, nodes, elements, groups_e, groups_n
 
 def get_type_element_code_aster(type_code_systus):
     dim, nb_nodes = int(str(type_code_systus)[0]), int(str(type_code_systus)[-2:])
@@ -158,3 +137,4 @@ def get_type_element_code_aster(type_code_systus):
         raise KeyError(type_code_systus)
     
     return dim, type_code_aster
+
