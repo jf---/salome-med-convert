@@ -369,7 +369,7 @@ Sorties :
 #
       if ( self._type_externe == "SYSTUS" ):
 #
-        erreur, message, meshmedfile = cv_systus_vers_med (les_lignes, self._verbose, self._verbose_max)
+        erreur, message, meshmedfile = cv_systus_vers_med (self._ficexterne, les_lignes, self._verbose, self._verbose_max)
 #
 # 2.2. Rien d'autre pour le moment
 #

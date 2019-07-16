@@ -20,7 +20,7 @@ from .util import gettabrecip
 from .util import creation_groupe
 from .util import print_bilan
 #
-from .read_asc import read_asc_mesh
+from .systus_utilities import read_systus_mesh
 #
 import MEDLoader as ml
 #
@@ -29,7 +29,7 @@ import MEDLoader as ml
 #=========================== Début de la fonction ================================
 #
 
-def cv_systus_vers_med (les_lignes, verbose, verbose_max=False):
+def cv_systus_vers_med (filename, les_lignes, verbose, verbose_max=False):
   """Conversion du maillage
 
 Entrées :
@@ -67,7 +67,7 @@ Sorties :
 #
 # 4. Création du contenu des groupes
 #
-    d_groupes = cv_systus_med_3 ( les_lignes, d_niveau, verbose, verbose_max )
+    d_groupes = cv_systus_med_3 ( filename, d_niveau, verbose, verbose_max )
 #
 # 5. Aggrégation des maillages
 #
@@ -632,7 +632,7 @@ Sorties :
 #
 #=========================== Début de la fonction ================================
 #
-def cv_systus_med_3 ( les_lignes, d_niveau, verbose, verbose_max ) :
+def cv_systus_med_3 ( filename, d_niveau, verbose, verbose_max ) :
   """Création des groupes
 
 Entrées:
@@ -656,7 +656,7 @@ Sorties :
 #    . clé : nom du groupe
 #    . valeur : liste des numéros des noeuds
 #
-  _, _, _, _, d_gr_elements, d_gr_noeuds = read_asc_mesh (les_lignes)
+  _, _, _, _, d_gr_elements, d_gr_noeuds = read_systus_mesh(filename)
 #
 # 2. Exploration de chaque niveau pour les groupes d'éléments
 #
