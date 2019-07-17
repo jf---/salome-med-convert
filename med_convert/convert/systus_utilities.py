@@ -3,14 +3,15 @@
 
 import sys
 import argparse
+import logging
 import os.path as osp
 from operator import itemgetter
 from collections import OrderedDict
-import medcoupling as mc
-from MEDLoader import *
 from time import strftime
+
+import medcoupling
+from MEDLoader import *
 from .logger import logger
-import logging
 
 class ConnectivityRenumberer:
 
@@ -98,7 +99,7 @@ class ElementTypeConverter:
         '315' : (15, 'PENTA15', 3),
     } 
     _med_to_systus = {item[1] : (item[0], '0'.join((i[0], i[1:])), item[2]) for i, item in _systus_to_med.items()}
-    _med_to_medcoupling = { item[1] : (item[0], getattr(mc, 'NORM_%s'%item[1]), item[2]) for item in _systus_to_med.values()}
+    _med_to_medcoupling = { item[1] : (item[0], getattr(medcoupling, 'NORM_%s'%item[1]), item[2]) for item in _systus_to_med.values()}
     
     def systus_to_med_type(self, systus_type):
         try :
@@ -146,7 +147,7 @@ class MedConvert:
                 
     def create_med_mesh(self):
 
-        coords = mc.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
+        coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
         self.medmesh = MEDFileUMesh()
 
@@ -177,7 +178,7 @@ class MedConvert:
             # Groupes d'elements par niveau
             groups_e_at_level = []
             for group_name, group_elements in self.groups_e[dim].items():
-                group_medcoupling = mc.DataArrayInt(group_elements)
+                group_medcoupling = medcoupling.DataArrayInt(group_elements)
                 group_medcoupling.setName(group_name)
                 groups_e_at_level.append(group_medcoupling)
 
@@ -186,7 +187,7 @@ class MedConvert:
         # Groupes de noeuds
         groups_n_at_level = []
         for group_name, group_nodes in self.groups_n.items():
-            group_medcoupling = mc.DataArrayInt(group_nodes)
+            group_medcoupling = medcoupling.DataArrayInt(group_nodes)
             group_medcoupling.setName(group_name)
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
@@ -232,7 +233,7 @@ class MedConvertSystus(MedConvert):
         with open(filename, 'r') as f :
             next(f)
 
-            # Lecture du nom du maillage si disponible, sinon MAILLAGE
+            # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
             # self.mesh_name = line_1 if line_1 else 'Mesh'
             self.mesh_name = line_1 if line_1 else osp.splitext(osp.split(filename)[-1])[0]
