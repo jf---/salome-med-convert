@@ -30,9 +30,10 @@ def convert(input_file, output_file, conversion_type):
     """
     if conversion_type != 0:
         return False, translate("MedConvert", "Unsupported format!")
-    format = Fmt.Systus
+    input_format = Fmt.Systus
+    output_format = Fmt.Med
     try :
-        convert_engine(input_file, format, output_file)
+        convert_engine(input_file, input_format, output_file, output_format, verbose = False)
         return True, ''
 
     except Exception as err:

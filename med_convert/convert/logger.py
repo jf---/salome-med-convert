@@ -19,13 +19,26 @@
 This package defines the *logger* of the MED converter plugin.
 """
 import logging
-level = logging.INFO
 
-logger = logging.getLogger("med_convert")
-logger.setLevel(level)
-ch = logging.StreamHandler()
-ch.setLevel(level)
-formatter = logging.Formatter(' %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+class MedConvertLogger :
+    def __init__(self, level=logging.INFO):
+        logger = logging.getLogger("med_convert")
+        logger.setLevel(level)
+        ch = logging.StreamHandler()
+        formatter = logging.Formatter(' %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        self._log = logger
 
+    # Methods for logging tasks
+    def setLevel(self, level):
+        """Set the level of the logger"""
+        self._log.setLevel(level)
+
+    def debug(self, msg):
+        self._log.debug(msg)
+
+    def info(self, msg):
+        self._log.info(msg)
+
+logger = MedConvertLogger()

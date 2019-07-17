@@ -20,8 +20,7 @@ This package defines the *engine* of the MED converter plugin.
 """
 
 from ..utilities import translate
-from .cv_externe_med import ExterneMED
-
+from .systus_utilities import MedConvertSystus
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -51,30 +50,31 @@ class Fmt:
         }.get(format, "Unknown")
 
 
-def convert(input_file, format, output_file, verbose=False):
+def convert(input_file, input_format, output_file, output_format, verbose = False):
     """Main entry point of the converter.
 
     Arguments:
         input_file (str): Path to the input file.
-        format (*Fmt*): Format of the input file.
+        input_format (*Fmt*): Format of the input file.
         output_file (str): Path to the output file.
+        output_format (*Fmt*): Format of the output file.
         verbose (bool): Verbosity.
 
     Returns:
         bool: Status of the conversion: *True* in case of success, *False*
         otherwise.
     """
-    if format != Fmt.Systus:
-        raise ValueError(translate("MedConvert", "Unsupported format!"))
 
-    opts = [
-        '--type_externe=SYSTUS',
-        '--type_cv=0',
-        '--ficexterne={0}'.format(input_file),
-        '--ficmed={0}'.format(output_file),
-    ]
-    if verbose:
-        opts.append('-vmax')
-    converter = ExterneMED(opts)
-    converter.lancement()
+    if input_format != Fmt.Systus:
+        raise ValueError(translate("MedConvert", "Unsupported format!"))
+    
+    if (input_format == Fmt.Systus and output_format == Fmt.Med):
+        MedConvertSystus.convert_systus_to_med(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Med and output_format == Fmt.Systus):
+        MedConvertSystus.convert_med_to_systus(input_file, output_file, verbose)  
+        
+    else :
+        raise ValueError(translate("MedConvert", "Unsupported format conversion!"))
+
     return True

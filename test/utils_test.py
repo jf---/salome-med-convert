@@ -84,7 +84,7 @@ def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert(infile, Fmt.Systus, outfile, verbose=(DEBUG == 1))
+    convert(infile, Fmt.Systus, outfile, Fmt.Med, verbose=(DEBUG == 1))
 
     utest.assertTrue(osp.isfile(outfile))
     mesh = MEDLoader.ReadMeshFromFile(outfile)

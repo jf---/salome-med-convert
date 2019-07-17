@@ -20,7 +20,7 @@ from .util import gettabrecip
 from .util import creation_groupe
 from .util import print_bilan
 #
-from .systus_utilities import read_systus_mesh
+from .systus_utilities import MedConvertSystus
 #
 import MEDLoader as ml
 #
@@ -656,7 +656,9 @@ Sorties :
 #    . clé : nom du groupe
 #    . valeur : liste des numéros des noeuds
 #
-  _, _, _, _, d_gr_elements, d_gr_noeuds = read_systus_mesh(filename)
+  c = MedConvertSystus()
+  c.read_systus_mesh(filename)
+  d_gr_elements, d_gr_noeuds = c.groups_e, c.groups_n
 #
 # 2. Exploration de chaque niveau pour les groupes d'éléments
 #
