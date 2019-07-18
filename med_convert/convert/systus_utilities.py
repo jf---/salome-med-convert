@@ -27,7 +27,7 @@ class ConnectivityRenumberer:
     # Le noeud 7 MED correspond au noeud 7 SYSTUS
 
     _systus = {
-        'POI'     : [0],
+        'POINT1'     : [0],
         
         'SEG2'    : [0, 1],
         'TRI3'    : [0, 1, 2],
