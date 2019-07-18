@@ -34,7 +34,7 @@ class ConnectivityRenumberer:
         'QUAD4'   : [0, 1, 2, 3],
         'TETRA4'  : [0, 2, 1, 3],
         'HEXA8'   : [0, 3, 2, 1,   4, 7, 6, 5],
-        'PYRA5'   : [],
+        #'PYRA5'   : [],
         'PENTA6'  : [0, 2, 1,   3, 5, 4],
 
         'SEG3'    : [0, 2, 1],
@@ -42,7 +42,7 @@ class ConnectivityRenumberer:
         'QUAD8'   : [0, 4, 1, 5, 2, 6, 3, 7],
         'TETRA10' : [0,  6,  2,  5,  1,  4,    7,  9,  8,   3 ],
         'HEXA20'  : [0, 11, 3, 10, 2, 9, 1, 8,   16, 19, 18, 17,   4, 15, 7, 14, 6, 13, 5, 12 ],
-        'PYRA13'  : [],
+        #'PYRA13'  : [],
         'PENTA15' : [0, 8, 2, 7, 1, 6,   12, 14, 13,   3, 11, 5, 10, 4, 9]
     }
 
@@ -72,11 +72,15 @@ class ConnectivityRenumberer:
 
 
     def external_to_med(self, elem_type, nodes):
-        return tuple(nodes[self._connectivity_external_to_med[elem_type][i]] for i in self._connectivity_external_to_med[elem_type])
-
+        try :
+            return tuple(nodes[self._connectivity_external_to_med[elem_type][i]] for i in self._connectivity_external_to_med[elem_type])
+        except KeyError :
+            raise KeyError('Unsupported element type %s'%elem_type)
     def med_to_external(self, elem_type, nodes):
-        return tuple(nodes[self._connectivity_med_to_external[elem_type][i]] for i in self._connectivity_med_to_external[elem_type])
-
+        try :
+            return tuple(nodes[self._connectivity_med_to_external[elem_type][i]] for i in self._connectivity_med_to_external[elem_type])
+        except KeyError :
+            raise KeyError('Unsupported element type %s'%elem_type)
 
 class ElementTypeConverter:
     _systus_to_med = {
@@ -170,18 +174,21 @@ class MedConvert:
                 element_nodes_med = c_renum.external_to_med(med_type, element_nodes_asc)
                 mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
 
-            mesh_at_current_level.finishInsertingCells()
+                mesh_at_current_level.finishInsertingCells()
             mesh_at_current_level.sortCellsInMEDFileFrmt()
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
 
             # Groupes d'elements par niveau
-            groups_e_at_level = []
-            for group_name, group_elements in self.groups_e[dim].items():
-                group_medcoupling = medcoupling.DataArrayInt(group_elements)
-                group_medcoupling.setName(group_name)
-                groups_e_at_level.append(group_medcoupling)
-
+            try :
+                groups_e_at_level = []
+                for group_name, group_elements in self.groups_e[dim].items():
+                    group_medcoupling = medcoupling.DataArrayInt(group_elements)
+                    group_medcoupling.setName(group_name)
+                    groups_e_at_level.append(group_medcoupling)
+            except KeyError :
+                # On peut ne pas avoir de groupes de mailles d'une certaine dimension
+                pass
             self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
 
         # Groupes de noeuds
