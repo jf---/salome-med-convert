@@ -113,7 +113,7 @@
         <translation>ERREUR: L&apos;outil MedConvert n&apos;est pas disponible</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/services.py" line="32"/>
+        <location filename="../../med_convert/gui/services.py" line="34"/>
         <source>Unsupported format!</source>
         <translation>Format non supporté !</translation>
     </message>
