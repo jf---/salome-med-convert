@@ -174,7 +174,7 @@ class MedConvert:
                 element_nodes_med = c_renum.external_to_med(med_type, element_nodes_asc)
                 mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
 
-                mesh_at_current_level.finishInsertingCells()
+            mesh_at_current_level.finishInsertingCells()
             mesh_at_current_level.sortCellsInMEDFileFrmt()
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
@@ -186,10 +186,10 @@ class MedConvert:
                     group_medcoupling = medcoupling.DataArrayInt(group_elements)
                     group_medcoupling.setName(group_name)
                     groups_e_at_level.append(group_medcoupling)
+                self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
             except KeyError :
                 # On peut ne pas avoir de groupes de mailles d'une certaine dimension
                 pass
-            self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
 
         # Groupes de noeuds
         groups_n_at_level = []

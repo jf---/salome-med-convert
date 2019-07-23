@@ -25,7 +25,7 @@ uninstall: ## Uninstall a previous installation ($SALOMEMECA_MED_CONVERT_ROOT_DI
 	fi
 	@echo -n "Are you sure you want to remove '$(PREFIX)/*' [y/n]? " ;
 	@read verify ; [ "$$verify" = "y" ] || { echo "Interrupted!"; false ; }
-	rm -rf $(PREFIX)/*
+	@rm -rf $(PREFIX)/*
 	@rmdir $(PREFIX) 2> /dev/null || true
 
 clean: ## Remove Python cache files

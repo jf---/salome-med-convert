@@ -34,7 +34,7 @@ if __name__ == "__main__":
             parser.error("Missing input filename: use '--input'")
         if not args.output:
             parser.error("Missing output filename: use '--output'")
-        convert(args.input, Fmt.Systus, args.output, verbose=args.verbose)
+        convert(args.input, Fmt.Systus, args.output, Fmt.Med, verbose=args.verbose)
     else:
         start()
     sys.exit(0)

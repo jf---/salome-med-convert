@@ -19,11 +19,13 @@
 The module implement *MedConvert* plugin's services.
 """
 
+import os
 import traceback
 
 from ..convert import Fmt, convert as convert_engine
 from ..utilities import translate
 
+DEBUG = int(os.getenv("DEBUG", 0))
 
 def convert(input_file, output_file, conversion_type):
     """Safe call to the converter.
