@@ -239,7 +239,7 @@ class MedConvertSystus(MedConvert):
             }
 
         # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
-        with open(filename, 'r') as f :
+        with open(filename, 'r', encoding = 'latin_1') as f :
             next(f)
 
             # Lecture du nom du maillage si disponible
