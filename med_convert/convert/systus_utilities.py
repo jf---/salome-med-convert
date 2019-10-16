@@ -175,7 +175,8 @@ class MedConvert:
                 mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
 
             mesh_at_current_level.finishInsertingCells()
-            mesh_at_current_level.sortCellsInMEDFileFrmt()
+            sort_order = mesh_at_current_level.sortCellsInMEDFileFrmt()
+            sort_dict = {idx : item for idx, item in enumerate(sort_order.getValues())}
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
 
@@ -183,7 +184,8 @@ class MedConvert:
             try :
                 groups_e_at_level = []
                 for group_name, group_elements in self.groups_e[dim].items():
-                    group_medcoupling = medcoupling.DataArrayInt(group_elements)
+                    sorted_group = tuple(sort_dict[item] for item in group_elements)
+                    group_medcoupling = medcoupling.DataArrayInt(sorted_group)
                     group_medcoupling.setName(group_name)
                     groups_e_at_level.append(group_medcoupling)
                 self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
