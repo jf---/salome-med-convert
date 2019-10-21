@@ -141,6 +141,20 @@ class MedConvert:
         
         self.medmesh = None
 
+    def _get_file_encoding(self, filename):
+
+        encodings = 'utf8 latin_1 cp437'.split()
+        
+        for enc in encodings :
+            try :
+                with open(filename, mode = 'r', encoding = enc) as f : f.read()
+                return enc
+            except UnicodeDecodeError as err:
+                continue
+        
+        msg = "File encoding is not among : %s"%(', '.join(encodings))
+        raise UnicodeError(msg)
+    
     def read_med_mesh(self, filename):
         logger.debug("Reading Med mesh file : %s"%filename)
         self.medmesh = MEDFileUMesh(filename)
@@ -239,8 +253,8 @@ class MedConvertSystus(MedConvert):
             }
 
         # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
-        with open(filename, 'r', encoding = 'latin_1') as f :
-            next(f)
+        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+            next(f) 
 
             # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
@@ -328,4 +342,88 @@ class MedConvertSystus(MedConvert):
         with open(filename, 'w') as f : f.write(self.systusmesh)
         
     def create_systus_mesh(self):
-        self.systusmesh = ''
+
+        mesh_name = self.medmesh.getName()
+        groups_names = self.medmesh.getGroupsNames()
+        mesh_dim = self.medmesh.getMeshDimension()
+
+        # Noeuds
+        coords = self.medmesh.getCoords()
+        space_dim = self.medmesh.getSpaceDimension()
+        nb_nodes = len(coords)
+        nodes_shift = 1 # La numérotation SYSTUS des noeuds démarre à 1
+        nodes_lines = ('%d 0 0 0 0 0 '%(i+nodes_shift) + ' '.join(map(str,node)) for i, node in enumerate(coords))
+
+        # Elements et groupes
+        elements_lines = []
+        groups_lines = []
+        groups_e_ids = {}
+        groups_n_ids = {}
+        cells_shift = 1 # La numérotation SYSTUS des éléments démarre à 1. De plus la numérotation MED est compacte par niveau. On se servira de cette variable pour créer une numérotation globale
+
+        c_renum = ConnectivityRenumberer('SYSTUS')
+        e_conv = ElementTypeConverter()
+        non_empty_levs = self.medmesh.getNonEmptyLevels()
+        for lev in non_empty_levs:
+            mesh_lev = self.medmesh[lev]
+            j = 0 # Un index pour compter les cells par niveau
+            types_at_level = mesh_lev.getAllGeoTypesSorted()
+            for a_type in types_at_level :
+                nb_nodes_per_cell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(a_type)
+                med_type = MEDCouplingUMesh.GetReprOfGeometricType(a_type).split('NORM_')[-1]
+                _, systus_type, _ = e_conv.med_to_systus_type(med_type)
+                cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
+                for cell in cells_by_type :
+                    element_nodes_med = DataArrayInt(mesh_lev.getNodeIdsOfCell(cell)) + nodes_shift
+                    element_nodes_asc = c_renum.med_to_external(med_type, element_nodes_med)
+                    elements_lines.append('%d %s 1 0 0 '%(j+cells_shift, systus_type) + ' '.join(map(str,element_nodes_asc)))
+                    j+=1
+                 
+            groups_e_at_level = self.medmesh.getGroupsOnSpecifiedLev(lev)
+            for group in groups_e_at_level :
+                ids = cells_shift + self.medmesh.getGroupArr(lev, group)
+                # Gestion des groupes sur plusierus niveaux
+                if group in groups_e_ids :
+                    groups_e_ids[group].append(ids.getValues())
+                else:
+                    groups_e_ids[group] = ids.getValues()
+
+            cells_shift+=mesh_lev.getNumberOfCells() # Pour créer une numérotation globale
+
+        groups_n = self.medmesh.getGroupsOnSpecifiedLev(1)
+        for group in groups_n :
+            ids = nodes_shift + self.medmesh.getGroupArr(1, group)
+            groups_n_ids[group] = ids.getValues()
+
+        nb_elements = cells_shift-1
+
+        id_groups = 1 # La numérotation des groupes systus est incrementale et commune à tout type de groupe
+        for name in sorted(groups_e_ids.keys()) :
+            group_e = groups_e_ids[name]
+            group_line = '%d %s 2 0 "PART_ID %d" "" "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_e)))
+            id_groups+=1
+            groups_lines.append(group_line)
+
+        for name in sorted(groups_n_ids.keys()) :
+            group_n = groups_n_ids[name]
+            group_line = '%d %s 1 0 "COLLECTOR_ID %d" "" "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_n)))
+            id_groups+=1
+            groups_lines.append(group_line)
+        nb_groups = id_groups-1
+
+
+        # Entete du fichier
+        txt_header = """1VSD 0 {0} {0}
+{1}
+ 100000 4 {2} {3} 0 3 6 0 0
+BEGIN_INFORMATIONS
+{1}
+ 4 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 3 3 9 0 0 0 0 9 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0
+END_INFORMATIONS
+""".format(*[strftime("%y%m%d %H%M%S"), mesh_name, nb_nodes, nb_elements])
+
+        txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n"%(nb_nodes, space_dim, '\n'.join(nodes_lines))
+        txt_elements = "BEGIN_ELEMENTS %d\n%s\nEND_ELEMENTS\n"%(nb_elements, '\n'.join(elements_lines))
+        txt_groups = "BEGIN_GROUPS %d\n%s\nEND_GROUPS\n"%(nb_groups, '\n'.join(groups_lines)) if groups_lines else ''
+        self.systusmesh = ''.join((txt_header, txt_nodes, txt_elements, txt_groups))

@@ -27,14 +27,30 @@ if __name__ == "__main__":
         help="Filename of the mesh to be converted")
     parser.add_argument('-o', '--output', action='store', dest='output',
         help="Path to write the MED file to")
-
+    parser.add_argument('-fi', '--input-format', action='store', dest='finput',
+        help="Input format")
+    parser.add_argument('-fo', '--output-format', action='store', dest='foutput',
+        help="Output format")
+    
+    
     args = parser.parse_args()
-    if args.input or args.output:
+    if not (args.input or args.output) :
+        start()
+    else :
         if not args.input:
             parser.error("Missing input filename: use '--input'")
         if not args.output:
             parser.error("Missing output filename: use '--output'")
-        convert(args.input, Fmt.Systus, args.output, Fmt.Med, verbose=args.verbose)
-    else:
-        start()
+            
+        if not args.finput and not args.foutput:
+            args.finput = "Systus"
+            args.foutput = "Med"
+
+        if args.finput and not args.foutput :
+            parser.error("Missing output format: use '--output-format'")
+        if args.foutput and not args.finput :
+            parser.error("Missing input format: use '--input-format'")
+            
+        convert(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), verbose=args.verbose)
+
     sys.exit(0)

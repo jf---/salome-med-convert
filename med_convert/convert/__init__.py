@@ -32,6 +32,14 @@ class Fmt:
     Aster = 0x002
     Systus = 0x004
 
+    @classmethod
+    def get(cls, name):
+        try :
+            return getattr(cls, name.title())
+        except AttributeError:
+            msg = "Unknown format '%s'"%name
+            raise AttributeError(msg)
+
     @staticmethod
     def name(format):
         """
@@ -64,9 +72,6 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
         bool: Status of the conversion: *True* in case of success, *False*
         otherwise.
     """
-
-    if input_format != Fmt.Systus:
-        raise ValueError(translate("MedConvert", "Unsupported format!"))
     
     if (input_format == Fmt.Systus and output_format == Fmt.Med):
         MedConvertSystus.convert_systus_to_med(input_file, output_file, verbose)
