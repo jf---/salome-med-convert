@@ -26,7 +26,7 @@ from PyQt5 import Qt as Q
 
 try:
     import salome
-    HAS_SALOME = salome.myStudy is not None
+    HAS_SALOME = True
 except ImportError:
     HAS_SALOME = False
 

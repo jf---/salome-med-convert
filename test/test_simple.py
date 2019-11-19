@@ -23,17 +23,20 @@ from utils_test import standard_conversion
 class TestSimple(unittest.TestCase):
 
     def test_carre(self):
-        standard_conversion(self, "CARRE_DONN1.ASC", 25, 96)
+        standard_conversion(self, "CARRE_DONN1.ASC", "SYSTUS", 25, 96)
 
     def test_couronne(self):
-        standard_conversion(self, "COURONNE_DONN1.ASC", 216, 720)
+        standard_conversion(self, "COURONNE_DONN1.ASC", "SYSTUS", 216, 720)
 
     def test_motif_partial(self):
         # to be removed when test_motif is fixed
-        standard_conversion(self, "MOTIF_DONN1.ASC", 96, 673)
+        standard_conversion(self, "MOTIF_DONN1.ASC", "SYSTUS", 96, 673)
 
     def test_rectangle(self):
-        standard_conversion(self, "RECTANGLE_DONN1.ASC", 60, 213)
+        standard_conversion(self, "RECTANGLE_DONN1.ASC", "SYSTUS", 60, 213)
+
+    def test_carre_abaqus(self):
+        standard_conversion(self, "CARRE_1.inp", "ABAQUS", 1, 4)
 
 
 if __name__ == "__main__":

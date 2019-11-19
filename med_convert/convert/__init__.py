@@ -21,6 +21,7 @@ This package defines the *engine* of the MED converter plugin.
 
 from ..utilities import translate
 from .systus_utilities import MedConvertSystus
+from .abaqus_utilities import MedConvertAbaqus
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -31,6 +32,7 @@ class Fmt:
     Med = 0x001
     Aster = 0x002
     Systus = 0x004
+    Abaqus = 0x005
 
     @classmethod
     def get(cls, name):
@@ -55,6 +57,7 @@ class Fmt:
             Fmt.Med: "Med",
             Fmt.Aster: "Aster",
             Fmt.Systus: "Systus",
+            Fmt.Abaqus: "Abaqus",
         }.get(format, "Unknown")
 
 
@@ -72,13 +75,18 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
         bool: Status of the conversion: *True* in case of success, *False*
         otherwise.
     """
-    
     if (input_format == Fmt.Systus and output_format == Fmt.Med):
         MedConvertSystus.convert_systus_to_med(input_file, output_file, verbose)
 
     elif (input_format == Fmt.Med and output_format == Fmt.Systus):
-        MedConvertSystus.convert_med_to_systus(input_file, output_file, verbose)  
-        
+        MedConvertSystus.convert_med_to_systus(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Abaqus and output_format == Fmt.Med):
+        MedConvertAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Med and output_format == Fmt.Abaqus):
+        MedConvertAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
+
     else :
         raise ValueError(translate("MedConvert", "Unsupported format conversion!"))
 
