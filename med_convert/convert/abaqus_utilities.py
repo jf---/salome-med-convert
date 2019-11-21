@@ -220,9 +220,9 @@ class MedConvertAbaqus(MedConvert):
 
 
     def _read_data(self, f, line, Node, Elements, Nset, Elset):
-        keyword = line.strip("*")
+        keyword = line.strip().strip("*").strip()
 
-        if(keyword.startswith("Node")):
+        if(keyword == "Node"):
             line0 = self._read_nodes(f, Node)
             # print("Nodes")
             # print(Node)
@@ -286,11 +286,20 @@ class MedConvertAbaqus(MedConvert):
         name = params_map[param]
         list_nodes = []
 
+        if("generate" in params_map.keys()):
+            generate = True
+        else:
+            generate = False
+
         while True:
             line = f.readline()
             if line.startswith("*"):
                 break
-            list_nodes += line.strip().rstrip(",").split(",")
+            if(generate):
+                gener = line.strip().rstrip(",").split(",")
+                list_nodes += [int(n) for n in range(int(gener[0]), int(gener[1])+1, int(gener[2]))]
+            else:
+                list_nodes += line.strip().rstrip(",").split(",")
 
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_nodes]))
 
