@@ -31,8 +31,8 @@ if __name__ == "__main__":
         help="Input format")
     parser.add_argument('-fo', '--output-format', action='store', dest='foutput',
         help="Output format")
-    
-    
+
+
     args = parser.parse_args()
     if not (args.input or args.output) :
         start()
@@ -41,16 +41,16 @@ if __name__ == "__main__":
             parser.error("Missing input filename: use '--input'")
         if not args.output:
             parser.error("Missing output filename: use '--output'")
-            
+
         if not args.finput and not args.foutput:
-            args.finput = "Systus"
+            args.finput = "Abaqus"
             args.foutput = "Med"
 
         if args.finput and not args.foutput :
             parser.error("Missing output format: use '--output-format'")
         if args.foutput and not args.finput :
             parser.error("Missing input format: use '--input-format'")
-            
+
         convert(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), verbose=args.verbose)
 
     sys.exit(0)

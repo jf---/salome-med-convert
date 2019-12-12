@@ -58,7 +58,7 @@ def tempdir(func):
 
 
 @tempdir
-def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
+def standard_conversion(tmpdir, utest, filename, input_format, nbcells, nbnodes,
                         private=False):
     """Function to check a mesh conversion.
 
@@ -69,6 +69,7 @@ def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
         tmpdir (str): Path to the temporary directory.
         utest (*unittest.TestCase*): Test object.
         filename (str): Basename of the input mesh file.
+        input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
         nbcells (int): Expected number of cells of dimension 0.
         nbnodes (int): Expected number of nodes.
         private (bool): *True* for private meshes. *False* otherwise.
@@ -84,7 +85,12 @@ def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert(infile, Fmt.Systus, outfile, Fmt.Med, verbose=(DEBUG == 1))
+    if input_format == "SYSTUS":
+        convert(infile, Fmt.Systus, outfile, Fmt.Med, verbose=(DEBUG == 1))
+    elif input_format == "ABAQUS":
+        convert(infile, Fmt.Abaqus, outfile, Fmt.Med, verbose=(DEBUG == 1))
+    else:
+        raise KeyError('Unsupported mesh format %s'%input_format)
 
     utest.assertTrue(osp.isfile(outfile))
     mesh = MEDLoader.ReadMeshFromFile(outfile)
