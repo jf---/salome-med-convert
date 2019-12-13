@@ -27,7 +27,7 @@ class ConnectivityRenumberer:
     # Le noeud 7 MED correspond au noeud 7 SYSTUS
 
     _systus = {
-        'POINT1'     : [0],
+        'POINT1'  : [0],
         'SEG2'    : [0, 1],
         'TRI3'    : [0, 1, 2],
         'QUAD4'   : [0, 1, 2, 3],
@@ -49,6 +49,34 @@ class ConnectivityRenumberer:
         'POINT1'  : [0],
         'SEG2'    : [0, 1],
         'QUAD4'   : [0, 1, 2, 3],
+    }
+
+    _aster = {
+        'POINT1'  : [0],
+        
+        'SEG2'    : range(2), 
+        'TRI3'    : range(3), 
+        'QUAD4'   : range(4), 
+        'TETRA4'  : [0, 2, 1, 3],
+        'HEXA8'   : [0,  3,  2,  1,  4,  7,  6,  5],
+        'PYRA5'   : [0, 3, 2, 1, 4],
+        'PENTA6'  : [0, 2, 1, 3, 5, 4],
+
+        'SEG3'    : range(3),  
+        'TRI6'    : range(6),  
+        'QUAD8'   : range(8),  
+        'TETRA10' : [0, 2, 1, 3, 6, 5, 4, 7, 9, 8],
+        'HEXA20'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 16, 19, 18, 17, 15, 14, 13, 12],
+        'PYRA13'  : [0, 3, 2, 1, 4, 8, 7, 6, 5, 9, 12, 11, 10],
+        'PENTA15' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 12, 14, 13, 11, 10, 9],
+
+
+        'SEG4'    : range(4), 
+        'TRI7'    : range(7),  
+        'QUAD9'   : range(9),  
+        'PENTA18' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 12, 14, 13, 11, 10, 9, 17, 16, 15],
+        'HEXA27'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 16, 19, 18, 17, 15, 14, 13, 12, 20, 24, 23, 22, 21, 25, 26],
+
     }
 
     def __init__(self, code):
@@ -113,11 +141,40 @@ class ElementTypeConverter:
         'S4' : (4,  'QUAD4',   2),
     }
 
+    _aster_to_med = {
+        'POI1'   : (1,  'POINT1',  0),
+        
+        'SEG2'   : (2,  'SEG2',    1),
+        'TRIA3'  : (3,  'TRI3',    2),
+        'QUAD4'  : (4,  'QUAD4',   2),
+        'TETRA4' : (4,  'TETRA4',  3),
+        'HEXA8'  : (8,  'HEXA8',   3),
+        'PYRAM5' : (5,  'PYRA5',   3),
+        'PENTA6' : (6,  'PENTA6',  3),
+        
+        'SEG3'   : (3,  'SEG3',    1),
+        'TRIA6'  : (6,  'TRI6',    2), 
+        'QUAD8'  : (8,  'QUAD8',   2), 
+        'TETRA10': (10, 'TETRA10', 3),
+        'HEXA20' : (20, 'HEXA20',  3),
+        'PYRAM13': (13, 'PYRA13',  3),
+        'PENTA15': (15, 'PENTA15', 3),
+
+        'SEG4'   : (4,  'SEG4',    1),
+        'TRIA7'  : (7,  'TRI7',    2), 
+        'QUAD9'  : (9,  'QUAD9',   2),
+        'PENTA18': (18, 'PENTA15', 3),
+        'HEXA27' : (27, 'HEXA27',  3), 
+
+    }
+
     _med_to_systus = {item[1] : (item[0], '0'.join((i[0], i[1:])), item[2]) for i, item in _systus_to_med.items()}
 
-    _med_to_abaqus = {item[1] : (item[0], '0'.join((i[0], i[1:])), item[2]) for i, item in _abaqus_to_med.items()}
+    _med_to_abaqus = {item[1] : (item[0], i, item[2]) for i, item in _aster_to_med.items()}
 
-    _med_to_medcoupling = { item[1] : (item[0], getattr(medcoupling, 'NORM_%s'%item[1]), item[2]) for item in _systus_to_med.values()}
+    _med_to_aster  = {item[1] : (item[0], i, item[2]) for i, item in _aster_to_med.items()}
+
+    _med_to_medcoupling = { item[1] : (item[0], getattr(medcoupling, 'NORM_%s'%item[1]), item[2]) for item in _aster_to_med.values()}
 
 
     def systus_to_med_type(self, systus_type):
@@ -147,6 +204,18 @@ class ElementTypeConverter:
             return self._med_to_abaqus[med_type]
         except KeyError:
             raise KeyError("Med type '{}' unknown.".format(med_type))
+
+    def aster_to_med_type(self, aster_type):
+        try :
+            return self._aster_to_med[aster_type]
+        except KeyError:
+            raise KeyError("Aster type '{}' unknown.".format(aster_type))
+
+    def med_to_aster_type(self, med_type):
+        try :
+            return self._med_to_aster[med_type]
+        except KeyError:
+            raise KeyError("Med type '{}' unknown.".format(med_type))  
 
     def med_to_medcoupling_type(self, med_type):
         try :
