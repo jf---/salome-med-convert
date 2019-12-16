@@ -23,7 +23,7 @@ class MedConvertSystus(MedConvert):
         if verbose : logger.setLevel(logging.DEBUG)
         c = MedConvertSystus()
         c.read_systus_mesh(filename_systus)
-        c.create_med_mesh("SYSTUS")
+        c.create_med_mesh()
         c.write_med_mesh(filename_med)
 
     @staticmethod
@@ -95,21 +95,25 @@ class MedConvertSystus(MedConvert):
         # Les elements, triés par dimension
         corresponding_elements = {}
         max_dim_elements = '0D'
-        e_conv = ElementTypeConverter()
-
+        e_conv = ElementTypeConverter('SYSTUS')
+        c_renum = ConnectivityRenumberer('SYSTUS')
+        
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
             element_systus_type = spline[1]
             elements_nodes_systus = map(int, spline[5:])
 
-            _, element_med_type, element_dim = e_conv.systus_to_med_type(element_systus_type)
-            elements_nodes_med = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
-
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
+            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
+            
+            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
+            
             key = '%dD'%element_dim
             if not key in self.elements : self.elements[key] = []
             if not key in corresponding_elements : corresponding_elements[key] = {}
-            self.elements[key].append((element_med_type, elements_nodes_med))
+            self.elements[key].append((element_medcoupling_type, element_nodes_med))
             corresponding_elements[key][idx_element_systus] = len(corresponding_elements[key])
             max_dim_elements = max(max_dim_elements, key)
 
@@ -157,7 +161,7 @@ class MedConvertSystus(MedConvert):
         cells_shift = 1 # La numérotation SYSTUS des éléments démarre à 1. De plus la numérotation MED est compacte par niveau. On se servira de cette variable pour créer une numérotation globale
 
         c_renum = ConnectivityRenumberer('SYSTUS')
-        e_conv = ElementTypeConverter()
+        e_conv = ElementTypeConverter('SYSTUS')
         non_empty_levs = self.medmesh.getNonEmptyLevels()
         for lev in non_empty_levs:
             mesh_lev = self.medmesh[lev]
@@ -165,12 +169,11 @@ class MedConvertSystus(MedConvert):
             types_at_level = mesh_lev.getAllGeoTypesSorted()
             for a_type in types_at_level :
                 nb_nodes_per_cell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(a_type)
-                med_type = MEDCouplingUMesh.GetReprOfGeometricType(a_type).split('NORM_')[-1]
-                _, systus_type, _ = e_conv.med_to_systus_type(med_type)
+                systus_type = e_conv.medcoupling_to_external(a_type)
                 cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
                 for cell in cells_by_type :
                     element_nodes_med = DataArrayInt(mesh_lev.getNodeIdsOfCell(cell)) + nodes_shift
-                    element_nodes_asc = c_renum.med_to_external(med_type, element_nodes_med)
+                    element_nodes_asc = c_renum.medcoupling_to_external(a_type, element_nodes_med)
                     elements_lines.append('%d %s 1 0 0 '%(j+cells_shift, systus_type) + ' '.join(map(str,element_nodes_asc)))
                     j+=1
 

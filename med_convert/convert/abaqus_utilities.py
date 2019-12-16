@@ -114,7 +114,7 @@ class MedConvertAbaqus(MedConvert):
         if verbose : logger.setLevel(logging.DEBUG)
         c = MedConvertAbaqus()
         c.read_abaqus_mesh(filename_abaqus)
-        c.create_med_mesh("ABAQUS")
+        c.create_med_mesh()
         c.write_med_mesh(filename_med)
 
     @staticmethod
@@ -181,21 +181,26 @@ class MedConvertAbaqus(MedConvert):
         # Les elements, triés par dimension
         corresponding_elements = {}
         max_dim_elements = '0D'
-        e_conv = ElementTypeConverter()
+        e_conv = ElementTypeConverter('ABAQUS')
+        c_renum = ConnectivityRenumberer('ABAQUS')
 
         for elem in Elements :
             idx_element_abaqus = elem.getId()
             element_abaqus_type = elem.getType()
             elements_nodes_abaqus = map(int, elem.getNodes())
 
-            nbnodes, element_med_type, element_dim = e_conv.abaqus_to_med_type(element_abaqus_type)
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
+            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
+            nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(element_medcoupling_type)
+
             assert nbnodes == len(elem.getNodes())
-            elements_nodes_med = tuple(corresponding_nodes[k] for k in elements_nodes_abaqus)
+            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_abaqus)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
 
             key = '%dD'%element_dim
             if not key in self.elements : self.elements[key] = []
             if not key in corresponding_elements : corresponding_elements[key] = {}
-            self.elements[key].append((element_med_type, elements_nodes_med))
+            self.elements[key].append((element_medcoupling_type, element_nodes_med))
             corresponding_elements[key][idx_element_abaqus] = len(corresponding_elements[key])
             max_dim_elements = max(max_dim_elements, key)
 

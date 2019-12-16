@@ -79,6 +79,8 @@ class ConnectivityRenumberer:
 
     }
 
+    _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()
+
     def __init__(self, code):
 
         self._connectivity_med_to_external = {}
@@ -86,142 +88,129 @@ class ConnectivityRenumberer:
 
         try :
             connectivity = getattr(self, '_{}'.format(code.lower()))
+            assert set(connectivity.keys()) <= set(self._med_types)
+            
             for elem, nodes in connectivity.items() :
-
-                self._connectivity_med_to_external[elem] = OrderedDict()
-
-                self._connectivity_external_to_med[elem] = OrderedDict()
+                elem_mc = getattr(medcoupling, 'NORM_%s'%elem)
+                self._connectivity_med_to_external[elem_mc] = OrderedDict()
+                self._connectivity_external_to_med[elem_mc] = OrderedDict()
                 tmp = {}
 
                 for i, val in enumerate(nodes) :
                     tmp[val] = i
-                    self._connectivity_med_to_external[elem][i] = val
+                    self._connectivity_med_to_external[elem_mc][i] = val
                 for i in sorted(tmp) :
-                    self._connectivity_external_to_med[elem][i] = tmp[i]
+                    self._connectivity_external_to_med[elem_mc][i] = tmp[i]
 
         except AttributeError:
             raise KeyError('Unknown connectivity {}'.format(code))
 
+    def external_to_medcoupling(self, medcoupling_type, nodes):
+        try :
+            return tuple(nodes[self._connectivity_external_to_med[medcoupling_type][i]] for i in self._connectivity_external_to_med[medcoupling_type])
+        except KeyError :
+            raise KeyError('Unsupported element type %s'%medcoupling_type)
+        
+    def medcoupling_to_external(self, medcoupling_type, nodes):
+        try :
+            return tuple(nodes[self._connectivity_med_to_external[medcoupling_type][i]] for i in self._connectivity_med_to_external[medcoupling_type])
+        except KeyError :
+            raise KeyError('Unsupported element type %s'%medcoupling_type)
 
-    def external_to_med(self, elem_type, nodes):
-        try :
-            return tuple(nodes[self._connectivity_external_to_med[elem_type][i]] for i in self._connectivity_external_to_med[elem_type])
-        except KeyError :
-            raise KeyError('Unsupported element type %s'%elem_type)
-    def med_to_external(self, elem_type, nodes):
-        try :
-            return tuple(nodes[self._connectivity_med_to_external[elem_type][i]] for i in self._connectivity_med_to_external[elem_type])
-        except KeyError :
-            raise KeyError('Unsupported element type %s'%elem_type)
 
 class ElementTypeConverter:
+
     _systus_to_med = {
-        '001' : (1,  'POINT1',  0),
-
-        '102' : (2,  'SEG2',    1),
-        '203' : (3,  'TRI3',    2),
-        '204' : (4,  'QUAD4',   2),
-        '304' : (4,  'TETRA4',  3),
-        '308' : (8,  'HEXA8',   3),
-        '305' : (5,  'PYRA5',   3),
-        '306' : (6,  'PENTA6',  3),
-
-        '103' : (3,  'SEG3',    1),
-        '206' : (6,  'TRI6',    2),
-        '208' : (8,  'QUAD8',   2),
-        '310' : (10, 'TETRA10', 3),
-        '320' : (20, 'HEXA20',  3),
-        '313' : (13, 'PYRA13',  3),
-        '315' : (15, 'PENTA15', 3),
+        '001' : 'POINT1',
+        
+        '102' : 'SEG2',
+        '203' : 'TRI3',
+        '204' : 'QUAD4',
+        '304' : 'TETRA4',
+        '308' : 'HEXA8',
+        '305' : 'PYRA5',
+        '306' : 'PENTA6',
+        
+        '103' : 'SEG3',
+        '206' : 'TRI6',
+        '208' : 'QUAD8',
+        '310' : 'TETRA10',
+        '320' : 'HEXA20',
+        '313' : 'PYRA13',
+        '315' : 'PENTA15',
     }
 
     _abaqus_to_med = {
-        'Node' : (1,  'POINT1',  0),
-
-        'S4' : (4,  'QUAD4',   2),
+        'Node' : 'POINT1',
+        'S4'   : 'QUAD4',
     }
 
     _aster_to_med = {
-        'POI1'   : (1,  'POINT1',  0),
+        'POI1'   : 'POINT1',
         
-        'SEG2'   : (2,  'SEG2',    1),
-        'TRIA3'  : (3,  'TRI3',    2),
-        'QUAD4'  : (4,  'QUAD4',   2),
-        'TETRA4' : (4,  'TETRA4',  3),
-        'HEXA8'  : (8,  'HEXA8',   3),
-        'PYRAM5' : (5,  'PYRA5',   3),
-        'PENTA6' : (6,  'PENTA6',  3),
+        'SEG2'   : 'SEG2',  
+        'TRIA3'  : 'TRI3',  
+        'QUAD4'  : 'QUAD4', 
+        'TETRA4' : 'TETRA4',
+        'HEXA8'  : 'HEXA8', 
+        'PYRAM5' : 'PYRA5', 
+        'PENTA6' : 'PENTA6',
         
-        'SEG3'   : (3,  'SEG3',    1),
-        'TRIA6'  : (6,  'TRI6',    2), 
-        'QUAD8'  : (8,  'QUAD8',   2), 
-        'TETRA10': (10, 'TETRA10', 3),
-        'HEXA20' : (20, 'HEXA20',  3),
-        'PYRAM13': (13, 'PYRA13',  3),
-        'PENTA15': (15, 'PENTA15', 3),
-
-        'SEG4'   : (4,  'SEG4',    1),
-        'TRIA7'  : (7,  'TRI7',    2), 
-        'QUAD9'  : (9,  'QUAD9',   2),
-        'PENTA18': (18, 'PENTA15', 3),
-        'HEXA27' : (27, 'HEXA27',  3), 
-
+        'SEG3'   : 'SEG3',  
+        'TRIA6'  : 'TRI6',   
+        'QUAD8'  : 'QUAD8',  
+        'TETRA10': 'TETRA10',
+        'HEXA20' : 'HEXA20',
+        'PYRAM13': 'PYRA13',
+        'PENTA15': 'PENTA15',
+        
+        'SEG4'   : 'SEG4',  
+        'TRIA7'  : 'TRI7',   
+        'QUAD9'  : 'QUAD9', 
+        'PENTA18': 'PENTA18',
+        'HEXA27' : 'HEXA27', 
     }
 
-    _med_to_systus = {item[1] : (item[0], '0'.join((i[0], i[1:])), item[2]) for i, item in _systus_to_med.items()}
+    _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()
 
-    _med_to_abaqus = {item[1] : (item[0], i, item[2]) for i, item in _aster_to_med.items()}
+    def __init__(self, code):
+        self.code = code.lower()
 
-    _med_to_aster  = {item[1] : (item[0], i, item[2]) for i, item in _aster_to_med.items()}
-
-    _med_to_medcoupling = { item[1] : (item[0], getattr(medcoupling, 'NORM_%s'%item[1]), item[2]) for item in _aster_to_med.values()}
-
-
-    def systus_to_med_type(self, systus_type):
         try :
-            dim, nb_nodes = systus_type[0], systus_type[-2:]
-            key = ''.join((dim, nb_nodes))
-            return self._systus_to_med[key]
+            data = getattr(self, '_{}_to_med'.format(self.code))
+        except AttributeError :
+            raise AttributeError("Unknown format '{}'".format(code))
+        
+        assert set(data.values()) <= set(self._med_types)
+        mdata = {i : getattr(medcoupling, 'NORM_%s'%k) for i, k in data.items()}
+        
+        if 'systus' in self.code:
+            self._medcoupling_to_external = {k : '0'.join((i[0], i[1:])) for i, k in mdata.items()}
+        else : 
+            self._medcoupling_to_external = {k : i for i, k in mdata.items()}
+            
+        self._external_to_medcoupling = {i : k for i, k in mdata.items()}
+
+        
+    def external_to_medcoupling(self, external_type):
+        try :
+            if 'systus' in self.code:
+                dim, nb_nodes = external_type[0], external_type[-2:]
+                key = ''.join((dim, nb_nodes))
+            else :
+                key = external_type
+                
+            return self._external_to_medcoupling[key]
 
         except KeyError:
-            raise KeyError("Systus type '{}' unknown.".format(systus_type))
+            raise KeyError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
 
-    def med_to_systus_type(self, med_type):
+    def medcoupling_to_external(self, medcoupling_type):
         try :
-            return self._med_to_systus[med_type]
+            return self._medcoupling_to_external[medcoupling_type]
+                
         except KeyError:
-            raise KeyError("Med type '{}' unknown.".format(med_type))
-
-    def abaqus_to_med_type(self, abaqus_type):
-        try :
-            return self._abaqus_to_med[abaqus_type]
-
-        except KeyError:
-            raise KeyError("Abaqus type '{}' unknown.".format(abaqus_type))
-
-    def med_to_abaqus_type(self, med_type):
-        try :
-            return self._med_to_abaqus[med_type]
-        except KeyError:
-            raise KeyError("Med type '{}' unknown.".format(med_type))
-
-    def aster_to_med_type(self, aster_type):
-        try :
-            return self._aster_to_med[aster_type]
-        except KeyError:
-            raise KeyError("Aster type '{}' unknown.".format(aster_type))
-
-    def med_to_aster_type(self, med_type):
-        try :
-            return self._med_to_aster[med_type]
-        except KeyError:
-            raise KeyError("Med type '{}' unknown.".format(med_type))  
-
-    def med_to_medcoupling_type(self, med_type):
-        try :
-            return self._med_to_medcoupling[med_type]
-        except KeyError:
-            raise KeyError("Med type '{}' unknown.".format(med_type))
+            raise KeyError("MedCoupling type '{}' unknown.".format(medcoupling_type))
 
 
 class MedConvert:
@@ -260,13 +249,10 @@ class MedConvert:
         logger.debug("Writing Med mesh file : %s"%filename)
         self.medmesh.write(filename, 2)
 
-    def create_med_mesh(self, input_type):
+    def create_med_mesh(self):
         coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
         self.medmesh = MEDFileUMesh()
-
-        c_renum = ConnectivityRenumberer(input_type)
-        e_conv = ElementTypeConverter()
 
         # Les clés de elements correspondent aux dimensions dans le maillage
         for i, dim in enumerate(sorted(self.elements.keys())[::-1]) :
@@ -278,10 +264,9 @@ class MedConvert:
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
 
             # Elements par niveau, avec renumerotation au passage
-            for (med_type, element_nodes_asc) in self.elements[dim]:
+            for (medcoupling_type, element_nodes_med) in self.elements[dim]:
 
-                number_of_nodes_current_element, medcoupling_type, element_dim = e_conv.med_to_medcoupling_type(med_type)
-                element_nodes_med = c_renum.external_to_med(med_type, element_nodes_asc)
+                number_of_nodes_current_element = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
                 mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
 
             mesh_at_current_level.finishInsertingCells()
