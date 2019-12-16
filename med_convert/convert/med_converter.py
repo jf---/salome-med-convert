@@ -13,6 +13,10 @@ import medcoupling
 from MEDLoader import *
 from .logger import logger
 
+class MedConvertError(Exception):
+    "Base class for exceptions raised by the med_convert module."
+    pass
+
 class ConnectivityRenumberer:
 
     # Les chiffres des listes indiquent à quelle position SYSTUS se trouve le noeud MED à l'index.
@@ -103,19 +107,19 @@ class ConnectivityRenumberer:
                     self._connectivity_external_to_med[elem_mc][i] = tmp[i]
 
         except AttributeError:
-            raise KeyError('Unknown connectivity {}'.format(code))
+            raise MedConvertError('Unknown connectivity {}'.format(code))
 
     def external_to_medcoupling(self, medcoupling_type, nodes):
         try :
             return tuple(nodes[self._connectivity_external_to_med[medcoupling_type][i]] for i in self._connectivity_external_to_med[medcoupling_type])
         except KeyError :
-            raise KeyError('Unsupported element type %s'%medcoupling_type)
+            raise MedConvertError('Unsupported element type %s'%medcoupling_type)
         
     def medcoupling_to_external(self, medcoupling_type, nodes):
         try :
             return tuple(nodes[self._connectivity_med_to_external[medcoupling_type][i]] for i in self._connectivity_med_to_external[medcoupling_type])
         except KeyError :
-            raise KeyError('Unsupported element type %s'%medcoupling_type)
+            raise MedConvertError('Unsupported element type %s'%medcoupling_type)
 
 
 class ElementTypeConverter:
@@ -179,38 +183,50 @@ class ElementTypeConverter:
         try :
             data = getattr(self, '_{}_to_med'.format(self.code))
         except AttributeError :
-            raise AttributeError("Unknown format '{}'".format(code))
+            raise MedConvertError("Unknown format '{}'".format(code))
         
         assert set(data.values()) <= set(self._med_types)
         mdata = {i : getattr(medcoupling, 'NORM_%s'%k) for i, k in data.items()}
-        
-        if 'systus' in self.code:
-            self._medcoupling_to_external = {k : '0'.join((i[0], i[1:])) for i, k in mdata.items()}
-        else : 
-            self._medcoupling_to_external = {k : i for i, k in mdata.items()}
-            
+                            
         self._external_to_medcoupling = {i : k for i, k in mdata.items()}
+        self._medcoupling_to_external = {k : i for i, k in mdata.items()}
 
-        
+        if 'systus' in self.code:
+            self._f_e2m = self._systus_to_mc
+            self._f_m2e = self._mc_to_systus
+        else :
+            self._f_e2m = self._to_mc
+            self._f_m2e = self._to_ext
+
+
     def external_to_medcoupling(self, external_type):
-        try :
-            if 'systus' in self.code:
-                dim, nb_nodes = external_type[0], external_type[-2:]
-                key = ''.join((dim, nb_nodes))
-            else :
-                key = external_type
-                
-            return self._external_to_medcoupling[key]
-
-        except KeyError:
-            raise KeyError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
-
+        return self._f_e2m(external_type)
+    
     def medcoupling_to_external(self, medcoupling_type):
-        try :
-            return self._medcoupling_to_external[medcoupling_type]
-                
+        return self._f_m2e(medcoupling_type)
+
+    # Specific functions
+    def _systus_to_mc(self, systus_type):
+        dim, nb_nodes = systus_type[0], systus_type[-2:]
+        return self._to_mc(''.join((dim, nb_nodes)))
+    
+    def _mc_to_systus(self, medcoupling_type):
+        item = self._to_ext(medcoupling_type)
+        return '0'.join((item[0], item[1:]))
+   
+    # Generic functions 
+    def _to_mc(self, external_type):
+        try :              
+            return self._external_to_medcoupling[external_type]
         except KeyError:
-            raise KeyError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+            raise MedConvertError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
+        
+    def _to_ext(self, medcoupling_type):
+        try :
+            return self._medcoupling_to_external[medcoupling_type]    
+        except KeyError:
+            raise MedConvertError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+  
 
 
 class MedConvert:
@@ -239,7 +255,7 @@ class MedConvert:
                 continue
 
         msg = "File encoding is not among : %s"%(', '.join(encodings))
-        raise UnicodeError(msg)
+        raise MedConvertError(msg)
 
     def read_med_mesh(self, filename):
         logger.debug("Reading Med mesh file : %s"%filename)
