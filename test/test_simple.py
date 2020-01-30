@@ -28,12 +28,14 @@ class TestSimple(unittest.TestCase):
     def test_couronne(self):
         standard_conversion(self, "COURONNE_DONN1.ASC", "SYSTUS", 216, 720)
 
-    def test_motif_partial(self):
-        # to be removed when test_motif is fixed
+    def test_motif(self):
         standard_conversion(self, "MOTIF_DONN1.ASC", "SYSTUS", 96, 673)
 
     def test_rectangle(self):
         standard_conversion(self, "RECTANGLE_DONN1.ASC", "SYSTUS", 60, 213)
+
+    def test_multi(self):
+        standard_conversion(self, "MULTI_DONN1.ASC", "SYSTUS", 10, 61)
 
     def test_carre_abaqus(self):
         standard_conversion(self, "CARRE_1.inp", "ABAQUS", 1, 4)

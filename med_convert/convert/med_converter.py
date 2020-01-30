@@ -19,33 +19,34 @@ class MedConvertError(Exception):
 
 class ConnectivityRenumberer:
 
-    # Les chiffres des listes indiquent à quelle position SYSTUS se trouve le noeud MED à l'index.
+    # Les items d'une liste indiquent à quelle position MED se trouve le noeud SYSTUS correspondant à l'index dans la liste.
     # e.g. pour le QUAD8 :
-    # Le noeud 0 MED correspond au noeud 0 SYSTUS
-    # Le noeud 1 MED correspond au noeud 4 SYSTUS
-    # Le noeud 2 MED correspond au noeud 1 SYSTUS
-    # Le noeud 3 MED correspond au noeud 5 SYSTUS
-    # Le noeud 4 MED correspond au noeud 2 SYSTUS
-    # Le noeud 5 MED correspond au noeud 6 SYSTUS
-    # Le noeud 6 MED correspond au noeud 3 SYSTUS
-    # Le noeud 7 MED correspond au noeud 7 SYSTUS
+    # Le noeud 0 SYSTUS correspond au noeud 0 MED
+    # Le noeud 1 SYSTUS correspond au noeud 4 MED
+    # Le noeud 2 SYSTUS correspond au noeud 1 MED
+    # Le noeud 3 SYSTUS correspond au noeud 5 MED
+    # Le noeud 4 SYSTUS correspond au noeud 2 MED
+    # Le noeud 5 SYSTUS correspond au noeud 6 MED
+    # Le noeud 6 SYSTUS correspond au noeud 3 MED
+    # Le noeud 7 SYSTUS correspond au noeud 7 MED
 
     _systus = {
         'POINT1'  : [0],
+        
         'SEG2'    : [0, 1],
         'TRI3'    : [0, 1, 2],
         'QUAD4'   : [0, 1, 2, 3],
         'TETRA4'  : [0, 2, 1, 3],
         'HEXA8'   : [0, 3, 2, 1,   4, 7, 6, 5],
-        #'PYRA5'   : [],
+        'PYRA5'   : [0, 3, 2, 1, 4],
         'PENTA6'  : [0, 2, 1,   3, 5, 4],
 
         'SEG3'    : [0, 2, 1],
         'TRI6'    : [0, 3, 1, 4, 2, 5],
         'QUAD8'   : [0, 4, 1, 5, 2, 6, 3, 7],
-        'TETRA10' : [0,  6,  2,  5,  1,  4,    7,  9,  8,   3 ],
+        'TETRA10' : [0,  6,  2,  5,  1,  4,   7,  9,  8,   3],
         'HEXA20'  : [0, 11, 3, 10, 2, 9, 1, 8,   16, 19, 18, 17,   4, 15, 7, 14, 6, 13, 5, 12 ],
-        #'PYRA13'  : [],
+        'PYRA13'  : [0, 8, 3, 7, 2, 6, 1, 5,   9, 12, 11, 10,   4],
         'PENTA15' : [0, 8, 2, 7, 1, 6,   12, 14, 13,   3, 11, 5, 10, 4, 9]
     }
 
@@ -62,7 +63,7 @@ class ConnectivityRenumberer:
         'TRI3'    : range(3), 
         'QUAD4'   : range(4), 
         'TETRA4'  : [0, 2, 1, 3],
-        'HEXA8'   : [0,  3,  2,  1,  4,  7,  6,  5],
+        'HEXA8'   : [0, 3, 2, 1, 4, 7, 6, 5],
         'PYRA5'   : [0, 3, 2, 1, 4],
         'PENTA6'  : [0, 2, 1, 3, 5, 4],
 
