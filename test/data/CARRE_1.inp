@@ -27,7 +27,7 @@
   1,    2
 *Elset, elset=_GE1, internal
   1
-*Elset, elset=_GE2, instance=Mallage_1, generate
+*Elset, elset=_GE2, instance=Mallage_1
  1
 *Nset, nset=_GN2, instance=Mallage_1
    3,   4

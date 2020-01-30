@@ -56,6 +56,10 @@ class TestPrivate(unittest.TestCase):
         standard_conversion(self, "DONN408.ASC", "SYSTUS",
                             338100, 1396501, private=True)
 
+    def test_flam(self):
+        standard_conversion(self, "Maille_MF_flam-elas-clean.inp", "ABAQUS",
+                            1872, 1975, private=True)
+
 
 if __name__ == "__main__":
     unittest.main()
