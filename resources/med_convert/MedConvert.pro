@@ -16,7 +16,5 @@ CODECFORTR = utf-8
 SOURCES += ../../med_convert/utilities.py
 SOURCES += ../../med_convert/gui/gui.py
 SOURCES += ../../med_convert/gui/__init__.py
-SOURCES += ../../med_convert/gui/services.py
 SOURCES += ../../med_convert/gui/settings.py
 SOURCES += ../../med_convert/gui/utilities.py
-SOURCES += ../../salome_plugins.py

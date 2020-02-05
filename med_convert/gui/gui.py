@@ -28,8 +28,9 @@ import traceback
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
+from . import supported_input_formats, supported_output_formats, convert
+from ..convert import Fmt
 from ..utilities import HAS_SALOME, translate
-from .services import convert
 from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,
                         publish_meshes, resources_path, to_list)
@@ -59,14 +60,22 @@ class MainDialog(BASE, FORM):
         self.setWindowTitle(title)
         self.setStatus("")
 
+        self.applyButton.setText(translate("MedConvert", "Apply"))      
+        self.closeButton.setText(translate("MedConvert", "Close"))      
+        self.helpButton.setText(translate("MedConvert", "Help"))      
+        self.inFileLineEditLabel.setText(translate("MedConvert", "Input mesh file"))      
+        self.inFormatBoxLabel.setText(translate("MedConvert", "Input mesh format"))      
+        self.outFileCheckBox.setText(translate("MedConvert", "Output MED file"))      
+        self.smeshCheckBox.setText(translate("MedConvert", "Import mesh in SMESH"))           
+
         self.smeshCheckBox.setEnabled(HAS_SALOME)
         if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
             self.smeshCheckBox.setText(self.smeshCheckBox.text()
                                        + " (SALOME is not available)")
-
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
+        connect(self.inFormatBox.currentIndexChanged, self.update_controls)
         connect(self.outFileCheckBox.stateChanged, self.update_controls)
         connect(self.outFileLineEdit.textChanged, self.update_controls)
         connect(self.outFileButton.clicked, self.browse_file_out)
@@ -74,6 +83,8 @@ class MainDialog(BASE, FORM):
         connect(self.applyButton.clicked, self.launch)
         connect(self.closeButton.clicked, self.close)
         connect(self.helpButton.clicked, self.show_help)
+
+        self.inFormatBox.addItems([Fmt.name(i) for i in supported_input_formats()])
 
         # initialize default values
         self.from_settings(Settings())
@@ -99,6 +110,8 @@ class MainDialog(BASE, FORM):
         """
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
+        self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
+
 
     def to_settings(self):
         """
@@ -111,6 +124,8 @@ class MainDialog(BASE, FORM):
 
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
+        settings.input_format = Fmt.get(self.inFormatBox.currentText())
+        
         return settings
 
     @Q.pyqtSlot()
@@ -142,7 +157,9 @@ class MainDialog(BASE, FORM):
             settings.output_file = tempfile.mkstemp(suffix=".med")[1]
         settings.dump(sys.stdout)
 
-        is_ok, err = convert(settings.input_file, settings.output_file, 0)
+        verbose = int(os.getenv("DEBUG", 0))
+        is_ok, err = convert(settings.input_file, settings.input_format,
+                             settings.output_file, settings.output_format, verbose)
         self.setStatus("")
 
         if is_ok:
@@ -173,7 +190,10 @@ class MainDialog(BASE, FORM):
 
     def update_controls(self):
         """Update dialog's widgets."""
+        
         self.applyButton.setEnabled(self.is_valid())
+        self.inFileLineEdit.setEnabled(self.inFormatBox.currentIndex())
+        self.inFileButton.setEnabled(self.inFormatBox.currentIndex())
         self.outFileLineEdit.setEnabled(self.outFileCheckBox.isChecked())
         self.outFileButton.setEnabled(self.outFileCheckBox.isChecked())
 
@@ -184,6 +204,12 @@ class MainDialog(BASE, FORM):
             bool: *True* if the required data are set, *False* otherwise.
         """
         settings = self.to_settings()
+
+        if settings.input_format == Fmt.Null :
+            self.setStatus(translate('MedConvert',
+                                     'Please select the input mesh format.'))
+            return False
+            
         if not settings.input_file:
             self.setStatus(translate('MedConvert',
                                      'Please select the input mesh file.'))
@@ -202,22 +228,32 @@ class MainDialog(BASE, FORM):
 
     def browse_file_in(self):
         """Called when user presses *Browse* button to select a input file."""
+
         title = translate("MedConvert", "Select a file")
         filters = []
-        suffix = ""
-        filters.append("Systus (*.ASC)")
+
+        settings = self.to_settings()
+        ext = Fmt.extensions(settings.input_format)
+        filters.append('%s (%s)'%(Fmt.name(settings.input_format), ' '.join(('*%s'%i for i in ext))))
         filters.append("All files (*)")
+
+        suffix = ""
         file_name = get_file_name(self, 1, title, '', filters, suffix)
         if file_name:
             self.inFileLineEdit.setText(file_name)
 
     def browse_file_out(self):
         """Called when user presses *Browse* button to select a output file."""
+
         title = translate("MedConvert", "Select a file")
         filters = []
-        suffix = ""
-        filters.append("Salome (*.med)")
+
+        settings = self.to_settings()
+        ext = Fmt.extensions(settings.output_format)
+        filters.append('%s (%s)'%(Fmt.name(settings.output_format), ' '.join(('*%s'%i for i in ext))))
         filters.append("All files (*)")
+
+        suffix = ""
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
             self.outFileLineEdit.setText(file_name)
@@ -272,14 +308,5 @@ def start(context=None):
     translator = load_language(lang)
     main_window = MainDialog(parent)
     translator.setParent(main_window)
-
-    # if context is not None:
-    #     rect = context.sg.getDesktop().geometry()
-    # else:
-    #     rect = Q.QApplication.desktop().availableGeometry()
-    # window_size = main_window.size()
-    # x_pos = max((rect.width() - window_size.width()) / 2, 0) + rect.x()
-    # y_pos = max((rect.height() - window_size.height()) / 2, 0) + rect.y()
-    # main_window.move(x_pos, y_pos)
 
     main_window.exec_()

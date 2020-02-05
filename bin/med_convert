@@ -37,14 +37,12 @@ if __name__ == "__main__":
     if not (args.input or args.output) :
         start()
     else :
+        args.foutput = "Salome"
+        
         if not args.input:
             parser.error("Missing input filename: use '--input'")
         if not args.output:
             parser.error("Missing output filename: use '--output'")
-
-        if not args.finput and not args.foutput:
-            args.finput = "Abaqus"
-            args.foutput = "Med"
 
         if args.finput and not args.foutput :
             parser.error("Missing output format: use '--output-format'")

@@ -21,7 +21,7 @@ This module implements *MedConvert* settings
 from collections import OrderedDict
 
 from ..utilities import translate
-
+from ..convert import Fmt
 
 class Settings(object):
     """
@@ -57,6 +57,28 @@ class Settings(object):
     def input_file(self, input_file):
         self._data['Input File'] = input_file
 
+    @property
+    def input_format(self):
+        """
+        str: Attribute that holds input format.
+        """
+        return self._data.get('Input Format')
+
+    @input_format.setter
+    def input_format(self, input_format):
+        self._data['Input Format'] = input_format
+
+    @property
+    def output_format(self):
+        """
+        str: Attribute that holds output format.
+        """
+        return self._data.get('Output Format')
+
+    @output_format.setter
+    def output_format(self, output_format):
+        self._data['Output Format'] = output_format
+
     def from_defaults(self):
         """
         Reset settings data to default values.
@@ -65,7 +87,9 @@ class Settings(object):
             settings_file (str): Name of settings file.
         """
         self.input_file = ''
+        self.input_format = Fmt.Null
         self.output_file = ''
+        self.output_format = Fmt.Salome
 
     def dump(self, stream):
         """
@@ -79,5 +103,9 @@ class Settings(object):
         stream.write('==========================================\n')
         title = translate("MedConvert", "Input File")
         stream.write('{:<35}: {}\n'.format(title, self.input_file))
+        title = translate("MedConvert", "Input Format")
+        stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.input_format)))
         title = translate("MedConvert", "Output File")
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
+        title = translate("MedConvert", "Output Format")
+        stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.output_format)))

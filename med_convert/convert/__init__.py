@@ -29,17 +29,19 @@ class Fmt:
     Attributes:
         Systus: Import of Systus files.
     """
-    Med = 0x001
+    Null = 0x000
+    Salome = 0x001
     Aster = 0x002
     Systus = 0x004
     Abaqus = 0x005
 
     @classmethod
-    def get(cls, name):
+    def get(cls, format_name):
         try :
+            name = 'null' if format_name == "-" else format_name
             return getattr(cls, name.title())
         except AttributeError:
-            msg = "Unknown format '%s'"%name
+            msg = "Unknown format '%s'"%format_name
             raise AttributeError(msg)
 
     @staticmethod
@@ -54,12 +56,31 @@ class Fmt:
             str: String representation of the format.
         """
         return {
-            Fmt.Med: "Med",
-            Fmt.Aster: "Aster",
-            Fmt.Systus: "Systus",
-            Fmt.Abaqus: "Abaqus",
+            Fmt.Null : "-",
+            Fmt.Salome : "Salome",
+            Fmt.Aster : "Aster",
+            Fmt.Systus : "Systus",
+            Fmt.Abaqus : "Abaqus",
         }.get(format, "Unknown")
 
+    @staticmethod
+    def extensions(format):
+        """
+        Get format file extensions.
+        
+        Arguments:
+            format (int): Format value (*Fmt*).
+        
+        Returns:
+            tuple: List of extensions
+        """
+        return {
+            Fmt.Salome: ('.med',),
+            Fmt.Aster:  ('.mail',),
+            Fmt.Systus: ('.ASC', '.asc'),
+            Fmt.Abaqus: ('.inp',),
+        }.get(format, "Unknown")
+    
 
 def convert(input_file, input_format, output_file, output_format, verbose = False):
     """Main entry point of the converter.
@@ -75,16 +96,17 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
         bool: Status of the conversion: *True* in case of success, *False*
         otherwise.
     """
-    if (input_format == Fmt.Systus and output_format == Fmt.Med):
+
+    if (input_format == Fmt.Systus and output_format == Fmt.Salome):
         MedConvertSystus.convert_systus_to_med(input_file, output_file, verbose)
 
-    elif (input_format == Fmt.Med and output_format == Fmt.Systus):
+    elif (input_format == Fmt.Salome and output_format == Fmt.Systus):
         MedConvertSystus.convert_med_to_systus(input_file, output_file, verbose)
 
-    elif (input_format == Fmt.Abaqus and output_format == Fmt.Med):
+    elif (input_format == Fmt.Abaqus and output_format == Fmt.Salome):
         MedConvertAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
 
-    elif (input_format == Fmt.Med and output_format == Fmt.Abaqus):
+    elif (input_format == Fmt.Salome and output_format == Fmt.Abaqus):
         MedConvertAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
 
     else :

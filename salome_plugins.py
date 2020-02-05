@@ -19,22 +19,23 @@
 Deployment to SALOME.
 """
 
-from __future__ import unicode_literals
-
+from PyQt5 import Qt as Q
 import salome_pluginsmanager
 
 # pragma pylint: disable=invalid-name
 
-from med_convert.utilities import translate
-from med_convert.gui.gui import start
+if 'fr' in Q.QLocale.system().name() :
+    title = "salome_meca/Convertisseur de maillage"
+    description = "IHM pour la conversion de maillages"
+    error = "ERROR: L'outil MedConvert n'est pas disponible"
+    
+else:
+    title = "salome_meca/Mesh Converter"
+    description = "GUI plugin to convert meshes"
+    error = "ERROR: MedConvert plugin is unavailable"
 
 try:
-    title = translate("MedConvert",
-                      "Mesh Converter")
-    description = translate("MedConvert",
-                            "GUI plugin to convert meshes")
-    salome_pluginsmanager.AddFunction(title, description, start)
+    from med_convert.gui import startGUIfromSalome
+    salome_pluginsmanager.AddFunction(title, description, startGUIfromSalome)
 except: # pragma pylint: disable=bare-except
-    error = translate("MedConvert",
-                      "ERROR: MedConvert plugin is unavailable")
     salome_pluginsmanager.logger.info(error)

@@ -18,3 +18,27 @@
 """
 Implementation of *MedConvert* plugin.
 """
+
+import traceback
+from ..convert import Fmt, convert as convert_engine
+
+def supported_input_formats():
+    return (Fmt.Abaqus, Fmt.Systus)
+
+def supported_output_formats():
+    return (Fmt.Salome, )
+
+def convert(*args):
+    """Safe call to the converter.
+    """
+    try :
+        convert_engine(*args)
+        return True, ''
+    
+    except Exception as err:
+        traceback.print_exc()
+        return False, err
+
+def startGUIfromSalome(context=None):    
+    from .gui import start
+    start(context)
