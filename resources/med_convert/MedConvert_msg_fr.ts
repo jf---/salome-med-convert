@@ -13,7 +13,7 @@
         <translation>Fichier Entrée</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="65"/>
+        <location filename="../../med_convert/gui/gui.py" line="135"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -30,30 +30,35 @@
     <message>
         <location filename="../../med_convert/gui/gui.py" line="135"/>
         <source>Warning</source>
-        <translation>Avertissement</translation>
+        <translation type="obsolete">Avertissement</translation>
+    </message>
+    <message>
+        <location filename="../../med_convert/gui/gui.py" line="136"/>
+        <source>Follow the wizard.</source>
+        <translation>Suivez le wizard.</translation>
     </message>
     <message>
         <location filename="../../med_convert/gui/gui.py" line="136"/>
         <source>Help is not available.</source>
-        <translation>L&apos;aide n&apos;est pas disponible.</translation>
+        <translation type="obsolete">L&apos;aide n&apos;est pas disponible.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="176"/>
+        <location filename="../../med_convert/gui/gui.py" line="173"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="177"/>
+        <location filename="../../med_convert/gui/gui.py" line="174"/>
         <source>Conversion Done.</source>
         <translation>Conversion Terminée.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="183"/>
+        <location filename="../../med_convert/gui/gui.py" line="180"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="249"/>
+        <location filename="../../med_convert/gui/gui.py" line="246"/>
         <source>Select a file</source>
         <translation>Choisir un fichier</translation>
     </message>
@@ -63,32 +68,32 @@
         <translation>Convertisseur de maillage</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="214"/>
+        <location filename="../../med_convert/gui/gui.py" line="211"/>
         <source>Please select the input mesh file.</source>
         <translation>Veuillez sélectionner le maillage en entrée.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="219"/>
+        <location filename="../../med_convert/gui/gui.py" line="216"/>
         <source>Please select at least one output type.</source>
         <translation>Veuillez sélectionner au moins un type de sortie.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="223"/>
+        <location filename="../../med_convert/gui/gui.py" line="220"/>
         <source>Please select the output file.</source>
         <translation>Veuillez sélectionner le fichier de sortie.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="146"/>
+        <location filename="../../med_convert/gui/gui.py" line="143"/>
         <source>Converting mesh, please wait...</source>
         <translation>Conversion du maillage, veuillez patienter...</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="168"/>
+        <location filename="../../med_convert/gui/gui.py" line="165"/>
         <source>Open the SMESH module and refresh (F5) the object browser&lt;br/&gt;to see the newly created mesh.</source>
         <translation>Ouvrez le module SMESH et actualisez (F5) l&apos;arbre d&apos;étude&lt;br/&gt;pour voir le maillage nouvellement créé.</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="185"/>
+        <location filename="../../med_convert/gui/gui.py" line="182"/>
         <source>Conversion Failed.
 {0}</source>
         <translation>La conversion a échoué.
@@ -105,7 +110,7 @@
         <translation>Format de sortie</translation>
     </message>
     <message>
-        <location filename="../../med_convert/gui/gui.py" line="209"/>
+        <location filename="../../med_convert/gui/gui.py" line="206"/>
         <source>Please select the input mesh format.</source>
         <translation>Veuillez sélectionner le format du maillage d&apos;entrée.</translation>
     </message>
