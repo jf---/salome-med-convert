@@ -19,5 +19,5 @@
 Implementation of *MedConvert* plugin.
 """
 
-from .convert import Fmt, convert
+from .engine import Fmt, convert
 from .gui.gui import start

@@ -20,7 +20,7 @@ Implementation of *MedConvert* plugin.
 """
 
 import traceback
-from ..convert import Fmt, convert as convert_engine
+from ..engine import Fmt, convert as convert_engine
 
 def supported_input_formats():
     return (Fmt.Abaqus, Fmt.Systus)

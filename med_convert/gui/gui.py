@@ -29,7 +29,7 @@ from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
 from . import supported_input_formats, supported_output_formats, convert
-from ..convert import Fmt
+from ..engine import Fmt
 from ..utilities import HAS_SALOME, translate
 from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,

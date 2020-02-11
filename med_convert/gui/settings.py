@@ -21,7 +21,7 @@ This module implements *MedConvert* settings
 from collections import OrderedDict
 
 from ..utilities import translate
-from ..convert import Fmt
+from ..engine import Fmt
 
 class Settings(object):
     """
