@@ -58,7 +58,7 @@ def tempdir(func):
 
 
 @tempdir
-def standard_conversion(tmpdir, utest, filename, input_format, nbcells, nbnodes,
+def standard_conversion(tmpdir, utest, filename, input_format, output_format, nbcells, nbnodes,
                         private=False):
     """Function to check a mesh conversion.
 
@@ -76,24 +76,25 @@ def standard_conversion(tmpdir, utest, filename, input_format, nbcells, nbnodes,
     """
     infile = osp.join(data_path(private), filename)
     if private and not osp.isfile(infile):
-        print("private test skipped", end="")
+        print("private test skipped", end="\n")
         return
     utest.assertTrue(osp.isfile(infile), infile)
 
     outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
-                       osp.splitext(osp.basename(filename))[0] + ".med")
+                       osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    if input_format == "SYSTUS":
-        convert(infile, Fmt.Systus, outfile, Fmt.Med, verbose=(DEBUG == 1))
-    elif input_format == "ABAQUS":
-        convert(infile, Fmt.Abaqus, outfile, Fmt.Med, verbose=(DEBUG == 1))
-    else:
-        raise KeyError('Unsupported mesh format %s'%input_format)
-
+    convert(infile, input_format, outfile, output_format, verbose=(DEBUG == 1))
+  
     utest.assertTrue(osp.isfile(outfile))
-    mesh = MEDLoader.ReadMeshFromFile(outfile)
+
+    if output_format is Fmt.Salome :
+        mesh = MEDLoader.ReadMeshFromFile(outfile)
+    else :
+        convert(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
+        mesh = MEDLoader.ReadMeshFromFile('%s.med'%outfile)
+        
     if nbcells * nbnodes == 0:
         print("Number of elements:", mesh.getNumberOfCells())
         print("Number of nodes:", mesh.getNumberOfNodes())

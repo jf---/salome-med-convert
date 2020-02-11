@@ -16,7 +16,6 @@ class TestUtilities(unittest.TestCase):
         self.assertTrue(osp.isdir(data_path()), data_path())
         self.assertTrue(data_path(True).endswith('data_private'),
                         data_path(True))
-        self.assertTrue(osp.isdir(data_path(True)), data_path(True))
 
 
 if __name__ == "__main__":

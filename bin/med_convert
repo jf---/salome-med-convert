@@ -12,26 +12,21 @@ from med_convert import Fmt, convert, start
 # Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def main():
-    """Main function."""
-    start()
-    return 0
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         usage=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true',
-        help="print more informations")
+                        help="print more informations")
     parser.add_argument('-i', '--input', action='store', dest='input',
-        help="Filename of the mesh to be converted")
+                        help="Filename of the mesh to be converted")
     parser.add_argument('-o', '--output', action='store', dest='output',
-        help="Path to write the MED file to")
+                        help="Path to write the MED file to")
     parser.add_argument('-fi', '--input-format', action='store', dest='finput',
-        help="Input format")
+                        help="Input format")
     parser.add_argument('-fo', '--output-format', action='store', dest='foutput',
-        help="Output format")
-
+                        help="Output format")
+    
 
     args = parser.parse_args()
     if not (args.input or args.output) :

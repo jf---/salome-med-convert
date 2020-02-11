@@ -71,8 +71,7 @@ class MainDialog(BASE, FORM):
         self.smeshCheckBox.setEnabled(HAS_SALOME)
         if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
-            self.smeshCheckBox.setText(self.smeshCheckBox.text()
-                                       + " (SALOME is not available)")
+            
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
         connect(self.inFormatBox.currentIndexChanged, self.update_controls)

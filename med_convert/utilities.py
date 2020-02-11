@@ -26,7 +26,7 @@ from PyQt5 import Qt as Q
 
 try:
     import salome
-    HAS_SALOME = True
+    HAS_SALOME = True if salome.hasDesktop() is not None else False
 except ImportError:
     HAS_SALOME = False
 
@@ -84,8 +84,8 @@ def data_path(private=False):
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
     path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
-                                os.pardir, 'share', 'salome',
-                                'med_convert_test', data))
+                                os.pardir, 'share', 'salome', 'resources',
+                                'test', data))
     if not osp.isdir(path):
         path = osp.join(install_root, 'test', data)
 
