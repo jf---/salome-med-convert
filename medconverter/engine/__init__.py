@@ -16,12 +16,11 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-This package defines the *engine* of the MED converter plugin.
+This package defines the *engine* of the *medconverter* plugin.
 """
 
-from ..utilities import translate
-from .systus_utilities import MedConvertSystus
-from .abaqus_utilities import MedConvertAbaqus
+from .systus import MedConverterSystus
+from .abaqus import MedConverterAbaqus
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -98,18 +97,18 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
     """
 
     if (input_format == Fmt.Systus and output_format == Fmt.Salome):
-        MedConvertSystus.convert_systus_to_med(input_file, output_file, verbose)
+        MedConverterSystus.convert_systus_to_med(input_file, output_file, verbose)
 
     elif (input_format == Fmt.Salome and output_format == Fmt.Systus):
-        MedConvertSystus.convert_med_to_systus(input_file, output_file, verbose)
+        MedConverterSystus.convert_med_to_systus(input_file, output_file, verbose)
 
     elif (input_format == Fmt.Abaqus and output_format == Fmt.Salome):
-        MedConvertAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
+        MedConverterAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
 
     elif (input_format == Fmt.Salome and output_format == Fmt.Abaqus):
-        MedConvertAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
+        MedConverterAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
 
     else :
-        raise ValueError(translate("MedConvert", "Unsupported format conversion!"))
+        raise ValueError("Unsupported format conversion!")
 
     return True

@@ -4,7 +4,7 @@ import os
 import os.path as osp
 import unittest
 
-from med_convert.utilities import resources_path, docs_path, data_path
+from medconverter.utilities import resources_path, docs_path, data_path
 
 
 class TestUtilities(unittest.TestCase):

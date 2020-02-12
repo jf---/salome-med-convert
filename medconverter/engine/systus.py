@@ -1,27 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
-import argparse
-import logging
-import os.path as osp
-from operator import itemgetter
-from collections import OrderedDict
-from time import strftime
+from .medconverter import *
 
-import medcoupling
-from MEDLoader import *
-from .logger import logger
-
-from .med_converter import *
-
-
-class MedConvertSystus(MedConvert):
+class MedConverterSystus(MedConverter):
 
     @staticmethod
     def convert_systus_to_med(filename_systus, filename_med, verbose = False):
         if verbose : logger.setLevel(logging.DEBUG)
-        c = MedConvertSystus()
+        c = MedConverterSystus()
         c.read_systus_mesh(filename_systus)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -29,13 +16,13 @@ class MedConvertSystus(MedConvert):
     @staticmethod
     def convert_med_to_systus(filename_med, filename_systus, verbose = False):
         if verbose : logger.setLevel(logging.DEBUG)
-        c = MedConvertSystus()
+        c = MedConverterSystus()
         c.read_med_mesh(filename_med)
         c.create_systus_mesh()
         c.write_systus_mesh(filename_systus)
 
     def __init__(self):
-        super(MedConvertSystus, self).__init__()
+        super(MedConverterSystus, self).__init__()
         self.systusmesh = None
 
     def read_systus_mesh(self, filename):

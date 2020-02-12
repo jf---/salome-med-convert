@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-"""Main start-up point of *MedConvert* plugin's standalone application."""
+"""Main start-up point of *medconverter* plugin's standalone application."""
 
 import argparse
 import sys
 import signal
 
-from med_convert import Fmt, convert, start
+from medconverter import Fmt, convert as convert_engine, start
 
 # Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -44,6 +44,6 @@ if __name__ == "__main__":
         if args.foutput and not args.finput :
             parser.error("Missing input format: use '--input-format'")
 
-        convert(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), verbose=args.verbose)
+        convert_engine(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), verbose=args.verbose)
 
     sys.exit(0)

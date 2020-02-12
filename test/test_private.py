@@ -19,7 +19,7 @@
 import unittest
 
 from utils_test import standard_conversion
-from med_convert.engine import Fmt
+from medconverter.engine import Fmt
 
 class TestPrivate(unittest.TestCase):
 

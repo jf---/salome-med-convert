@@ -22,8 +22,8 @@ import sys
 import tempfile
 from functools import wraps
 
-from med_convert.utilities import data_path
-from med_convert.engine import Fmt, convert
+from medconverter.utilities import data_path
+from medconverter.engine import Fmt, convert as convert_engine
 
 DEBUG = int(os.getenv("DEBUG", 0))
 
@@ -45,7 +45,7 @@ def tempdir(func):
         """wrapper"""
         retcode = None
         try:
-            tmpdir = tempfile.mkdtemp(prefix='tmp_medconvert_')
+            tmpdir = tempfile.mkdtemp(prefix='tmp_medconverter_')
             retcode = func(tmpdir, *args, **kwds)
         except Exception:
             sys.stderr.write("temporary directory is: {0}\n".format(tmpdir))
@@ -85,14 +85,14 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format, nb
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert(infile, input_format, outfile, output_format, verbose=(DEBUG == 1))
+    convert_engine(infile, input_format, outfile, output_format, verbose=(DEBUG == 1))
   
     utest.assertTrue(osp.isfile(outfile))
 
     if output_format is Fmt.Salome :
         mesh = MEDLoader.ReadMeshFromFile(outfile)
     else :
-        convert(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
+        convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
         mesh = MEDLoader.ReadMeshFromFile('%s.med'%outfile)
         
     if nbcells * nbnodes == 0:

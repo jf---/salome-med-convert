@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Auxiliary utilities for *MedConvert* plugin.
+Auxiliary utilities for *medconverter* plugin.
 """
 
 import os
@@ -65,7 +65,7 @@ def debug_message(*args):
     if debug_mode():
         if args:
             stream = sys.stdout
-            stream.write('MedConvertPlugin:')
+            stream.write('medconverter_plugin:')
             for arg in args:
                 stream.write(' ' + str(arg))
             stream.write('\n')

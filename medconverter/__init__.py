@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Implementation of *MedConvert* plugin.
+Implementation of *medconverter* plugin.
 """
 
 from .engine import Fmt, convert

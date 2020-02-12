@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-This module implements *MedConvert* settings
+This module implements *medconverter* settings
 """
 from collections import OrderedDict
 
@@ -99,13 +99,13 @@ class Settings(object):
             stream (object): Writer.
         """
         stream.write('==========================================\n')
-        stream.write('MedConvert parameters\n')
+        stream.write('medconverter parameters\n')
         stream.write('==========================================\n')
-        title = translate("MedConvert", "Input File")
+        title = translate("medconverter", "Input File")
         stream.write('{:<35}: {}\n'.format(title, self.input_file))
-        title = translate("MedConvert", "Input Format")
+        title = translate("medconverter", "Input Format")
         stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.input_format)))
-        title = translate("MedConvert", "Output File")
+        title = translate("medconverter", "Output File")
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
-        title = translate("MedConvert", "Output Format")
+        title = translate("medconverter", "Output Format")
         stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.output_format)))

@@ -63,7 +63,7 @@ def docs_path():
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
     path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
                                 os.pardir, 'share', 'doc', 'salome',
-                                'gui', 'med_convert', 'html'))
+                                'gui', 'medconverter', 'html'))
     if not osp.isdir(path):
         path = osp.join(install_root, 'doc')
 

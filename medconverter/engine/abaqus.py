@@ -1,19 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
-import argparse
-import logging
-import os.path as osp
-from operator import itemgetter
-from collections import OrderedDict
-from time import strftime
-
-import medcoupling
-from MEDLoader import *
-from .logger import logger
-
-from .med_converter import *
+from .medconverter import *
 
 class AbaqusNode:
 
@@ -107,12 +95,12 @@ class AbaqusGroup:
 
 
 
-class MedConvertAbaqus(MedConvert):
+class MedConverterAbaqus(MedConverter):
 
     @staticmethod
     def convert_abaqus_to_med(filename_abaqus, filename_med, verbose = False):
         if verbose : logger.setLevel(logging.DEBUG)
-        c = MedConvertAbaqus()
+        c = MedConverterAbaqus()
         c.read_abaqus_mesh(filename_abaqus)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -120,7 +108,7 @@ class MedConvertAbaqus(MedConvert):
     @staticmethod
     def convert_med_to_abaqus(filename_med, filename_abaqus, verbose = False):
         if verbose : logger.setLevel(logging.DEBUG)
-        c = MedConvertAbaqus()
+        c = MedConverterAbaqus()
         c.read_med_mesh(filename_med)
         c.create_abaqus_mesh()
         c.write_abaqus_mesh(filename_abaqus)
@@ -128,7 +116,7 @@ class MedConvertAbaqus(MedConvert):
     _abaqus_type_supported = ['S4',]
 
     def __init__(self):
-        super(MedConvertAbaqus, self).__init__()
+        super(MedConverterAbaqus, self).__init__()
         self.abaqusmesh = None
 
     def read_abaqus_mesh(self, filename):

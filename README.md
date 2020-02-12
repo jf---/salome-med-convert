@@ -29,7 +29,7 @@ salome shell -- make
 In stand-alone mode:
 
 ``` bash
-./bin/med_convert
+./bin/medconverter
 ```
 
 or in a SALOME graphical session:
@@ -43,10 +43,10 @@ SALOME_PLUGINS_PATH=$(pwd) salome
 Example:
 
 ``` bash
-./bin/med_convert -i test/data/MOTIF_DONN1.ASC -o /tmp/motif.med
+./bin/medconverter -i test/data/MOTIF_DONN1.ASC -o /tmp/motif.med -fi SYSTUS -fo SALOME
 ```
 
-See `./bin/med_convert --help` for the available arguments.
+See `./bin/medconverter --help` for the available arguments.
 
 
 # Testing
@@ -63,8 +63,8 @@ or to run a specific test:
 salome shell -- python test/run_unittest.py -v test_simple.TestSimple.test_carre
 ```
 
-[TODO] Within a SALOME installation:
+Within a SALOME installation:
 
 ``` bash
-salome test -R MED_CONVERT
+salome test -L MEDCONVERTER
 ```

@@ -16,11 +16,11 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-This package defines the *logger* of the MED converter plugin.
+This package defines the *logger* of the *medconverter* plugin.
 """
 import logging
 
-class MedConvertLogger :
+class MedConverterLogger :
     def __init__(self, level=logging.INFO):
         logger = logging.getLogger("med_convert")
         logger.setLevel(level)
@@ -41,4 +41,4 @@ class MedConvertLogger :
     def info(self, msg):
         self._log.info(msg)
 
-logger = MedConvertLogger()
+logger = MedConverterLogger()

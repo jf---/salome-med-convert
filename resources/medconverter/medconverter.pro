@@ -5,16 +5,16 @@
 # cd ..
 #
 # Create/update the .ts files with:
-# pylupdate5 MedConvert.pro
-# linguist  MedConvert_msg_fr.ts
-# lrelease MedConvert.pro
+# pylupdate5 medconverter.pro
+# linguist  medconverter_msg_fr.ts
+# lrelease medconverter.pro
 
-TRANSLATIONS += MedConvert_msg_fr.ts
+TRANSLATIONS += medconverter_msg_fr.ts
 
 CODECFORTR = utf-8
 
-SOURCES += ../../med_convert/utilities.py
-SOURCES += ../../med_convert/gui/gui.py
-SOURCES += ../../med_convert/gui/__init__.py
-SOURCES += ../../med_convert/gui/settings.py
-SOURCES += ../../med_convert/gui/utilities.py
+SOURCES += ../../medconverter/utilities.py
+SOURCES += ../../medconverter/gui/gui.py
+SOURCES += ../../medconverter/gui/__init__.py
+SOURCES += ../../medconverter/gui/settings.py
+SOURCES += ../../medconverter/gui/utilities.py

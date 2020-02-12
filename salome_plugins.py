@@ -35,7 +35,7 @@ else:
     error = "ERROR: MedConvert plugin is unavailable"
 
 try:
-    from med_convert.gui import startGUIfromSalome
+    from medconverter.gui import startGUIfromSalome
     salome_pluginsmanager.AddFunction(title, description, startGUIfromSalome)
 except: # pragma pylint: disable=bare-except
     salome_pluginsmanager.logger.info(error)

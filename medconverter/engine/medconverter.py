@@ -13,8 +13,8 @@ import medcoupling
 from MEDLoader import *
 from .logger import logger
 
-class MedConvertError(Exception):
-    "Base class for exceptions raised by the med_convert module."
+class MedConverterError(Exception):
+    "Base class for exceptions raised by the medconverter module."
     pass
 
 class ConnectivityRenumberer:
@@ -108,19 +108,19 @@ class ConnectivityRenumberer:
                     self._connectivity_external_to_med[elem_mc][i] = tmp[i]
 
         except AttributeError:
-            raise MedConvertError('Unknown connectivity {}'.format(code))
+            raise MedConverterError('Unknown connectivity {}'.format(code))
 
     def external_to_medcoupling(self, medcoupling_type, nodes):
         try :
             return tuple(nodes[self._connectivity_external_to_med[medcoupling_type][i]] for i in self._connectivity_external_to_med[medcoupling_type])
         except KeyError :
-            raise MedConvertError('Unsupported element type %s'%medcoupling_type)
+            raise MedConverterError('Unsupported element type %s'%medcoupling_type)
         
     def medcoupling_to_external(self, medcoupling_type, nodes):
         try :
             return tuple(nodes[self._connectivity_med_to_external[medcoupling_type][i]] for i in self._connectivity_med_to_external[medcoupling_type])
         except KeyError :
-            raise MedConvertError('Unsupported element type %s'%medcoupling_type)
+            raise MedConverterError('Unsupported element type %s'%medcoupling_type)
 
 
 class ElementTypeConverter:
@@ -184,7 +184,7 @@ class ElementTypeConverter:
         try :
             data = getattr(self, '_{}_to_med'.format(self.code))
         except AttributeError :
-            raise MedConvertError("Unknown format '{}'".format(code))
+            raise MedConverterError("Unknown format '{}'".format(code))
         
         assert set(data.values()) <= set(self._med_types)
         mdata = {i : getattr(medcoupling, 'NORM_%s'%k) for i, k in data.items()}
@@ -220,17 +220,17 @@ class ElementTypeConverter:
         try :              
             return self._external_to_medcoupling[external_type]
         except KeyError:
-            raise MedConvertError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
+            raise MedConverterError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
         
     def _to_ext(self, medcoupling_type):
         try :
             return self._medcoupling_to_external[medcoupling_type]    
         except KeyError:
-            raise MedConvertError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+            raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
   
 
 
-class MedConvert:
+class MedConverter:
 
     def __init__(self):
         self.mesh_name = None
@@ -256,7 +256,7 @@ class MedConvert:
                 continue
 
         msg = "File encoding is not among : %s"%(', '.join(encodings))
-        raise MedConvertError(msg)
+        raise MedConverterError(msg)
 
     def read_med_mesh(self, filename):
         logger.debug("Reading Med mesh file : %s"%filename)

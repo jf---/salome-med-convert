@@ -38,7 +38,7 @@ class InstallLibSalome(install_lib):
 
     def run(self):
         pypath = osp.join(self.install_dir, SALOME_DIR)
-        log.info("--- To import the MED_CONVERT plugin, you should add `%s`", pypath)
+        log.info("--- To import the MEDCONVERTER plugin, you should add `%s`", pypath)
         log.info("    to the environment variables PYTHONPATH and SALOME_PLUGINS_PATH.")
         log.info("    For example:")
         log.info(ENV % { 'pypath' : osp.abspath(pypath), 'prefix' : osp.abspath(PREFIX)})
@@ -47,28 +47,28 @@ class InstallLibSalome(install_lib):
     def get_outputs(self):
         return self.alter_install_dir(install_lib.get_outputs)
 
-PKGS = ['med_convert', 'med_convert.engine', 'med_convert.gui']
+PKGS = ['medconverter', 'medconverter.engine', 'medconverter.gui']
 MODS = ["salome_plugins",]
-SCRIPTS = ["bin/med_convert",]
+SCRIPTS = ["bin/medconverter",]
 
 DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
-    ('share/salome/resources/med_convert', glob('resources/med_convert/*.qm') + glob('resources/med_convert/*.ui')),
+    ('share/salome/resources/medconverter', glob('resources/medconverter/*.qm') + glob('resources/medconverter/*.ui')),
     ('share/salome/resources/test', glob('test/*.py')),
     ('share/salome/resources/test/data', glob('test/data/*')),
-    ('share/doc/salome/gui/med_convert/html', glob('doc/*.html')),
+    ('share/doc/salome/gui/medconverter/html', glob('doc/*.html')),
 ]
 
 SALOME_DIR = 'salome'
 PREFIX = get_prefix(sys.argv)
-ENV = """# Environment for the MED_CONVERT plugin
+ENV = """# Environment for the MEDCONVERTER plugin
 
-export SALOMEMECA_MED_CONVERT_PYDIR=%(pypath)s
-export PYTHONPATH=${SALOMEMECA_MED_CONVERT_PYDIR}:${PYTHONPATH}
-export SALOME_PLUGINS_PATH=${SALOMEMECA_MED_CONVERT_PYDIR}:${SALOME_PLUGINS_PATH}
+export SALOMEMECA_MEDCONVERTER_PYDIR=%(pypath)s
+export PYTHONPATH=${SALOMEMECA_MEDCONVERTER_PYDIR}:${PYTHONPATH}
+export SALOME_PLUGINS_PATH=${SALOMEMECA_MEDCONVERTER_PYDIR}:${SALOME_PLUGINS_PATH}
 
-export SALOMEMECA_MED_CONVERT_ROOT_DIR=%(prefix)s
-export PATH=${SALOMEMECA_MED_CONVERT_ROOT_DIR}/bin/:${PATH}
+export SALOMEMECA_MEDCONVERTER_ROOT_DIR=%(prefix)s
+export PATH=${SALOMEMECA_MEDCONVERTER_ROOT_DIR}/bin/:${PATH}
 
 """
 
@@ -77,7 +77,7 @@ cmdclass = {
 }
 
 setup(
-    name = 'med_convert',
+    name = 'medconverter',
     version = '1.0',
     packages = PKGS,
     scripts = SCRIPTS,
