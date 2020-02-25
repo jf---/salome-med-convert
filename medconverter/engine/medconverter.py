@@ -32,7 +32,7 @@ class ConnectivityRenumberer:
 
     _systus = {
         'POINT1'  : [0],
-        
+
         'SEG2'    : [0, 1],
         'TRI3'    : [0, 1, 2],
         'QUAD4'   : [0, 1, 2, 3],
@@ -52,33 +52,52 @@ class ConnectivityRenumberer:
 
     _abaqus = {
         'POINT1'  : [0],
-        'SEG2'    : [0, 1],
-        'QUAD4'   : [0, 1, 2, 3],
+
+        'SEG2'    : range(2),
+        'SEG3'    : [0, 2, 1],
+
+        'TRI3'    : range(3),
+        'TRI6'    : range(6),
+
+        'QUAD4'   : range(4),
+        'QUAD8'   : range(8),
+        'QUAD9'   : range(9),
+
+        'TETRA4'  : [0, 2, 1, 3],
+        #'TETRA10' : [],
+
+        'HEXA8'   : [0, 3, 2, 1, 4, 7, 6, 5],
+        #'HEXA20'  : [],
+        #'HEXA27'  : [],
+
+        'PENTA6'  : [0, 2, 1, 3, 5, 4],
+        #'PENTA15' : [],
+        #'PENTA18' : [],
     }
 
     _aster = {
         'POINT1'  : [0],
-        
-        'SEG2'    : range(2), 
-        'TRI3'    : range(3), 
-        'QUAD4'   : range(4), 
+
+        'SEG2'    : range(2),
+        'TRI3'    : range(3),
+        'QUAD4'   : range(4),
         'TETRA4'  : [0, 2, 1, 3],
         'HEXA8'   : [0, 3, 2, 1, 4, 7, 6, 5],
         'PYRA5'   : [0, 3, 2, 1, 4],
         'PENTA6'  : [0, 2, 1, 3, 5, 4],
 
-        'SEG3'    : range(3),  
-        'TRI6'    : range(6),  
-        'QUAD8'   : range(8),  
+        'SEG3'    : range(3),
+        'TRI6'    : range(6),
+        'QUAD8'   : range(8),
         'TETRA10' : [0, 2, 1, 3, 6, 5, 4, 7, 9, 8],
         'HEXA20'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 16, 19, 18, 17, 15, 14, 13, 12],
         'PYRA13'  : [0, 3, 2, 1, 4, 8, 7, 6, 5, 9, 12, 11, 10],
         'PENTA15' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 12, 14, 13, 11, 10, 9],
 
 
-        'SEG4'    : range(4), 
-        'TRI7'    : range(7),  
-        'QUAD9'   : range(9),  
+        'SEG4'    : range(4),
+        'TRI7'    : range(7),
+        'QUAD9'   : range(9),
         'PENTA18' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 12, 14, 13, 11, 10, 9, 17, 16, 15],
         'HEXA27'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 16, 19, 18, 17, 15, 14, 13, 12, 20, 24, 23, 22, 21, 25, 26],
 
@@ -94,7 +113,7 @@ class ConnectivityRenumberer:
         try :
             connectivity = getattr(self, '_{}'.format(code.lower()))
             assert set(connectivity.keys()) <= set(self._med_types)
-            
+
             for elem, nodes in connectivity.items() :
                 elem_mc = getattr(medcoupling, 'NORM_%s'%elem)
                 self._connectivity_med_to_external[elem_mc] = OrderedDict()
@@ -115,7 +134,7 @@ class ConnectivityRenumberer:
             return tuple(nodes[self._connectivity_external_to_med[medcoupling_type][i]] for i in self._connectivity_external_to_med[medcoupling_type])
         except KeyError :
             raise MedConverterError('Unsupported element type %s'%medcoupling_type)
-        
+
     def medcoupling_to_external(self, medcoupling_type, nodes):
         try :
             return tuple(nodes[self._connectivity_med_to_external[medcoupling_type][i]] for i in self._connectivity_med_to_external[medcoupling_type])
@@ -127,7 +146,7 @@ class ElementTypeConverter:
 
     _systus_to_med = {
         '001' : 'POINT1',
-        
+
         '102' : 'SEG2',
         '203' : 'TRI3',
         '204' : 'QUAD4',
@@ -135,7 +154,7 @@ class ElementTypeConverter:
         '308' : 'HEXA8',
         '305' : 'PYRA5',
         '306' : 'PENTA6',
-        
+
         '103' : 'SEG3',
         '206' : 'TRI6',
         '208' : 'QUAD8',
@@ -146,34 +165,72 @@ class ElementTypeConverter:
     }
 
     _abaqus_to_med = {
-        'Node' : 'POINT1',
-        'S4'   : 'QUAD4',
+        'Node'  : 'POINT1',
+
+        'DC1D2' : 'SEG2',
+        'DC1D3' : 'SEG3',
+
+        'AC1D2' : 'SEG2',
+        'AC1D3' : 'SEG3',
+
+# Beam element
+        'B21' : 'SEG2',
+        'B22' : 'SEG3',
+
+# Membrane Element
+        'M3D3'    : 'TRI3',
+        'M3D4'    : 'QUAD4',
+        'M3D6'    : 'TRI6',
+        'M3D8'    : 'QUAD8',
+        'M3D9'    : 'QUAD9',
+
+# Structural Element
+        'S4'    : 'QUAD4',
+
+# Continuum Element
+        'CPE3'  : 'TRI3',
+        'CPE6'  : 'TRI6',
+
+        'CPE4'  : 'QUAD4',
+        'CPE8'  : 'QUAD8',
+
+        'C3D4'  : 'TETRA4',
+        'C3D10' : 'TETRA10',
+
+        'C3D6'  : 'PENTA6',
+        'C3D15' : 'PENTA15',
+        'C3D15V': 'PENTA18',
+
+        'C3D8'  : 'HEXA8',
+        'C3D20' : 'HEXA20',
+        'C3D27' : 'HEXA27',
+
     }
 
     _aster_to_med = {
         'POI1'   : 'POINT1',
-        
-        'SEG2'   : 'SEG2',  
-        'TRIA3'  : 'TRI3',  
-        'QUAD4'  : 'QUAD4', 
+
+        'SEG2'   : 'SEG2',
+        'TRIA3'  : 'TRI3',
+        'QUAD4'  : 'QUAD4',
         'TETRA4' : 'TETRA4',
-        'HEXA8'  : 'HEXA8', 
-        'PYRAM5' : 'PYRA5', 
+        'HEXA8'  : 'HEXA8',
+        'PYRAM5' : 'PYRA5',
         'PENTA6' : 'PENTA6',
-        
-        'SEG3'   : 'SEG3',  
-        'TRIA6'  : 'TRI6',   
-        'QUAD8'  : 'QUAD8',  
+
+        'SEG3'   : 'SEG3',
+        'TRIA6'  : 'TRI6',
+        'QUAD8'  : 'QUAD8',
         'TETRA10': 'TETRA10',
         'HEXA20' : 'HEXA20',
         'PYRAM13': 'PYRA13',
         'PENTA15': 'PENTA15',
-        
-        'SEG4'   : 'SEG4',  
-        'TRIA7'  : 'TRI7',   
-        'QUAD9'  : 'QUAD9', 
+
+        'SEG4'   : 'SEG4',
+        'TRIA7'  : 'TRI7',
+        'QUAD9'  : 'QUAD9',
         'PENTA18': 'PENTA18',
-        'HEXA27' : 'HEXA27', 
+        'HEXA27' : 'HEXA27',
     }
 
     _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()
@@ -185,10 +242,10 @@ class ElementTypeConverter:
             data = getattr(self, '_{}_to_med'.format(self.code))
         except AttributeError :
             raise MedConverterError("Unknown format '{}'".format(code))
-        
+
         assert set(data.values()) <= set(self._med_types)
         mdata = {i : getattr(medcoupling, 'NORM_%s'%k) for i, k in data.items()}
-                            
+
         self._external_to_medcoupling = {i : k for i, k in mdata.items()}
         self._medcoupling_to_external = {k : i for i, k in mdata.items()}
 
@@ -202,7 +259,7 @@ class ElementTypeConverter:
 
     def external_to_medcoupling(self, external_type):
         return self._f_e2m(external_type)
-    
+
     def medcoupling_to_external(self, medcoupling_type):
         return self._f_m2e(medcoupling_type)
 
@@ -210,24 +267,24 @@ class ElementTypeConverter:
     def _systus_to_mc(self, systus_type):
         dim, nb_nodes = systus_type[0], systus_type[-2:]
         return self._to_mc(''.join((dim, nb_nodes)))
-    
+
     def _mc_to_systus(self, medcoupling_type):
         item = self._to_ext(medcoupling_type)
         return '0'.join((item[0], item[1:]))
-   
-    # Generic functions 
+
+    # Generic functions
     def _to_mc(self, external_type):
-        try :              
+        try :
             return self._external_to_medcoupling[external_type]
         except KeyError:
             raise MedConverterError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
-        
+
     def _to_ext(self, medcoupling_type):
         try :
-            return self._medcoupling_to_external[medcoupling_type]    
+            return self._medcoupling_to_external[medcoupling_type]
         except KeyError:
             raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
-  
+
 
 
 class MedConverter:
