@@ -132,7 +132,7 @@
     <message>
         <location filename="../../medconverter/gui/gui.py" line="63"/>
         <source>Apply</source>
-        <translation></translation>
+        <translation>Exécuter</translation>
     </message>
 </context>
 </TS>
