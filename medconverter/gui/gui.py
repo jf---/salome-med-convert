@@ -16,7 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 """
-Implementation of Graphical User Interface for *MedConvert* plugin.
+Implementation of Graphical User Interface for *medconverter* plugin.
 """
 
 import os
@@ -28,20 +28,21 @@ import traceback
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
+from . import supported_input_formats, supported_output_formats, convert
+from ..engine import Fmt
 from ..utilities import HAS_SALOME, translate
-from .services import convert
 from .settings import Settings
 from .utilities import (connect, docs_path, get_dir_name, get_file_name,
                         publish_meshes, resources_path, to_list)
 
-UIFILE = osp.join(resources_path(), "med_convert", "MainDialog.ui")
+UIFILE = osp.join(resources_path(), "medconverter", "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
 
 
 class MainDialog(BASE, FORM):
 
     """
-    Main window of *MedConvert* plugin.
+    Main window of *medconverter* plugin.
     """
 
     def __init__(self, parent=None):
@@ -54,19 +55,26 @@ class MainDialog(BASE, FORM):
         super().__init__(parent)
         self.setupUi(self)
 
-        title = translate("MedConvert",
+        title = translate("medconverter",
                           "Mesh Converter")
         self.setWindowTitle(title)
         self.setStatus("")
 
+        self.applyButton.setText(translate("medconverter", "Apply"))      
+        self.closeButton.setText(translate("medconverter", "Close"))      
+        self.helpButton.setText(translate("medconverter", "Help"))      
+        self.inFileLineEditLabel.setText(translate("medconverter", "Input mesh file"))      
+        self.inFormatBoxLabel.setText(translate("medconverter", "Input mesh format"))      
+        self.outFileCheckBox.setText(translate("medconverter", "Output MED file"))      
+        self.smeshCheckBox.setText(translate("medconverter", "Import mesh in SMESH"))           
+
         self.smeshCheckBox.setEnabled(HAS_SALOME)
         if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
-            self.smeshCheckBox.setText(self.smeshCheckBox.text()
-                                       + " (SALOME is not available)")
-
+            
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
+        connect(self.inFormatBox.currentIndexChanged, self.update_controls)
         connect(self.outFileCheckBox.stateChanged, self.update_controls)
         connect(self.outFileLineEdit.textChanged, self.update_controls)
         connect(self.outFileButton.clicked, self.browse_file_out)
@@ -74,6 +82,8 @@ class MainDialog(BASE, FORM):
         connect(self.applyButton.clicked, self.launch)
         connect(self.closeButton.clicked, self.close)
         connect(self.helpButton.clicked, self.show_help)
+
+        self.inFormatBox.addItems([Fmt.name(i) for i in supported_input_formats()])
 
         # initialize default values
         self.from_settings(Settings())
@@ -99,6 +109,8 @@ class MainDialog(BASE, FORM):
         """
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
+        self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
+
 
     def to_settings(self):
         """
@@ -111,24 +123,23 @@ class MainDialog(BASE, FORM):
 
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
+        settings.input_format = Fmt.get(self.inFormatBox.currentText())
+        
         return settings
 
     @Q.pyqtSlot()
     def show_help(self):
         """Called when user clicks *Help* button."""
-        if not docs_path():
-            title = translate("MedConvert", "Warning")
-            message = translate("MedConvert", "Help is not available.")
-            Q.QMessageBox.warning(self, title, message)
-            return
 
-        url = osp.join(docs_path(), 'index.html')
-        Q.QDesktopServices.openUrl(Q.QUrl(url))
+        title = translate("medconverter", "Help")
+        message = translate("medconverter", "Follow the wizard.")
+        Q.QMessageBox.information(self, title, message)
+        
 
     @Q.pyqtSlot()
     def launch(self):
         """Called when user clicks *Apply* button."""
-        self.setStatus(translate('MedConvert',
+        self.setStatus(translate('medconverter',
                                  'Converting mesh, please wait...'),
                        color='#0000ff')
         QtCore.QTimer.singleShot(50, self.do_convert)
@@ -142,13 +153,15 @@ class MainDialog(BASE, FORM):
             settings.output_file = tempfile.mkstemp(suffix=".med")[1]
         settings.dump(sys.stdout)
 
-        is_ok, err = convert(settings.input_file, settings.output_file, 0)
+        verbose = int(os.getenv("DEBUG", 0))
+        is_ok, err = convert(settings.input_file, settings.input_format,
+                             settings.output_file, settings.output_format, verbose)
         self.setStatus("")
 
         if is_ok:
             if self.smeshCheckBox.isChecked():
                 publish_meshes(settings.output_file)
-                self.setStatus(translate('MedConvert',
+                self.setStatus(translate('medconverter',
                                          "Open the SMESH module and refresh "
                                          "(F5) the object browser<br/>"
                                          "to see the newly created mesh."),
@@ -156,16 +169,16 @@ class MainDialog(BASE, FORM):
                 if use_tmp:
                     os.remove(settings.output_file)
 
-            title = translate("MedConvert", "Information")
-            message = translate("MedConvert",
+            title = translate("medconverter", "Information")
+            message = translate("medconverter",
                                 "Conversion Done.")
             Q.QMessageBox.information(self, title, message)
 
         else:
             mbox = Q.QMessageBox()
-            mbox.setWindowTitle(translate("MedConvert", "Error"))
+            mbox.setWindowTitle(translate("medconverter", "Error"))
             mbox.setIcon(Q.QMessageBox.Critical)
-            mbox.setText(translate("MedConvert",
+            mbox.setText(translate("medconverter",
                                    "Conversion Failed.\n{0}").format(err))
             mbox.setDetailedText("".join(
                 traceback.format_tb(err.__traceback__)))
@@ -173,7 +186,10 @@ class MainDialog(BASE, FORM):
 
     def update_controls(self):
         """Update dialog's widgets."""
+        
         self.applyButton.setEnabled(self.is_valid())
+        self.inFileLineEdit.setEnabled(self.inFormatBox.currentIndex())
+        self.inFileButton.setEnabled(self.inFormatBox.currentIndex())
         self.outFileLineEdit.setEnabled(self.outFileCheckBox.isChecked())
         self.outFileButton.setEnabled(self.outFileCheckBox.isChecked())
 
@@ -184,17 +200,23 @@ class MainDialog(BASE, FORM):
             bool: *True* if the required data are set, *False* otherwise.
         """
         settings = self.to_settings()
+
+        if settings.input_format == Fmt.Null :
+            self.setStatus(translate('medconverter',
+                                     'Please select the input mesh format.'))
+            return False
+            
         if not settings.input_file:
-            self.setStatus(translate('MedConvert',
+            self.setStatus(translate('medconverter',
                                      'Please select the input mesh file.'))
             return False
         if not (self.outFileCheckBox.isChecked()
                 or self.smeshCheckBox.isChecked()):
-            self.setStatus(translate('MedConvert',
+            self.setStatus(translate('medconverter',
                                      'Please select at least one output type.'))
             return False
         if self.outFileCheckBox.isChecked() and not settings.output_file:
-            self.setStatus(translate('MedConvert',
+            self.setStatus(translate('medconverter',
                                      'Please select the output file.'))
             return False
         self.setStatus("")
@@ -202,22 +224,32 @@ class MainDialog(BASE, FORM):
 
     def browse_file_in(self):
         """Called when user presses *Browse* button to select a input file."""
-        title = translate("MedConvert", "Select a file")
+
+        title = translate("medconverter", "Select a file")
         filters = []
-        suffix = ""
-        filters.append("Systus (*.ASC)")
+
+        settings = self.to_settings()
+        ext = Fmt.extensions(settings.input_format)
+        filters.append('%s (%s)'%(Fmt.name(settings.input_format), ' '.join(('*%s'%i for i in ext))))
         filters.append("All files (*)")
+
+        suffix = ""
         file_name = get_file_name(self, 1, title, '', filters, suffix)
         if file_name:
             self.inFileLineEdit.setText(file_name)
 
     def browse_file_out(self):
         """Called when user presses *Browse* button to select a output file."""
-        title = translate("MedConvert", "Select a file")
+
+        title = translate("medconverter", "Select a file")
         filters = []
-        suffix = ""
-        filters.append("Salome (*.med)")
+
+        settings = self.to_settings()
+        ext = Fmt.extensions(settings.output_format)
+        filters.append('%s (%s)'%(Fmt.name(settings.output_format), ' '.join(('*%s'%i for i in ext))))
         filters.append("All files (*)")
+
+        suffix = ""
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
             self.outFileLineEdit.setText(file_name)
@@ -242,8 +274,8 @@ def load_language(language='en'):
 
     # Load plugin translations
     translator = Q.QTranslator(qobject)
-    if translator.load('MedConvert_msg_{}'.format(language),
-                       osp.join(resources_path(), 'med_convert')):
+    if translator.load('medconverter_msg_{}'.format(language),
+                       osp.join(resources_path(), 'medconverter')):
         Q.QApplication.instance().installTranslator(translator)
 
     return qobject
@@ -251,7 +283,7 @@ def load_language(language='en'):
 
 def start(context=None):
     """
-    Show main window of *MedConvert* plugin.
+    Show main window of *medconverter* plugin.
 
     Arguments:
         context: SALOME GUI context.
@@ -272,14 +304,5 @@ def start(context=None):
     translator = load_language(lang)
     main_window = MainDialog(parent)
     translator.setParent(main_window)
-
-    # if context is not None:
-    #     rect = context.sg.getDesktop().geometry()
-    # else:
-    #     rect = Q.QApplication.desktop().availableGeometry()
-    # window_size = main_window.size()
-    # x_pos = max((rect.width() - window_size.width()) / 2, 0) + rect.x()
-    # y_pos = max((rect.height() - window_size.height()) / 2, 0) + rect.y()
-    # main_window.move(x_pos, y_pos)
 
     main_window.exec_()

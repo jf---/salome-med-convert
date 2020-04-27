@@ -22,8 +22,8 @@ import sys
 import tempfile
 from functools import wraps
 
-from med_convert.utilities import data_path
-from med_convert.convert import Fmt, convert
+from medconverter.utilities import data_path
+from medconverter.engine import Fmt, convert as convert_engine
 
 DEBUG = int(os.getenv("DEBUG", 0))
 
@@ -45,7 +45,7 @@ def tempdir(func):
         """wrapper"""
         retcode = None
         try:
-            tmpdir = tempfile.mkdtemp(prefix='tmp_medconvert_')
+            tmpdir = tempfile.mkdtemp(prefix='tmp_medconverter_')
             retcode = func(tmpdir, *args, **kwds)
         except Exception:
             sys.stderr.write("temporary directory is: {0}\n".format(tmpdir))
@@ -58,7 +58,7 @@ def tempdir(func):
 
 
 @tempdir
-def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
+def standard_conversion(tmpdir, utest, filename, input_format, output_format, nbcells, nbnodes,
                         private=False):
     """Function to check a mesh conversion.
 
@@ -69,25 +69,32 @@ def standard_conversion(tmpdir, utest, filename, nbcells, nbnodes,
         tmpdir (str): Path to the temporary directory.
         utest (*unittest.TestCase*): Test object.
         filename (str): Basename of the input mesh file.
+        input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
         nbcells (int): Expected number of cells of dimension 0.
         nbnodes (int): Expected number of nodes.
         private (bool): *True* for private meshes. *False* otherwise.
     """
     infile = osp.join(data_path(private), filename)
     if private and not osp.isfile(infile):
-        print("private test skipped", end="")
+        print("private test skipped", end="\n")
         return
     utest.assertTrue(osp.isfile(infile), infile)
 
     outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
-                       osp.splitext(osp.basename(filename))[0] + ".med")
+                       osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert(infile, Fmt.Systus, outfile, verbose=(DEBUG == 1))
-
+    convert_engine(infile, input_format, outfile, output_format, verbose=(DEBUG == 1))
+  
     utest.assertTrue(osp.isfile(outfile))
-    mesh = MEDLoader.ReadMeshFromFile(outfile)
+
+    if output_format is Fmt.Salome :
+        mesh = MEDLoader.ReadMeshFromFile(outfile)
+    else :
+        convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
+        mesh = MEDLoader.ReadMeshFromFile('%s.med'%outfile)
+        
     if nbcells * nbnodes == 0:
         print("Number of elements:", mesh.getNumberOfCells())
         print("Number of nodes:", mesh.getNumberOfNodes())
