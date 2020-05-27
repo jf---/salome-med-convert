@@ -63,15 +63,15 @@ class ConnectivityRenumberer:
         'QUAD8'   : range(8),
         'QUAD9'   : range(9),
 
-        'TETRA4'  : [0, 2, 1, 3],
-        #'TETRA10' : [],
+        'TETRA4'  : [1, 0, 2, 3],
+        'TETRA10' : [1, 0, 2, 3, 4, 6, 5, 8, 7, 9],
 
         'HEXA8'   : [0, 3, 2, 1, 4, 7, 6, 5],
-        #'HEXA20'  : [],
+        'HEXA20'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 15, 14,13,12,16,19,18,17],
         #'HEXA27'  : [],
 
-        'PENTA6'  : [0, 2, 1, 3, 5, 4],
-        #'PENTA15' : [],
+        'PENTA6'  : [1, 0, 2, 4, 3, 5],
+        'PENTA15' : [1, 0, 2, 4, 3, 5, 6, 8, 7, 9, 11, 10, 13, 12, 14],
         #'PENTA18' : [],
     }
 
@@ -202,7 +202,9 @@ class ElementTypeConverter:
         'C3D15V': 'PENTA18',
 
         'C3D8'  : 'HEXA8',
+        'C3D8R' : 'HEXA8',
         'C3D20' : 'HEXA20',
+        'C3D20R': 'HEXA20',
         'C3D27' : 'HEXA27',
 
     }

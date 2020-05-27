@@ -113,7 +113,7 @@ class MedConverterAbaqus(MedConverter):
         c.create_abaqus_mesh()
         c.write_abaqus_mesh(filename_abaqus)
 
-    _abaqus_type_supported = ['S4',]
+    _abaqus_type_supported = ['S4', 'C3D8', 'C3D8R', 'C3D20', 'C3D20R', 'C3D4', 'C3D10', 'C3D6', 'C3D15']
 
     def __init__(self):
         super(MedConverterAbaqus, self).__init__()
