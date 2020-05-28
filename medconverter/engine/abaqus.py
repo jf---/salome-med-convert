@@ -113,7 +113,14 @@ class MedConverterAbaqus(MedConverter):
         c.create_abaqus_mesh()
         c.write_abaqus_mesh(filename_abaqus)
 
-    _abaqus_type_supported = ['S4', 'C3D8', 'C3D8R', 'C3D20', 'C3D20R', 'C3D4', 'C3D10', 'C3D6', 'C3D15']
+    _abaqus_type_supported = ['S4',
+                              'C3D4',
+                              'C3D5',
+                              'C3D6',
+                              'C3D8', 'C3D8R',
+                              'C3D10',
+                              'C3D15',
+                              'C3D20', 'C3D20R']
 
     def __init__(self):
         super(MedConverterAbaqus, self).__init__()
@@ -260,9 +267,7 @@ class MedConverterAbaqus(MedConverter):
         etype_sline = sline[0].upper()
         assert "TYPE" in etype_sline, etype_sline
         etype = etype_sline.split("=")[1].strip()
-        assert etype in self._abaqus_type_supported, "Element type not available: {}".format(
-            etype
-        )
+        assert etype in self._abaqus_type_supported, "Element type not available: {}".format(etype)
         while True:
             line = f.readline()
             if line.startswith("*"):

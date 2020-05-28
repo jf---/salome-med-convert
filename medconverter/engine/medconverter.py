@@ -73,6 +73,10 @@ class ConnectivityRenumberer:
         'PENTA6'  : [1, 0, 2, 4, 3, 5],
         'PENTA15' : [1, 0, 2, 4, 3, 5, 6, 8, 7, 9, 11, 10, 13, 12, 14],
         #'PENTA18' : [],
+
+        'PYRA5' : [0, 3, 2, 1, 4],
+        #'PYRA13' : [],
+
     }
 
     _aster = {
@@ -196,6 +200,9 @@ class ElementTypeConverter:
 
         'C3D4'  : 'TETRA4',
         'C3D10' : 'TETRA10',
+
+        'C3D5'  : 'PYRA5',
+        'C3D13' : 'PYRA13',
 
         'C3D6'  : 'PENTA6',
         'C3D15' : 'PENTA15',

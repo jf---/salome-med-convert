@@ -58,6 +58,51 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             1, 4, ['QUAD4'])
 
+    def test_2cubesh20_abaqus(self):
+        filename = osp.join(data_path(), "2CUBEH20.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            2, 32, ['HEXA20'])
+
+    def test_meshtet_abaqus(self):
+        filename = osp.join(data_path(), "meshtet.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            192, 457, ['TETRA10'])
+
+    def test_pyra5_1element_abaqus(self):
+        filename = osp.join(data_path(), "pyra5_1element.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 5, ['PYRA5'])
+
+    def test_TET10_abaqus(self):
+        filename = osp.join(data_path(), "TET10.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 10, ['TETRA10'])
+
+    def test_2CUBE_abaqus(self):
+        filename = osp.join(data_path(), "2CUBE.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            2, 12, ['HEXA8'])
+
+    def test_CUBE_abaqus(self):
+        filename = osp.join(data_path(), "CUBE.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 8, ['HEXA8'])
+
+    def test_mixt_element_abaqus(self):
+        filename = osp.join(data_path(), "mixt_element.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            4, 13, ['TETRA4','PYRA5','HEXA8','PENTA6'])
+
+    def test_PENTA6_abaqus(self):
+        filename = osp.join(data_path(), "PENTA6.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            14, 16, ['PENTA6'])
+
+    def test_TET4_abaqus(self):
+        filename = osp.join(data_path(), "TET4.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 4, ['TETRA4'])
+
 
 if __name__ == "__main__":
     unittest.main()
