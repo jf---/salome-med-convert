@@ -90,14 +90,17 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format, nb
     utest.assertTrue(osp.isfile(outfile))
 
     if output_format is Fmt.Salome :
-        mesh = MEDLoader.ReadMeshFromFile(outfile)
+        mesh = MEDLoader.MEDFileUMesh(outfile)
     else :
         convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
-        mesh = MEDLoader.ReadMeshFromFile('%s.med'%outfile)
-        
+        mesh = MEDLoader.MEDFileUMesh('%s.med'%outfile)
+
+    element_types = [MEDLoader.MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
+    total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
+    
     if nbcells * nbnodes == 0:
-        print("Number of elements:", mesh.getNumberOfCells())
+        print("Number of elements:", total_nb_of_cells)
         print("Number of nodes:", mesh.getNumberOfNodes())
     else:
-        utest.assertEqual(mesh.getNumberOfCells(), nbcells)
+        utest.assertEqual(total_nb_of_cells, nbcells)
         utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)

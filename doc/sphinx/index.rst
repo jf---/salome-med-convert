@@ -27,3 +27,13 @@ Tests
    :maxdepth: 1
 	      
    tests
+
+Connectivity tables
+-------------------
+
+- `Salome <_static/salome_connectivity.pdf>`_
+- `Aster <_static/aster_connectivity.pdf>`_
+- `Systus <_static/systus_connectivity.pdf>`_
+- `Abaqus <_static/abaqus_connectivity.pdf>`_
+
+ 

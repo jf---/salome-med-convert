@@ -29,14 +29,14 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, "COURONNE_DONN1.ASC", Fmt.Systus, Fmt.Salome, 216, 720)
 
     def test_motif(self):
-        standard_conversion(self, "MOTIF_DONN1.ASC", Fmt.Systus, Fmt.Salome, 96, 673)
+        standard_conversion(self, "MOTIF_DONN1.ASC", Fmt.Systus, Fmt.Salome, 114, 673)
 
     def test_rectangle(self):
         standard_conversion(self, "RECTANGLE_DONN1.ASC", Fmt.Systus, Fmt.Salome, 60, 213)
 
     def test_multi(self):
-        standard_conversion(self, "MULTI_DONN1.ASC", Fmt.Systus, Fmt.Salome, 10, 61)
-        standard_conversion(self, "MULTI_DONN1.med", Fmt.Salome, Fmt.Systus, 10, 61)
+        standard_conversion(self, "MULTI_DONN1.ASC", Fmt.Systus, Fmt.Salome, 14, 61)
+        standard_conversion(self, "MULTI_DONN1.med", Fmt.Salome, Fmt.Systus, 14, 61)
 
     def test_carre_abaqus(self):
         standard_conversion(self, "CARRE_1.inp", Fmt.Abaqus, Fmt.Salome, 1, 4)
