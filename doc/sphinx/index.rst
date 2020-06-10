@@ -9,20 +9,21 @@ Welcome to MedConverter's documentation!
 Introduction
 ------------
 
-MedConverter is a tool for converting meshes from external formats to the MED format.
+MedConverter is a tool for converting meshes from external formats to the Salome format.
 It actually supports Abaqus and Systus formats.
 
-Contents:
+Main function
+-------------
+.. autofunction:: medconverter.convert
+
+Mesh formats
+------------
+.. autoclass:: medconverter.Fmt
+		  
+Tests
+-----
 
 .. toctree::
-   :maxdepth: 2
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   :maxdepth: 1
+	      
+   tests

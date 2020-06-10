@@ -26,7 +26,9 @@ class Fmt:
     """Enumerator for mesh formats.
 
     Attributes:
-        Systus: Import of Systus files.
+        Systus
+        Abaqus
+        Salome
     """
     Null = 0x000
     Salome = 0x001
@@ -36,6 +38,15 @@ class Fmt:
 
     @classmethod
     def get(cls, format_name):
+        """
+        Get format from name.
+
+        Arguments:
+            str: Format name.
+
+        Returns:
+            Fmt: Format value.
+        """
         try :
             name = 'null' if format_name == "-" else format_name
             return getattr(cls, name.title())
@@ -49,10 +60,10 @@ class Fmt:
         Convert format to string representation.
 
         Arguments:
-            format (int): Format value (*Fmt*).
+            Fmt: Format value.
 
         Returns:
-            str: String representation of the format.
+            str: Format name.
         """
         return {
             Fmt.Null : "-",
@@ -68,10 +79,10 @@ class Fmt:
         Get format file extensions.
         
         Arguments:
-            format (int): Format value (*Fmt*).
+            Fmt: Format value.
         
         Returns:
-            tuple: List of extensions
+            tuple: List of format's extensions
         """
         return {
             Fmt.Salome: ('.med',),
@@ -85,15 +96,15 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
     """Main entry point of the converter.
 
     Arguments:
-        input_file (str): Path to the input file.
-        input_format (*Fmt*): Format of the input file.
-        output_file (str): Path to the output file.
-        output_format (*Fmt*): Format of the output file.
-        verbose (bool): Verbosity.
+        str: input_file : Path to the input file.
+        Fmt: input_format : Format of the input file.
+        str: output_file : Path to the output file.
+        Fmt: output_format : Format of the output file.
+        bool: verbose : Verbosity.
 
     Returns:
-        bool: Status of the conversion: *True* in case of success, *False*
-        otherwise.
+        bool: Status of the conversion: *True* in case of success, *False* otherwise.
+
     """
 
     if (input_format == Fmt.Systus and output_format == Fmt.Salome):
