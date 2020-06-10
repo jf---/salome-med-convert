@@ -2,3 +2,4 @@ syntax: regexp
 ^install/
 \.pyc$
 ^test/data_private/
+medconverter/version.py

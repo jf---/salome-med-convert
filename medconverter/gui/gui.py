@@ -130,11 +130,14 @@ class MainDialog(BASE, FORM):
     @Q.pyqtSlot()
     def show_help(self):
         """Called when user clicks *Help* button."""
+        if not docs_path():
+            title = translate("medconverter", "Warning")
+            message = translate("medconverter", "Help is not available.")
+            Q.QMessageBox.warning(self, title, message)
+            return
 
-        title = translate("medconverter", "Help")
-        message = translate("medconverter", "Follow the wizard.")
-        Q.QMessageBox.information(self, title, message)
-        
+        url = osp.join(docs_path(), 'index.html')
+        Q.QDesktopServices.openUrl(Q.QUrl(url))
 
     @Q.pyqtSlot()
     def launch(self):

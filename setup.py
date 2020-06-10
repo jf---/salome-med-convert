@@ -10,11 +10,13 @@ Installation of the Salome-Meca plugin for the calculation of water blades via M
 
 #from setuptools import setup, find_packages, Extension
 import sys
+import os
 import os.path as osp
 from glob import glob
 from distutils import log
 from distutils.core import setup
 from distutils.command.install_lib import install_lib
+import subprocess
 
 def get_prefix(argv):
     "Analyse the given argv, and return the installation prefix"
@@ -24,6 +26,21 @@ def get_prefix(argv):
         if x.startswith("--prefix="):
             prefix = x.split("=")[1]
     return prefix
+
+def get_last_public_changeset():
+    last_changeset = subprocess.check_output(['hg','id','-i']).strip().decode()
+
+    local_changes = True if "+" in last_changeset else False
+    last_changeset_is_public = True
+
+    hgid, phase = subprocess.check_output(['hg','phase']).strip().decode().split(': ')  
+    while phase != 'public' :
+        hgid, phase = subprocess.check_output(['hg','phase', "%d"%(int(hgid)-1)]).strip().decode().split(': ')
+        last_changeset_is_public = False
+        local_changes = True
+        
+    last_public_changeset = subprocess.check_output(['hg','id','-i','-r %s'%hgid]).strip().decode()
+    return last_public_changeset, last_changeset_is_public, local_changes
 
 class InstallLibSalome(install_lib):
     """Modify the install process to suite the salome standards (put
@@ -71,6 +88,17 @@ export SALOMEMECA_MEDCONVERTER_ROOT_DIR=%(prefix)s
 export PATH=${SALOMEMECA_MEDCONVERTER_ROOT_DIR}/bin/:${PATH}
 
 """
+   
+__version__ = '1.0'
+__hgrevid__, last_one_is_public, local_changes = get_last_public_changeset()
+__release__ = "%s-%s-%s"%(__version__, __hgrevid__, "dev" if local_changes else "")
+
+with open(os.sep.join(["medconverter","version.py"]),'w') as f:
+    f.write("""# This file is automatically added by {}
+__version__ = '{}'
+__hgrevid__ = '{}'
+__release__ = '{}'
+""".format(sys.argv[0], __version__, __hgrevid__, __release__))
 
 cmdclass = {
     'install_lib' : InstallLibSalome,
@@ -78,7 +106,7 @@ cmdclass = {
 
 setup(
     name = 'medconverter',
-    version = '1.0',
+    version = __version__,
     packages = PKGS,
     scripts = SCRIPTS,
     data_files = DATA,
