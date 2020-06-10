@@ -91,7 +91,7 @@ export PATH=${SALOMEMECA_MEDCONVERTER_ROOT_DIR}/bin/:${PATH}
    
 __version__ = '1.0'
 __hgrevid__, last_one_is_public, local_changes = get_last_public_changeset()
-__release__ = "%s-%s-%s"%(__version__, __hgrevid__, "dev" if local_changes else "")
+__release__ = "%s-%s%s"%(__version__, __hgrevid__, "-dev" if local_changes else "")
 
 with open(os.sep.join(["medconverter","version.py"]),'w') as f:
     f.write("""# This file is automatically added by {}
