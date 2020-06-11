@@ -25,6 +25,7 @@ SET(MEDCONVERTER_TESTDIR "$ENV{SALOMEMECA_MEDCONVERTER_ROOT_DIR}/share/salome/re
 
 SET(MEDCONVERTER_TEST_FILES
   test_simple.py
+  test_private.py
   test_utilities.py
   )
 

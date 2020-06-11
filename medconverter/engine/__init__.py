@@ -42,7 +42,7 @@ class Fmt:
         Get format from name.
 
         Arguments:
-            str: Format name.
+            format_name (str): Format name.
 
         Returns:
             Fmt: Format value.
@@ -60,7 +60,7 @@ class Fmt:
         Convert format to string representation.
 
         Arguments:
-            Fmt: Format value.
+            format (Fmt) : Format value.
 
         Returns:
             str: Format name.
@@ -79,7 +79,7 @@ class Fmt:
         Get format file extensions.
         
         Arguments:
-            Fmt: Format value.
+            format (Fmt) : Format value.
         
         Returns:
             tuple: List of format's extensions
@@ -96,11 +96,11 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
     """Main entry point of the converter.
 
     Arguments:
-        str: input_file : Path to the input file.
-        Fmt: input_format : Format of the input file.
-        str: output_file : Path to the output file.
-        Fmt: output_format : Format of the output file.
-        bool: verbose : Verbosity.
+        input_file (str) : Path to the input file.
+        input_format (Fmt): Format of the input file.
+        output_file (str): Path to the output file.
+        output_format (Fmt): Format of the output file.
+        verbose (bool, optional) : Verbosity.
 
     Returns:
         bool: Status of the conversion: *True* in case of success, *False* otherwise.

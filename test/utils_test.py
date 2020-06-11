@@ -21,8 +21,10 @@ import shutil
 import sys
 import tempfile
 from functools import wraps
+import ssl
+from urllib.request import urlopen
+from urllib.error import HTTPError
 
-from medconverter.utilities import data_path
 from medconverter.engine import Fmt, convert as convert_engine
 
 DEBUG = int(os.getenv("DEBUG", 0))
@@ -34,6 +36,47 @@ except ImportError:
                      "inside SALOME environment.")
     raise
 
+def download_file(datafile, dest, insecure=False):
+    """Download a testcase datafile from the repository and copy it onto `dest`.
+    Arguments:
+        datafile (str): Basename of the testcase datafile.
+        dest (str): Destination path.
+        insecure (bool, optional): Allow connections to TLS sites without certs.
+    Returns:
+        bool: *True* if it suceeded, *False* otherwise.
+    """
+    timeout = 10
+    repo = "https://nexus.retd.edf.fr/repository/codeaster-archives/tests-data"
+    url = repo + "/salome-med-convert/" + datafile
+    ctx = ssl._create_unverified_context() if insecure else None
+    try :
+        with urlopen(url, timeout=timeout, context=ctx) as request:
+            with open(dest, "wb") as fobj:
+                fobj.write(request.read())
+            iret = request.getcode()
+        return iret == 200
+    
+    except HTTPError :
+        return None
+
+def get_datafile_path(datafile, force=False):
+    """Returns the filename of the testcase datafile.
+    Arguments:
+        datafile (str): Basename of the testcase datafile.
+        force (bool, optional): *True* to force downloading. Can also be
+            enabled using MEDCONVERT_FORCEDOWNLOAD=1 environment variable.
+    Returns:
+        str: Absolute local path of the datafile or *None* if the destination
+        file can not be provided.
+    """
+    cachedir = "/tmp/_med_convert_cache"
+    force = force or int(os.environ.get("MEDCONVERT_FORCEDOWNLOAD", 0)) == 1
+    os.makedirs(cachedir, exist_ok=True)
+    filename = osp.join(cachedir, datafile)
+    if force or not osp.isfile(filename):
+        if not download_file(datafile, filename, insecure=True):
+            return None
+    return filename
 
 def tempdir(func):
     """Decorator that executes a function in a temporary directory.
@@ -59,8 +102,7 @@ def tempdir(func):
 
 @tempdir
 def standard_conversion(tmpdir, utest, filename, input_format, output_format,
-                        nbcells, nbnodes, cellstypes,
-                        private=False):
+                        nbcells, nbnodes, cellstypes):
     """Function to check a mesh conversion.
 
     In debug mode (DEBUG environment variable set to 1) the result med files
@@ -69,24 +111,23 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format,
     Arguments:
         tmpdir (str): Path to the temporary directory.
         utest (*unittest.TestCase*): Test object.
-        filename (str): Basename of the input mesh file.
+        filename (str): Input mesh file.
         input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
         nbcells (int): Expected number of cells of dimension 0.
         nbnodes (int): Expected number of nodes.
-        private (bool): *True* for private meshes. *False* otherwise.
     """
-    infile = osp.join(data_path(private), filename)
-    if private and not osp.isfile(infile):
-        print("private test skipped", end="\n")
+    if not filename:
+        print("Test skipped", end="\n")
         return
-    utest.assertTrue(osp.isfile(infile), infile)
+
+    utest.assertTrue(osp.isfile(filename), filename)
 
     outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
                        osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert_engine(infile, input_format, outfile, output_format, verbose=(DEBUG == 1))
+    convert_engine(filename, input_format, outfile, output_format, verbose=(DEBUG == 1))
   
     utest.assertTrue(osp.isfile(outfile))
 

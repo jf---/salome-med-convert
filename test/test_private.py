@@ -18,50 +18,50 @@
 
 import unittest
 
-from utils_test import standard_conversion
+from utils_test import standard_conversion, get_datafile_path
 from medconverter.engine import Fmt
 
 class TestPrivate(unittest.TestCase):
-
+    
     def test_cuve(self):
-        standard_conversion(self, "01_CUVE_900_DONN20.ASC", Fmt.Systus, Fmt.Salome,
-                            79848, 265476, ['QUAD8', 'HEXA20'],
-                            private=True)
+        filename = get_datafile_path("01_CUVE_900_DONN20.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            79848, 265476, ['QUAD8', 'HEXA20'])
 
     def test_cuve_revet(self):
-        standard_conversion(self, "07_CUVE_900_REVET_FISS_DONN20.ASC", Fmt.Systus, Fmt.Salome,
-                            124134, 400604, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'],
-                            private=True)
+        filename = get_datafile_path("07_CUVE_900_REVET_FISS_DONN20.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            124134, 400604, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'])
 
     def test_coude(self):
-        standard_conversion(self, "Coude_A_DONN1000.ASC", Fmt.Systus, Fmt.Salome,
-                            17714, 57817, ['SEG2', 'QUAD8', 'HEXA20'],
-                            private=True)
+        filename = get_datafile_path("Coude_A_DONN1000.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            17714, 57817, ['SEG2', 'QUAD8', 'HEXA20'])
 
     def test_coude_quad(self):
-        standard_conversion(self, "Coude_A_quad_DONN1000.ASC", Fmt.Systus, Fmt.Salome,
-                            14858, 48433, ['SEG2', 'QUAD8', 'HEXA20'],
-                            private=True)
+        filename = get_datafile_path("Coude_A_quad_DONN1000.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            14858, 48433, ['SEG2', 'QUAD8', 'HEXA20'])
 
     def test_piqu_insta(self):
-        standard_conversion(self, "PIQUAGE_RIS_900_INSTA_DONN1005.ASC", Fmt.Systus, Fmt.Salome,
-                            120116, 454044, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'],
-                            private=True)
+        filename = get_datafile_path("PIQUAGE_RIS_900_INSTA_DONN1005.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            120116, 454044, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'])
 
     def test_piqu(self):
-        standard_conversion(self, "PIQUAGE_RIS_900_SAIN_DONN1005.ASC", Fmt.Systus, Fmt.Salome,
-                            64492, 249292, ['QUAD8', 'HEXA20'],
-                            private=True)
+        filename = get_datafile_path("PIQUAGE_RIS_900_SAIN_DONN1005.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            64492, 249292, ['QUAD8', 'HEXA20'])
 
     def test_ehp(self):
-        standard_conversion(self, "DONN408.ASC", Fmt.Systus, Fmt.Salome,
-                            367220, 1396501, ['QUAD8', 'HEXA20'],
-                            private=True)
+        filename = get_datafile_path("DONN408.ASC")
+        standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,
+                            367220, 1396501, ['QUAD8', 'HEXA20'])
 
     def test_flam(self):
-        standard_conversion(self, "Maille_MF_flam-elas-clean.inp", Fmt.Abaqus, Fmt.Salome,
-                            1872, 1975, ['QUAD4'],
-                            private=True)
+        filename = get_datafile_path("Maille_MF_flam-elas-clean.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1872, 1975, ['QUAD4'])
 
 
 if __name__ == "__main__":

@@ -24,9 +24,10 @@ Tests
 -----
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 	      
-   tests
+   tests_systus
+   tests_abaqus
 
 Connectivity tables
 -------------------

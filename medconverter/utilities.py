@@ -71,14 +71,14 @@ def docs_path():
     return path
 
 
-def data_path(private=False):
+def data_path():
     """
     Get path to data test folder.
 
     Returns:
         str: Path to the data test folder.
     """
-    data = 'data_private' if private else 'data'
+    data = 'data'
     if hasattr(data_path, data):
         return getattr(data_path, data)
 
