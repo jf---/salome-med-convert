@@ -23,23 +23,30 @@ from medconverter.engine import Fmt
 class TestSimple(unittest.TestCase):
 
     def test_carre(self):
-        standard_conversion(self, "CARRE_DONN1.ASC", Fmt.Systus, Fmt.Salome, 25, 96)
+        standard_conversion(self, "CARRE_DONN1.ASC", Fmt.Systus, Fmt.Salome,
+                            25, 96, ['QUAD8'])
 
     def test_couronne(self):
-        standard_conversion(self, "COURONNE_DONN1.ASC", Fmt.Systus, Fmt.Salome, 216, 720)
+        standard_conversion(self, "COURONNE_DONN1.ASC", Fmt.Systus, Fmt.Salome,
+                            216, 720, ['QUAD8'])
 
     def test_motif(self):
-        standard_conversion(self, "MOTIF_DONN1.ASC", Fmt.Systus, Fmt.Salome, 114, 673)
+        standard_conversion(self, "MOTIF_DONN1.ASC", Fmt.Systus, Fmt.Salome,
+                            114, 673, ['QUAD8','HEXA20'])
 
     def test_rectangle(self):
-        standard_conversion(self, "RECTANGLE_DONN1.ASC", Fmt.Systus, Fmt.Salome, 60, 213)
+        standard_conversion(self, "RECTANGLE_DONN1.ASC", Fmt.Systus, Fmt.Salome,
+                            60, 213, ['QUAD8'])
 
     def test_multi(self):
-        standard_conversion(self, "MULTI_DONN1.ASC", Fmt.Systus, Fmt.Salome, 14, 61)
-        standard_conversion(self, "MULTI_DONN1.med", Fmt.Salome, Fmt.Systus, 14, 61)
+        standard_conversion(self, "MULTI_DONN1.ASC", Fmt.Systus, Fmt.Salome,
+                            14, 61, ['TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8'])
+        standard_conversion(self, "MULTI_DONN1.med", Fmt.Salome, Fmt.Systus,
+                            14, 61, ['TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8'])
 
     def test_carre_abaqus(self):
-        standard_conversion(self, "CARRE_1.inp", Fmt.Abaqus, Fmt.Salome, 1, 4)
+        standard_conversion(self, "CARRE_1.inp", Fmt.Abaqus, Fmt.Salome,
+                            1, 4, ['QUAD4'])
 
 
 if __name__ == "__main__":

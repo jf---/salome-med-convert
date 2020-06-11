@@ -58,7 +58,8 @@ def tempdir(func):
 
 
 @tempdir
-def standard_conversion(tmpdir, utest, filename, input_format, output_format, nbcells, nbnodes,
+def standard_conversion(tmpdir, utest, filename, input_format, output_format,
+                        nbcells, nbnodes, cellstypes,
                         private=False):
     """Function to check a mesh conversion.
 
@@ -95,12 +96,13 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format, nb
         convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
         mesh = MEDLoader.MEDFileUMesh('%s.med'%outfile)
 
-    element_types = [MEDLoader.MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
+    convertedcellstypes = [MEDLoader.MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
-    
+
     if nbcells * nbnodes == 0:
         print("Number of elements:", total_nb_of_cells)
         print("Number of nodes:", mesh.getNumberOfNodes())
     else:
         utest.assertEqual(total_nb_of_cells, nbcells)
         utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
+        utest.assertEqual(set(convertedcellstypes), set(cellstypes))

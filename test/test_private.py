@@ -24,42 +24,44 @@ from medconverter.engine import Fmt
 class TestPrivate(unittest.TestCase):
 
     def test_cuve(self):
-        # total: 79848
         standard_conversion(self, "01_CUVE_900_DONN20.ASC", Fmt.Systus, Fmt.Salome,
-                            58958, 265476, private=True)
+                            79848, 265476, ['QUAD8', 'HEXA20'],
+                            private=True)
 
     def test_cuve_revet(self):
-        # total: 124134
         standard_conversion(self, "07_CUVE_900_REVET_FISS_DONN20.ASC", Fmt.Systus, Fmt.Salome,
-                            92094, 400604, private=True)
+                            124134, 400604, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'],
+                            private=True)
 
     def test_coude(self):
-        # total: 17714
         standard_conversion(self, "Coude_A_DONN1000.ASC", Fmt.Systus, Fmt.Salome,
-                            12480, 57817, private=True)
+                            17714, 57817, ['SEG2', 'QUAD8', 'HEXA20'],
+                            private=True)
 
     def test_coude_quad(self):
-        # total: 14858
         standard_conversion(self, "Coude_A_quad_DONN1000.ASC", Fmt.Systus, Fmt.Salome,
-                            10440, 48433, private=True)
+                            14858, 48433, ['SEG2', 'QUAD8', 'HEXA20'],
+                            private=True)
 
     def test_piqu_insta(self):
         standard_conversion(self, "PIQUAGE_RIS_900_INSTA_DONN1005.ASC", Fmt.Systus, Fmt.Salome,
-                            105666, 454044, private=True)
+                            120116, 454044, ['QUAD8','TRI6','PENTA15','SEG3','HEXA20'],
+                            private=True)
 
     def test_piqu(self):
-        # total: 64492
         standard_conversion(self, "PIQUAGE_RIS_900_SAIN_DONN1005.ASC", Fmt.Systus, Fmt.Salome,
-                            56674, 249292, private=True)
+                            64492, 249292, ['QUAD8', 'HEXA20'],
+                            private=True)
 
     def test_ehp(self):
-        # total: 64492
         standard_conversion(self, "DONN408.ASC", Fmt.Systus, Fmt.Salome,
-                            338100, 1396501, private=True)
+                            367220, 1396501, ['QUAD8', 'HEXA20'],
+                            private=True)
 
     def test_flam(self):
         standard_conversion(self, "Maille_MF_flam-elas-clean.inp", Fmt.Abaqus, Fmt.Salome,
-                            1872, 1975, private=True)
+                            1872, 1975, ['QUAD4'],
+                            private=True)
 
 
 if __name__ == "__main__":
