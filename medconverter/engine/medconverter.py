@@ -168,53 +168,55 @@ class ElementTypeConverter:
         '315' : 'PENTA15',
     }
 
-    _abaqus_to_med = {
-        'Node'  : 'POINT1',
+    _abaqus_to_med = OrderedDict((
+       ('Node', 'POINT1'),
 
-        'DC1D2' : 'SEG2',
-        'DC1D3' : 'SEG3',
+       ('DC1D2', 'SEG2'),
+       ('DC1D3', 'SEG3'),
 
-        'AC1D2' : 'SEG2',
-        'AC1D3' : 'SEG3',
+       ('AC1D2', 'SEG2'),
+       ('AC1D3', 'SEG3'),
 
 # Beam element
-        'B21' : 'SEG2',
-        'B22' : 'SEG3',
+       ('B21', 'SEG2'),
+       ('B22', 'SEG3'),
 
 # Membrane Element
-        'M3D3'    : 'TRI3',
-        'M3D4'    : 'QUAD4',
-        'M3D6'    : 'TRI6',
-        'M3D8'    : 'QUAD8',
-        'M3D9'    : 'QUAD9',
+       ('M3D3', 'TRI3'),
+       ('M3D4', 'QUAD4'),
+       ('M3D6', 'TRI6'),
+       ('M3D8', 'QUAD8'),
+       ('M3D9', 'QUAD9'),
 
 # Structural Element
-        'S4'    : 'QUAD4',
+       ('S4', 'QUAD4'),
 
-# Continuum Element
-        'CPE3'  : 'TRI3',
-        'CPE6'  : 'TRI6',
+# Reduced Continuum Element
+       ('C3D8R', 'HEXA8'),
+       ('C3D20R', 'HEXA20'),
 
-        'CPE4'  : 'QUAD4',
-        'CPE8'  : 'QUAD8',
-        'CPE9'  : 'QUAD9',
+# Continuum Element), must be declared last 
+       ('CPE3', 'TRI3'),
+       ('CPE6', 'TRI6'),
+        
+       ('CPE4', 'QUAD4'),
+       ('CPE8', 'QUAD8'),
+       ('CPE9', 'QUAD9'),
+        
+       ('C3D4', 'TETRA4'),
+       ('C3D10', 'TETRA10'),
+        
+       ('C3D5', 'PYRA5'),
+       ('C3D13', 'PYRA13'),
+        
+       ('C3D6', 'PENTA6'),
+       ('C3D15', 'PENTA15'),
+       ('C3D15V', 'PENTA18'),
 
-        'C3D4'  : 'TETRA4',
-        'C3D10' : 'TETRA10',
-
-        'C3D5'  : 'PYRA5',
-        'C3D13' : 'PYRA13',
-
-        'C3D6'  : 'PENTA6',
-        'C3D15' : 'PENTA15',
-        'C3D15V': 'PENTA18',
-
-        'C3D8'  : 'HEXA8',
-        'C3D8R' : 'HEXA8',
-        'C3D20' : 'HEXA20',
-        'C3D20R': 'HEXA20',
-        'C3D27' : 'HEXA27',
-    }
+       ('C3D8', 'HEXA8'),
+       ('C3D20', 'HEXA20'),
+       ('C3D27', 'HEXA27'),
+    ))
 
     _aster_to_med = {
         'POI1'   : 'POINT1',
