@@ -15,7 +15,7 @@
 **
 *Assembly, name=Assembly
 **
-*Instance, name=Mallage_1, part=Maille
+*Instance, name=Maillage_1, part=Maille
 *Node
       1,           2.,           0.,           0.0
       2,           0.,          2.0,           0.
@@ -27,8 +27,8 @@
   1,    2
 *Elset, elset=_GE1, internal
   1
-*Elset, elset=_GE2, instance=Mallage_1
+*Elset, elset=_GE2, instance=Maillage_1
  1
-*Nset, nset=_GN2, instance=Mallage_1
+*Nset, nset=_GN2, instance=Maillage_1
    3,   4
 *End Instance
