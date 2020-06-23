@@ -237,6 +237,8 @@ class MedConverterAbaqus(MedConverter):
             # print("Elset")
             # print(Elset)
             self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif keyword.startswith(('Include', 'INCLUDE')):
+            line0 = self._read_include_file(file, keyword, Nodes, Elements, Nset, Elset)
         elif keyword.startswith(('Part,', 'PART,')):
             self.nbParts += 1
 
@@ -400,6 +402,20 @@ class MedConverterAbaqus(MedConverter):
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
         return line
+
+    # Read an included file
+    def _read_include_file(self, file, line0, Nodes, Elements, Nset, Elset):
+        # get informations about elements
+        params_map = self._get_param_map(line0)
+
+        # this is not an included file
+        if("INPUT" not in params_map):
+            return file.readline()
+        else:
+            # Not allowed
+            raise RuntimeError("Keyword not supported: INCLUDE")
+
+        return file.readline()
 
     def _get_param_map(self, word, required_keys=None):
         """
