@@ -122,7 +122,7 @@ class MedConverterAbaqus(MedConverter):
     def read_abaqus_mesh(self, filename):
         logger.debug("Reading Abaqus mesh file : %s"%filename)
 
-        Node, Elements, Nset, Elset = [], [], [], []
+        Nodes, Elements, Nset, Elset = [], [], [], []
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
@@ -140,21 +140,21 @@ class MedConverterAbaqus(MedConverter):
                 if(line.startswith("*Instance")):
                     self._read_name_mesh(line)
 
-                self._read_data(file, line, Node, Elements, Nset, Elset)
+                self._read_data(file, line, Nodes, Elements, Nset, Elset)
 
 
         file.close()
 
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
-        logger.debug("Number of nodes : %d"%(len(Node)))
+        logger.debug("Number of nodes : %d"%(len(Nodes)))
         logger.debug("Number of elements : %d"%(len(Elements)))
         logger.debug("Number of groups : %d"%(len(Nset) + len(Elset)))
 
         # nodes of the mesh (collection of double)
         corresponding_nodes = {}
         coor = []
-        for idx, node in enumerate(Node):
+        for idx, node in enumerate(Nodes):
             if(self.checkKey(corresponding_nodes, int(node.getId()))):
                 raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
             else:
@@ -212,29 +212,38 @@ class MedConverterAbaqus(MedConverter):
                         self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
 
 
-    def _read_data(self, file, line, Node, Elements, Nset, Elset):
+    def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
         keyword = line.strip().strip("*").strip()
 
-        if(keyword in ("Node", "NODE")):
-            line0 = self._read_nodes(file, Node)
+        if(keyword in ("Node", "NODE", "node") or \
+            keyword.startswith( ("Node,", "NODE,", "node,"))):
+            line0 = self._read_nodes(file, keyword, Nodes, Nset)
             # print("Nodes")
-            # print(Node)
-            self._read_data(file, line0, Node, Elements, Nset, Elset)
-        elif(keyword.startswith(("Element", "ELEMENT"))):
+            # print(Nodes)
+            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif(keyword.startswith(("Element", "ELEMENT", "element"))):
             line0 = self._read_cells(file, keyword, Elements, Elset)
             # print("Cells")
             # print(Elements)
-            self._read_data(file, line0, Node, Elements, Nset, Elset)
-        elif(keyword.startswith(("Nset", "NSET"))):
+            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif(keyword.startswith(("Nset", "NSET", "nset"))):
             line0 = self._read_group(file, keyword, "NSET", Nset)
             # print("Nset")
             # print(Nset)
-            self._read_data(file, line0, Node, Elements, Nset, Elset)
-        elif keyword.startswith(('Elset', 'ELSET')):
+            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif keyword.startswith(('Elset', 'ELSET', "elset")):
             line0 = self._read_group(file, keyword, "ELSET", Elset)
             # print("Elset")
             # print(Elset)
-            self._read_data(file, line0, Node, Elements, Nset, Elset)
+            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif keyword.startswith(('Ngen', 'NGEN','NGen','ngen')):
+            raise RuntimeError("Keyword not supported: NGEN")
+        elif keyword.startswith(('Nfill', 'NFILL','NFill', 'nfill')):
+            raise RuntimeError("Keyword not supported: NFILL")
+        elif keyword.startswith(('Nmap', 'NMAP','NMap','nmap')):
+            raise RuntimeError("Keyword not supported: NMAP")
+        elif keyword.startswith(('Ncopy', 'NCOPY','Ncopy','ncopy')):
+            raise RuntimeError("Keyword not supported: NMAP")
 
     def _read_name_mesh(self, line0):
         # find type of element
@@ -243,19 +252,42 @@ class MedConverterAbaqus(MedConverter):
         assert "NAME" in etype_sline, etype_sline
         self.mesh_name = sline[0].split("=")[1].strip()
 
-    def _read_nodes(self, file, Node):
+    def _read_nodes(self, file, line0, Nodes, Nset):
+        # get informations about nodes
+        params_map = self._get_param_map(line0, ["NODE"])
+
+        # create directly a group from the list of nodes
+        if "NSET" in params_map:
+            create_nset = True
+            list_nodes = []
+        else:
+            create_nset = False
+
+        # loop on nodes
         while True:
             line = file.readline()
             if line.startswith("*"):
                 break
             entries = line.strip().rstrip(",").split(",")
+            # read id and coordinatines
             nid, x = entries[0], entries[1:]
+
+            # fill with zero if not enougth coordinates
             if (len(x) < 3):
                 for i in range(0, 3-len(x)):
                     x.append("0.0")
-
             assert len(x) == 3
-            Node.append(AbaqusNode(nid, [float(xx) for xx in x]))
+
+            Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
+
+            # add node in the group
+            if create_nset:
+                list_nodes.append(nid)
+
+        # add group in Nset
+        if create_nset:
+            name = params_map["NSET"]
+            Nset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_nodes]))
 
         return line
 
