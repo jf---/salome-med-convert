@@ -26,6 +26,8 @@ class AbaqusNode:
         self.coordinates = node_coordinates
 
     def getCoordinates(self):
+        if(len(self.coordinates) != 3):
+            raise RuntimeError("Coordinates have to have 3 elements")
         return self.coordinates
 
 class AbaqusElement:
@@ -213,7 +215,7 @@ class MedConverterAbaqus(MedConverter):
     def _read_data(self, file, line, Node, Elements, Nset, Elset):
         keyword = line.strip().strip("*").strip()
 
-        if(keyword == "Node"):
+        if(keyword in ("Node", "NODE")):
             line0 = self._read_nodes(file, Node)
             # print("Nodes")
             # print(Node)
@@ -248,6 +250,11 @@ class MedConverterAbaqus(MedConverter):
                 break
             entries = line.strip().rstrip(",").split(",")
             nid, x = entries[0], entries[1:]
+            if (len(x) < 3):
+                for i in range(0, 3-len(x)):
+                    x.append("0.0")
+
+            assert len(x) == 3
             Node.append(AbaqusNode(nid, [float(xx) for xx in x]))
 
         return line
@@ -268,24 +275,18 @@ class MedConverterAbaqus(MedConverter):
 
     # Read a list of element
     def _read_cells(self, file, line0, Elements, Elset):
-        # find type of element
-        sline = line0.split(",")[1:]
-
         # get informations about elements
-        info = {}
-        for words in sline:
-            w_split = words.split("=")
-            info[w_split[0].strip().upper()] = w_split[1].strip()
+        params_map = self._get_param_map(line0, ["ELEMENT"])
 
         # create directly a group from the list of elements
-        if "ELSET" in info:
+        if "ELSET" in params_map:
             create_elset = True
             list_elem = []
         else:
             create_elset = False
 
         # get type of element to create
-        etype = info["TYPE"]
+        etype = params_map["TYPE"]
 
         # loop on list of elements
         while True:
@@ -303,7 +304,7 @@ class MedConverterAbaqus(MedConverter):
 
         # add group in Elset
         if create_elset:
-            name = info["ELSET"]
+            name = params_map["ELSET"]
             Elset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_elem]))
 
         return line
@@ -312,9 +313,10 @@ class MedConverterAbaqus(MedConverter):
         # find type of element
         params_map = self._get_param_map(line0)
         name = params_map[param]
-        list_nodes = []
+        list_item = []
 
-        if("generate" in params_map.keys()):
+        # to generate groups
+        if("GENERATE" in params_map.keys()):
             generate = True
         else:
             generate = False
@@ -325,11 +327,17 @@ class MedConverterAbaqus(MedConverter):
                 break
             if(generate):
                 gener = line.strip().rstrip(",").split(",")
-                list_nodes += [int(n) for n in range(int(gener[0]), int(gener[1])+1, int(gener[2]))]
+                # default value is 1
+                if(len(gener) == 2):
+                    gener.append("1")
+                # generate elements in group
+                # first element, last_element, step
+                list_item += [int(n) for n in range(int(gener[0]), int(gener[1])+1, int(gener[2]))]
             else:
-                list_nodes += line.strip().rstrip(",").split(",")
+                # read directely list of elements
+                list_item += line.strip().rstrip(",").split(",")
 
-        Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_nodes]))
+        Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
         return line
 
@@ -352,12 +360,12 @@ class MedConverterAbaqus(MedConverter):
         param_map = {}
         for wordi in words:
             if "=" not in wordi:
-                key = wordi.strip()
+                key = wordi.strip().upper()
                 value = None
             else:
                 sword = wordi.split("=")
                 assert len(sword) == 2, sword
-                key = sword[0].strip().upper()
+                key = (sword[0].strip()).upper()
                 value = sword[1].strip()
             param_map[key] = value
 

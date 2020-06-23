@@ -20,3 +20,8 @@ Abaqus
      - 1872
      - 1975
      - QUAD4
+   * - boltpipeflange_3d.inp
+     - Public
+     - 2000
+     - 10587
+     - HEXA20, PENTA15
