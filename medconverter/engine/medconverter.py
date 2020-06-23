@@ -198,6 +198,9 @@ class ElementTypeConverter:
        ('C3D8R', 'HEXA8'),
        ('C3D20R', 'HEXA20'),
 
+# Axis symmetric element
+       ('DCCAX4', 'QUAD4'),
+
 # Continuum Element), must be declared last
        ('CPE3', 'TRI3'),
        ('CPE6', 'TRI6'),

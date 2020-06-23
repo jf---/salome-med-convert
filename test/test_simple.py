@@ -113,6 +113,11 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             14600, 14973, ['QUAD4'])
 
+    def test_Brake_abaqus(self):
+        filename = osp.join(data_path(), "BRAKE.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            236, 288, ['QUAD4'])
+
 
 
 

@@ -30,3 +30,8 @@ Abaqus
      - 14600
      - 14973
      - QUAD4
+   * - BRAKE.inp
+     - Public
+     - 236
+     - 288
+     - QUAD4
