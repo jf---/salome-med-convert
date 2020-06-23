@@ -69,7 +69,7 @@ class ConnectivityRenumberer:
         'HEXA8'   : [0, 3, 2, 1, 4, 7, 6, 5],
         'HEXA20'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 15, 14, 13, 12, 16, 19, 18, 17],
         'HEXA27'  : [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 15, 14, 13, 12, 16, 19, 18, 17, 26, 20, 25, 24, 23, 22, 21],
-        
+
         'PENTA6'  : [0, 2, 1, 3, 5, 4],
         'PENTA15' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13],
         'PENTA18' : [0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13, 17, 16, 15],
@@ -188,6 +188,9 @@ class ElementTypeConverter:
        ('M3D8', 'QUAD8'),
        ('M3D9', 'QUAD9'),
 
+# Reduced Structural Element
+       ('S4R', 'QUAD4'),
+
 # Structural Element
        ('S4', 'QUAD4'),
 
@@ -195,20 +198,20 @@ class ElementTypeConverter:
        ('C3D8R', 'HEXA8'),
        ('C3D20R', 'HEXA20'),
 
-# Continuum Element), must be declared last 
+# Continuum Element), must be declared last
        ('CPE3', 'TRI3'),
        ('CPE6', 'TRI6'),
-        
+
        ('CPE4', 'QUAD4'),
        ('CPE8', 'QUAD8'),
        ('CPE9', 'QUAD9'),
-        
+
        ('C3D4', 'TETRA4'),
        ('C3D10', 'TETRA10'),
-        
+
        ('C3D5', 'PYRA5'),
        ('C3D13', 'PYRA13'),
-        
+
        ('C3D6', 'PENTA6'),
        ('C3D15', 'PENTA15'),
        ('C3D15V', 'PENTA18'),
@@ -380,6 +383,5 @@ class MedConverter:
             group_medcoupling.setName(group_name)
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
-
-        self.medmesh.setName(self.mesh_name)
+        self.medmesh.setName(self.mesh_name[0:63])
         self.medmesh.rearrangeFamilies()

@@ -25,3 +25,8 @@ Abaqus
      - 2000
      - 10587
      - HEXA20, PENTA15
+   * - ThreePointBending.inp
+     - Public
+     - 14600
+     - 14973
+     - QUAD4

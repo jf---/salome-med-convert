@@ -108,6 +108,11 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             2000, 10587, ['HEXA20','PENTA15'])
 
+    def test_Bending_abaqus(self):
+        filename = osp.join(data_path(), "ThreePointBending.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            14600, 14973, ['QUAD4'])
+
 
 
 

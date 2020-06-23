@@ -215,8 +215,7 @@ class MedConverterAbaqus(MedConverter):
     def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
         keyword = line.strip().strip("*").strip()
 
-        if(keyword in ("Node", "NODE", "node") or \
-            keyword.startswith( ("Node,", "NODE,", "node,"))):
+        if(keyword.startswith( ("Node", "NODE", "node"))):
             line0 = self._read_nodes(file, keyword, Nodes, Nset)
             # print("Nodes")
             # print(Nodes)
@@ -254,7 +253,11 @@ class MedConverterAbaqus(MedConverter):
 
     def _read_nodes(self, file, line0, Nodes, Nset):
         # get informations about nodes
-        params_map = self._get_param_map(line0, ["NODE"])
+        params_map = self._get_param_map(line0, )
+
+        # this is not a list of node
+        if("NODE" not in params_map):
+            return file.readline()
 
         # create directly a group from the list of nodes
         if "NSET" in params_map:
@@ -308,7 +311,11 @@ class MedConverterAbaqus(MedConverter):
     # Read a list of element
     def _read_cells(self, file, line0, Elements, Elset):
         # get informations about elements
-        params_map = self._get_param_map(line0, ["ELEMENT"])
+        params_map = self._get_param_map(line0)
+
+        # this is not a list of element
+        if("ELEMENT" not in params_map):
+            return file.readline()
 
         # create directly a group from the list of elements
         if "ELSET" in params_map:
@@ -357,17 +364,26 @@ class MedConverterAbaqus(MedConverter):
             line = file.readline()
             if line.startswith("*"):
                 break
-            if(generate):
-                gener = line.strip().rstrip(",").split(",")
-                # default value is 1
-                if(len(gener) == 2):
-                    gener.append("1")
-                # generate elements in group
-                # first element, last_element, step
-                list_item += [int(n) for n in range(int(gener[0]), int(gener[1])+1, int(gener[2]))]
+            entries = line.strip().rstrip(",").split(",")
+
+            if(len(entries) == 1):
+                list_item = [entries[0]]
+                for grp in Group:
+                    if(grp.getName() == entries[0]):
+                        # this is a copy of group
+                        list_item = grp.getGroup()
+                        break
             else:
-                # read directely list of elements
-                list_item += line.strip().rstrip(",").split(",")
+                if(generate):
+                    # default value is 1
+                    if(len(entries) == 2):
+                        entries.append("1")
+                    # generate elements in group
+                    # first element, last_element, step
+                    list_item += [int(n) for n in range(int(entries[0]), int(entries[1])+1, int(entries[2]))]
+                else:
+                    # read directely list of elements
+                    list_item += entries
 
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
