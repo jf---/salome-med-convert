@@ -218,12 +218,12 @@ class MedConverterAbaqus(MedConverter):
             # print("Nodes")
             # print(Node)
             self._read_data(f, line0, Node, Elements, Nset, Elset)
-        elif(keyword.startswith("Element")):
-            line0 = self._read_cells(f, keyword, Elements)
+        elif(keyword.startswith(("Element", "ELEMENT"))):
+            line0 = self._read_cells(f, keyword, Elements, Elset)
             # print("Cells")
             # print(Elements)
             self._read_data(f, line0, Node, Elements, Nset, Elset)
-        elif(keyword.startswith("Nset")):
+        elif(keyword.startswith(("Nset", "NSET"))):
             line0 = self._read_group(f, keyword, "NSET", Nset)
             # print("Nset")
             # print(Nset)
@@ -252,20 +252,45 @@ class MedConverterAbaqus(MedConverter):
 
         return line
 
-    def _read_cells(self, f, line0, Elements):
+    # Read a list of element
+    def _read_cells(self, f, line0, Elements, Elset):
         # find type of element
         sline = line0.split(",")[1:]
-        etype_sline = sline[0].upper()
-        assert "TYPE" in etype_sline, etype_sline
-        etype = etype_sline.split("=")[1].strip()
 
+        # get informations about elements
+        info = {}
+        for words in sline:
+            w_split = words.split("=")
+            info[w_split[0].strip().upper()] = w_split[1].strip()
+
+        # create directly a group from the list of elements
+        if "ELSET" in info:
+            create_elset = True
+            list_elem = []
+        else:
+            create_elset = False
+
+        # get type of element to create
+        etype = info["TYPE"]
+
+        # loop on list of elements
         while True:
             line = f.readline()
             if line.startswith("*"):
                 break
             entries = line.strip().rstrip(",").split(",")
+            # get id and list of nodes
             eid, nodes = entries[0], entries[1:]
+            # add element
             Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
+            # add element in the group
+            if create_elset:
+                list_elem.append(eid)
+
+        # add group in Elset
+        if create_elset:
+            name = info["ELSET"]
+            Elset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_elem]))
 
         return line
 
