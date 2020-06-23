@@ -118,6 +118,8 @@ class MedConverterAbaqus(MedConverter):
     def __init__(self):
         super(MedConverterAbaqus, self).__init__()
         self.abaqusmesh = None
+        self.nbParts = 0
+        self.nbAssembly = 0
 
     def read_abaqus_mesh(self, filename):
         logger.debug("Reading Abaqus mesh file : %s"%filename)
@@ -235,6 +237,16 @@ class MedConverterAbaqus(MedConverter):
             # print("Elset")
             # print(Elset)
             self._read_data(file, line0, Nodes, Elements, Nset, Elset)
+        elif keyword.startswith(('Part,', 'PART,')):
+            self.nbParts += 1
+
+            if(self.nbParts > 1):
+                raise RuntimeError("Only one part allowed")
+        elif keyword.startswith(('Assembly,', 'ASSEMBLY,')):
+            self.nbAssembly += 1
+
+            if(self.nbAssembly > 1):
+                raise RuntimeError("Only one Assembly allowed")
         elif keyword.startswith(('Ngen', 'NGEN','NGen','ngen')):
             raise RuntimeError("Keyword not supported: NGEN")
         elif keyword.startswith(('Nfill', 'NFILL','NFill', 'nfill')):
