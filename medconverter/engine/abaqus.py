@@ -228,7 +228,7 @@ class MedConverterAbaqus(MedConverter):
             # print("Nset")
             # print(Nset)
             self._read_data(f, line0, Node, Elements, Nset, Elset)
-        elif(keyword.startswith(("Elset")):
+        elif keyword.startswith(('Elset', 'ELSET')):
             line0 = self._read_group(f, keyword, "ELSET", Elset)
             # print("Elset")
             # print(Elset)
