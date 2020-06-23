@@ -35,3 +35,13 @@ Abaqus
      - 236
      - 288
      - QUAD4
+   * - NOTCHED_BEAM.inp
+     - Public
+     - 165
+     - 556
+     - QUAD8
+   * - STACKEDASSEMBLY.inp
+     - Public
+     - 984
+     - 1117
+     - TRI3, QUAD4

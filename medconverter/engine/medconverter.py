@@ -189,12 +189,16 @@ class ElementTypeConverter:
        ('M3D9', 'QUAD9'),
 
 # Reduced Structural Element
+       ('S3R', 'TRI3'),
+
        ('S4R', 'QUAD4'),
 
 # Structural Element
        ('S4', 'QUAD4'),
 
 # Reduced Continuum Element
+       ('CPE8R', 'QUAD8'),
+
        ('C3D8R', 'HEXA8'),
        ('C3D20R', 'HEXA20'),
 

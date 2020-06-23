@@ -118,7 +118,15 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             236, 288, ['QUAD4'])
 
+    def test_notchedbeam_abaqus(self):
+        filename = osp.join(data_path(), "NOTCHED_BEAM.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            165, 556, ['QUAD8'])
 
+    def test_stackedassembly_abaqus(self):
+        filename = osp.join(data_path(), "STACKEDASSEMBLY.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            984, 1117, ['TRI3', 'QUAD4'])
 
 
 
