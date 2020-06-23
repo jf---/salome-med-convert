@@ -7,15 +7,13 @@
 **
 *Part, name=Part-1
 *End Part
-**  
-*Part, name=Part-2
-*End Part
-**  
+**
+**
 **
 ** ASSEMBLY
 **
 *Assembly, name=Assembly
-**  
+**
 *Instance, name=Part-1-1, part=Part-1
 *Node
  10, 0.,0.,1.
