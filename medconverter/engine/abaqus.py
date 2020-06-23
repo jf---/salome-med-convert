@@ -123,25 +123,25 @@ class MedConverterAbaqus(MedConverter):
         Node, Elements, Nset, Elset = [], [], [], []
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
-        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
-            next(f)
+        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
+            next(file)
 
             # Lecture du nom du maillage si disponible
-            line_1 = next(f).strip()
+            line_1 = next(file).strip()
             # self.mesh_name = line_1 if line_1 else 'Mesh'
             self.mesh_name = line_1 if line_1 else osp.splitext(osp.split(filename)[-1])[0]
 
             # a priori, this is a 3D mesh
             self.space_dim = 3
 
-            for line in f :
+            for line in file :
                 if(line.startswith("*Instance")):
                     self._read_name_mesh(line)
 
-                self._read_data(f, line, Node, Elements, Nset, Elset)
+                self._read_data(file, line, Node, Elements, Nset, Elset)
 
 
-        f.close()
+        file.close()
 
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
@@ -210,29 +210,29 @@ class MedConverterAbaqus(MedConverter):
                         self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
 
 
-    def _read_data(self, f, line, Node, Elements, Nset, Elset):
+    def _read_data(self, file, line, Node, Elements, Nset, Elset):
         keyword = line.strip().strip("*").strip()
 
         if(keyword == "Node"):
-            line0 = self._read_nodes(f, Node)
+            line0 = self._read_nodes(file, Node)
             # print("Nodes")
             # print(Node)
-            self._read_data(f, line0, Node, Elements, Nset, Elset)
+            self._read_data(file, line0, Node, Elements, Nset, Elset)
         elif(keyword.startswith(("Element", "ELEMENT"))):
-            line0 = self._read_cells(f, keyword, Elements, Elset)
+            line0 = self._read_cells(file, keyword, Elements, Elset)
             # print("Cells")
             # print(Elements)
-            self._read_data(f, line0, Node, Elements, Nset, Elset)
+            self._read_data(file, line0, Node, Elements, Nset, Elset)
         elif(keyword.startswith(("Nset", "NSET"))):
-            line0 = self._read_group(f, keyword, "NSET", Nset)
+            line0 = self._read_group(file, keyword, "NSET", Nset)
             # print("Nset")
             # print(Nset)
-            self._read_data(f, line0, Node, Elements, Nset, Elset)
+            self._read_data(file, line0, Node, Elements, Nset, Elset)
         elif keyword.startswith(('Elset', 'ELSET')):
-            line0 = self._read_group(f, keyword, "ELSET", Elset)
+            line0 = self._read_group(file, keyword, "ELSET", Elset)
             # print("Elset")
             # print(Elset)
-            self._read_data(f, line0, Node, Elements, Nset, Elset)
+            self._read_data(file, line0, Node, Elements, Nset, Elset)
 
     def _read_name_mesh(self, line0):
         # find type of element
@@ -241,9 +241,9 @@ class MedConverterAbaqus(MedConverter):
         assert "NAME" in etype_sline, etype_sline
         self.mesh_name = sline[0].split("=")[1].strip()
 
-    def _read_nodes(self, f, Node):
+    def _read_nodes(self, file, Node):
         while True:
-            line = f.readline()
+            line = file.readline()
             if line.startswith("*"):
                 break
             entries = line.strip().rstrip(",").split(",")
@@ -252,8 +252,22 @@ class MedConverterAbaqus(MedConverter):
 
         return line
 
+    # read a string which are in more that one line. If terminates by separator
+    def _read_continuous_line(self, file, line, separator):
+
+        # read the line
+        entries= line.strip().rstrip(",").split(",")
+
+        # more than one line to read
+        if line.rstrip().endswith(separator):
+            line = file.readline()
+            entries += self._read_continuous_line(file, line, separator)
+
+        return entries
+
+
     # Read a list of element
-    def _read_cells(self, f, line0, Elements, Elset):
+    def _read_cells(self, file, line0, Elements, Elset):
         # find type of element
         sline = line0.split(",")[1:]
 
@@ -275,10 +289,10 @@ class MedConverterAbaqus(MedConverter):
 
         # loop on list of elements
         while True:
-            line = f.readline()
+            line = file.readline()
             if line.startswith("*"):
                 break
-            entries = line.strip().rstrip(",").split(",")
+            entries = self._read_continuous_line(file, line, ",")
             # get id and list of nodes
             eid, nodes = entries[0], entries[1:]
             # add element
@@ -294,7 +308,7 @@ class MedConverterAbaqus(MedConverter):
 
         return line
 
-    def _read_group(self, f, line0, param, Group):
+    def _read_group(self, file, line0, param, Group):
         # find type of element
         params_map = self._get_param_map(line0)
         name = params_map[param]
@@ -306,7 +320,7 @@ class MedConverterAbaqus(MedConverter):
             generate = False
 
         while True:
-            line = f.readline()
+            line = file.readline()
             if line.startswith("*"):
                 break
             if(generate):
