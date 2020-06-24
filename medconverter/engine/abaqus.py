@@ -219,7 +219,7 @@ class MedConverterAbaqus(MedConverter):
 
 
     def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
-        keyword = line.strip().strip("*").strip()
+        keyword = line.replace("*", '').strip()
 
         if(keyword.startswith( ("Node", "NODE", "node"))):
             line0 = self._read_nodes(file, keyword, Nodes, Nset)
@@ -296,23 +296,37 @@ class MedConverterAbaqus(MedConverter):
         # loop on nodes
         while True:
             line = file_to_read.readline()
-            if self.breakLoop(line):
+            l_process_line = True
+            if(l_extern_file):
+                if line.startswith("*"):
+                    keyword = line.replace("*", '').strip()
+                    if(keyword.startswith(("Node", "NODE", "node"))):
+                        line = self._read_nodes(file_to_read, keyword, Nodes, Nset)
+                    else:
+                        l_process_line = False
+
+                if line == "":
+                    break
+                elif line in ['\n', '\r\n']:
+                    break
+            elif self.breakLoop(line):
                 break
-            entries = self.splitAndCleanLine(line, ',')
-            # read id and coordinatines
-            nid, x = entries[0], entries[1:]
 
-            # fill with zero if not enougth coordinates
-            if (len(x) < 3):
-                for i in range(0, 3-len(x)):
-                    x.append("0.0")
-            assert len(x) == 3
+            if l_process_line:
+                entries = self.splitAndCleanLine(line, ',')
+                # read id and coordinatines
+                nid, x = entries[0], entries[1:]
+                # fill with zero if not enougth coordinates
+                if (len(x) < 3):
+                    for i in range(0, 3-len(x)):
+                        x.append("0.0")
+                assert len(x) == 3
 
-            Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
+                Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
 
-            # add node in the group
-            if create_nset:
-                list_nodes.append(nid)
+                # add node in the group
+                if create_nset:
+                    list_nodes.append(nid)
 
         # add group in Nset
         if create_nset:
@@ -333,6 +347,9 @@ class MedConverterAbaqus(MedConverter):
 
         # more than one line to read
         if line.rstrip().endswith(separator):
+            if line.lstrip().startswith("*"):
+                return entries
+
             line = file.readline()
             entries += self._read_continuous_line(file, line, separator)
 
@@ -370,16 +387,31 @@ class MedConverterAbaqus(MedConverter):
         # loop on list of elements
         while True:
             line = file_to_read.readline()
-            if self.breakLoop(line):
+            l_process_line = True
+            if(l_extern_file):
+                if line.startswith("*"):
+                    keyword = line.replace("*", '').strip()
+                    if(keyword.startswith(("Element", "ELEMENT", "element"))):
+                        line = self._read_cells(file_to_read, keyword, Elements, Elset)
+                    else:
+                        l_process_line = False
+
+                if line == "":
+                    break
+                elif line in ['\n', '\r\n']:
+                    break
+            elif self.breakLoop(line):
                 break
-            entries = self._read_continuous_line(file_to_read, line, ",")
-            # get id and list of nodes
-            eid, nodes = entries[0], entries[1:]
-            # add element
-            Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
-            # add element in the group
-            if create_elset:
-                list_elem.append(eid)
+
+            if l_process_line:
+                entries = self._read_continuous_line(file_to_read, line, ",")
+                # get id and list of nodes
+                eid, nodes = entries[0], entries[1:]
+                # add element
+                Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
+                # add element in the group
+                if create_elset:
+                    list_elem.append(eid)
 
         # add group in Elset
         if create_elset:
