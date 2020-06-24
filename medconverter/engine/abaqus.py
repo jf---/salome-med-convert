@@ -446,15 +446,22 @@ class MedConverterAbaqus(MedConverter):
 
     # Read an included file
     def _read_include_file(self, file, line0, Nodes, Elements, Nset, Elset):
-        # get informations about elements
+        # get informations about file
         params_map = self._get_param_map(line0)
 
         # this is not an included file
         if("INPUT" not in params_map):
             return file.readline()
-        else:
-            # Not allowed
-            raise RuntimeError("Keyword not supported: INCLUDE")
+
+        # open external file
+        filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
+        file_to_read = open(filename_elem, 'r')
+
+        # read external file
+        for line in file_to_read :
+            self._read_data(file_to_read, line, Nodes, Elements, Nset, Elset)
+
+        file_to_read.close()
 
         return file.readline()
 

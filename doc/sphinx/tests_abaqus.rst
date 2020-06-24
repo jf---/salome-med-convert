@@ -45,6 +45,11 @@ Abaqus
      - 984
      - 1117
      - TRI3, QUAD4
+   * - STACKEDASSEMBLY2.inp
+     - Public
+     - 984
+     - 1117
+     - TRI3, QUAD4
    * - MASS.inp
      - Public
      - 2
