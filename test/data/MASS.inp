@@ -1,0 +1,13 @@
+** Maille élémentaire pour qualification Abaqus
+*Heading
+ Maille élémentaire pour qualification Abaqus
+**
+*Node, Nset=Allnodes
+      1,           0.,           0.,           0.0
+      2,           0.,           1.,           0.0
+*Element, type=MASS
+  1, 1
+*Element, type=B21, elset=Beam
+  2, 1, 2
+*Nset, nset=_GN1, internal
+  1,
