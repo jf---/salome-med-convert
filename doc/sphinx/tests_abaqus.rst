@@ -45,6 +45,11 @@ Abaqus
      - 984
      - 1117
      - TRI3, QUAD4
+   * - MASS.inp
+     - Public
+     - 2
+     - 2
+     - POINT1, SEG2
    * - SUBMESH_0.inp
      - Public
      - 2
