@@ -60,6 +60,12 @@
   1
 *Elset, elset=_GE2, instance=Mallage_1
  1
+*Elset, elset=_GE3, instance=Mallage_1
+ 2,
+*Elset, elset=_AllE,
+_GE1, _GE3,
 *Nset, nset=_GN2, instance=Mallage_1
    3,   4
+*Nset, nset=_AllN, instance=Mallage_1
+   _GN1, _GN2
 *End Instance

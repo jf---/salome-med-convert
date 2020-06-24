@@ -298,7 +298,7 @@ class MedConverterAbaqus(MedConverter):
             line = file_to_read.readline()
             if self.breakLoop(line):
                 break
-            entries = line.strip().rstrip(",").split(",")
+            entries = self.splitAndCleanLine(line, ',')
             # read id and coordinatines
             nid, x = entries[0], entries[1:]
 
@@ -412,15 +412,20 @@ class MedConverterAbaqus(MedConverter):
             line = file.readline()
             if self.breakLoop(line):
                 break
-            entries = line.strip().rstrip(",").split(",")
 
-            if(len(entries) == 1):
-                list_item = [entries[0]]
-                for grp in Group:
-                    if(grp.getName() == entries[0]):
-                        # this is a copy of group
-                        list_item = grp.getGroup()
-                        break
+            entries = [x.strip() for x in line.strip().rstrip(",").split(",")]
+
+            try:
+                int(entries[0])
+                l_list_grp = False
+            except:
+                l_list_grp = True
+            if(l_list_grp):
+                for grp_name in entries:
+                    for grp in Group:
+                        if(grp.getName() == grp_name):
+                            # this is a copy of group
+                            list_item += grp.getGroup()
             else:
                 if(generate):
                     # default value is 1
@@ -504,6 +509,9 @@ class MedConverterAbaqus(MedConverter):
             return True
 
         return False
+
+    def splitAndCleanLine(self, my_string, separator):
+        return [x.strip() for x in my_string.split(separator)]
 
     def create_abaqus_mesh(self):
         raise Exception("Not yet implemented")
