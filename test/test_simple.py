@@ -128,6 +128,16 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             984, 1117, ['TRI3', 'QUAD4'])
 
+    def test_smesh0_abaqus(self):
+        filename = osp.join(data_path(), "SUBMESH_0.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            2, 32, ['HEXA20'])
+
+    # def test_smesh1_abaqus(self):
+    #     filename = osp.join(data_path(), "selfcontact_bump_xpl_cax3.inp")
+    #     standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+    #                         1328, 743, ['HEXA20'])
+
 
 
 if __name__ == "__main__":

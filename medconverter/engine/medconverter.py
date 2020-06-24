@@ -171,6 +171,9 @@ class ElementTypeConverter:
     _abaqus_to_med = OrderedDict((
        ('Node', 'POINT1'),
 
+# Mass element - 0D
+       ('MASS', 'POINT1'),
+
 # Frame Element
        ('FRAME2D', 'SEG2'),
        ('FRAME3D', 'SEG2'),

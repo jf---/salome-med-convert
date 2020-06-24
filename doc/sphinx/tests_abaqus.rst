@@ -45,3 +45,8 @@ Abaqus
      - 984
      - 1117
      - TRI3, QUAD4
+   * - SUBMESH_0.inp
+     - Public
+     - 2
+     - 32
+     - HEXA20

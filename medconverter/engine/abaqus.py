@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from .medconverter import *
+import os.path as osp
+
 
 class AbaqusNode:
 
@@ -129,6 +131,7 @@ class MedConverterAbaqus(MedConverter):
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
             next(file)
+            self.filename = filename
 
             # Lecture du nom du maillage si disponible
             line_1 = next(file).strip()
@@ -188,6 +191,7 @@ class MedConverterAbaqus(MedConverter):
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
 
             key = '%dD'%element_dim
+            # print(element_dim, element_abaqus_type, element_medcoupling_type, nbnodes)
             if not key in self.elements : self.elements[key] = []
             if not key in corresponding_elements : corresponding_elements[key] = {}
             self.elements[key].append((element_medcoupling_type, element_nodes_med))
@@ -280,10 +284,19 @@ class MedConverterAbaqus(MedConverter):
         else:
             create_nset = False
 
+        # the coordinates are in an external file
+        if "INPUT" in params_map:
+            l_extern_file = True
+            filename_node = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
+            file_to_read = open(filename_node, 'r')
+        else:
+            l_extern_file = False
+            file_to_read = file
+
         # loop on nodes
         while True:
-            line = file.readline()
-            if line.startswith("*"):
+            line = file_to_read.readline()
+            if self.breakLoop(line):
                 break
             entries = line.strip().rstrip(",").split(",")
             # read id and coordinatines
@@ -305,6 +318,10 @@ class MedConverterAbaqus(MedConverter):
         if create_nset:
             name = params_map["NSET"]
             Nset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_nodes]))
+
+        if(l_extern_file):
+            file_to_read.close()
+            line = file.readline()
 
         return line
 
@@ -338,15 +355,24 @@ class MedConverterAbaqus(MedConverter):
         else:
             create_elset = False
 
+        # the elements are in an external file
+        if "INPUT" in params_map:
+            l_extern_file = True
+            filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
+            file_to_read = open(filename_elem, 'r')
+        else:
+            l_extern_file = False
+            file_to_read = file
+
         # get type of element to create
         etype = params_map["TYPE"]
 
         # loop on list of elements
         while True:
-            line = file.readline()
-            if line.startswith("*"):
+            line = file_to_read.readline()
+            if self.breakLoop(line):
                 break
-            entries = self._read_continuous_line(file, line, ",")
+            entries = self._read_continuous_line(file_to_read, line, ",")
             # get id and list of nodes
             eid, nodes = entries[0], entries[1:]
             # add element
@@ -360,12 +386,20 @@ class MedConverterAbaqus(MedConverter):
             name = params_map["ELSET"]
             Elset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_elem]))
 
+        if(l_extern_file):
+            file_to_read.close()
+            line = file.readline()
+
         return line
 
     def _read_group(self, file, line0, param, Group):
         # find type of element
         params_map = self._get_param_map(line0)
-        name = params_map[param]
+
+        # this is not a group
+        if param not in params_map:
+            return file.readline()
+
         list_item = []
 
         # to generate groups
@@ -376,7 +410,7 @@ class MedConverterAbaqus(MedConverter):
 
         while True:
             line = file.readline()
-            if line.startswith("*"):
+            if self.breakLoop(line):
                 break
             entries = line.strip().rstrip(",").split(",")
 
@@ -399,6 +433,8 @@ class MedConverterAbaqus(MedConverter):
                     # read directely list of elements
                     list_item += entries
 
+        # add group
+        name = params_map[param]
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
         return line
@@ -458,6 +494,16 @@ class MedConverterAbaqus(MedConverter):
             return True
         else:
             return False
+
+    def breakLoop(self, line):
+        if line.startswith("*"):
+            return True
+        elif line == "":
+            return True
+        elif line in ['\n', '\r\n']:
+            return True
+
+        return False
 
     def create_abaqus_mesh(self):
         raise Exception("Not yet implemented")
