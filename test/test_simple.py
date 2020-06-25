@@ -138,6 +138,11 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             2, 2, ['POINT1','SEG2'])
 
+    def test_spring_abaqus(self):
+        filename = osp.join(data_path(), "SPRING.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            3, 3, ['POINT1','SEG2'])
+
     def test_smesh0_abaqus(self):
         filename = osp.join(data_path(), "SUBMESH_0.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,

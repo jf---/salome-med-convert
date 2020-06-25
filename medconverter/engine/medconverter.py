@@ -180,7 +180,6 @@ class ElementTypeConverter:
 
 # Joint Element
         ('JOINTC', 'SEG2'),
-        ('SPRINGA', 'SEG2'),
 
 # Spring element
        ('SPRING1', 'POINT1'),

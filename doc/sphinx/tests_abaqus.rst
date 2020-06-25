@@ -55,6 +55,11 @@ Abaqus
      - 2
      - 2
      - POINT1, SEG2
+   * - SPRING.inp
+     - Public
+     - 3
+     - 3
+     - POINT1, SEG2
    * - SUBMESH_0.inp
      - Public
      - 2
