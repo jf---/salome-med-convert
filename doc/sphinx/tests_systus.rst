@@ -11,27 +11,27 @@ Systus
      - Nodes
      - Types of cells
    * - CARRE_DONN1.ASC
-     -
+     - Public
      - 25
      - 96
      - QUAD8
    * - COURONNE_DONN1.ASC
-     -
+     - Public
      - 216
      - 720
      - QUAD8
    * - MOTIF_DONN1.ASC
-     -
+     - Public
      - 114
      - 673
      - QUAD8, HEXA20
    * - RECTANGLE_DONN1.ASC
-     -
+     - Public
      - 60
      - 213
      - QUAD8
    * - MULTI_DONN1.ASC
-     -
+     - Public
      - 14
      - 61
      - TRI3, QUAD4, HEXA8, PYRA5, TETRA4, PENTA6, PENTA15, TETRA10, HEXA20, PYRA13, QUAD8
@@ -45,12 +45,12 @@ Systus
      - 124134
      - 400604
      - QUAD8, TRI6, PENTA15, SEG3, HEXA20
-   * - Coude_A_DONN1000.ASC
+   * - COUDE_A_DONN1000.ASC
      - Private
      - 17714
      - 57817
      - SEG2, QUAD8, HEXA20
-   * - Coude_A_quad_DONN1000.ASC
+   * - COUDE_A_QUAD_DONN1000.ASC
      - Private
      - 14858
      - 48433

@@ -10,22 +10,22 @@ Abaqus
      - Cells
      - Nodes
      - Types of cells
-   * - CARRE_DONN1.ASC
-     -
+   * - CARRE_1.inp
+     - Public
      - 1
      - 4
      - QUAD4
-   * - Maille_MF_flam-elas-clean.inp
+   * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
      - Private
      - 1872
      - 1975
      - QUAD4
-   * - boltpipeflange_3d.inp
+   * - BOLTPIPEFLANGE_3D.inp
      - Public
      - 2000
      - 10587
      - HEXA20, PENTA15
-   * - ThreePointBending.inp
+   * - THREEPOINTBENDING.inp
      - Public
      - 14600
      - 14973

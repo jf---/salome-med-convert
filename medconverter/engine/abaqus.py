@@ -210,7 +210,7 @@ class MedConverterAbaqus(MedConverter):
                         self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
 
     def _read_meshname(self, filename):
-        return(osp.basename(filename))
+        return osp.splitext(osp.basename(filename))[0]
 
     def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
         keyword = line.replace("*", '').strip()
