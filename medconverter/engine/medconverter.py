@@ -169,205 +169,213 @@ class ElementTypeConverter:
     }
 
     _abaqus_to_med = OrderedDict((
-       ('Node', 'POINT1'),
+        ('Node', 'POINT1'),
 
 # Mass element - 0D
-       ('MASS', 'POINT1'),
-
+        ('MASS', 'POINT1'),
+        
 # Frame Element
-       ('FRAME2D', 'SEG2'),
-       ('FRAME3D', 'SEG2'),
+        ('FRAME2D', 'SEG2'),
+        ('FRAME3D', 'SEG2'),
+
+# Joint Element
+        ('JOINTC', 'SEG2'),
+        ('SPRINGA', 'SEG2'),
+
+# Truss Element
+        ('T3D2', 'SEG2'),
+        ('T3D3', 'SEG3'),
 
 # Elbow Element
-       ('ELBOW31', 'SEG2'),
-       ('ELBOW32', 'SEG3'),
-       ('ELBOW31B', 'SEG2'),
-       ('ELBOW31C', 'SEG2'),
-
+        ('ELBOW31', 'SEG2'),
+        ('ELBOW32', 'SEG3'),
+        ('ELBOW31B', 'SEG2'),
+        ('ELBOW31C', 'SEG2'),
+        
 # Diffusive heat transfer elements
-       ('DC1D2', 'SEG2'),
-       ('DC1D3', 'SEG3'),
+        ('DC1D2', 'SEG2'),
+        ('DC1D3', 'SEG3'),
 
 # Forced convection heat transfer element
-       ('DCC1D2' , 'SEG2'),
-       ('DCC1D2D', 'SEG2'),
+        ('DCC1D2' , 'SEG2'),
+        ('DCC1D2D', 'SEG2'),
 
 # Coupled thermal-electrical elements
-       ('DC1D2E', 'SEG2'),
-       ('DC1D3E', 'SEG3'),
-
+        ('DC1D2E', 'SEG2'),
+        ('DC1D3E', 'SEG3'),
+        
 # Axis symmetric thermal element
-       ('DCCAX4', 'QUAD4'),
+        ('DCCAX4', 'QUAD4'),
 
 # Acoustic element
-       ('AC1D2', 'SEG2'),
-       ('AC1D3', 'SEG3'),
+        ('AC1D2', 'SEG2'),
+        ('AC1D3', 'SEG3'),
 
 # Beam element
-       ('B21', 'SEG2'),
-       ('B22', 'SEG3'),
-       ('B23', 'SEG2'),
-
-       ('B21H', 'SEG2'),
-       ('B22H', 'SEG3'),
-       ('B23H', 'SEG2'),
-
-       ('B31', 'SEG2'),
-       ('B32', 'SEG3'),
-       ('B33', 'SEG2'),
-
-       ('B31H', 'SEG2'),
-       ('B32H', 'SEG3'),
-       ('B33H', 'SEG2'),
-
+        ('B21', 'SEG2'),
+        ('B22', 'SEG3'),
+        ('B23', 'SEG2'),
+        
+        ('B21H', 'SEG2'),
+        ('B22H', 'SEG3'),
+        ('B23H', 'SEG2'),
+        
+        ('B31', 'SEG2'),
+        ('B32', 'SEG3'),
+        ('B33', 'SEG2'),
+        
+        ('B31H', 'SEG2'),
+        ('B32H', 'SEG3'),
+        ('B33H', 'SEG2'),
+        
 # PIPE element
-       ('PIPE21', 'SEG2'),
-       ('PIPE22', 'SEG3'),
-
-       ('PIPE21H', 'SEG2'),
-       ('PIPE22H', 'SEG3'),
-
-       ('PIPE31', 'SEG2'),
-       ('PIPE32', 'SEG3'),
-
-       ('PIPE31H', 'SEG2'),
-       ('PIPE32H', 'SEG3'),
+        ('PIPE21', 'SEG2'),
+        ('PIPE22', 'SEG3'),
+        
+        ('PIPE21H', 'SEG2'),
+        ('PIPE22H', 'SEG3'),
+        
+        ('PIPE31', 'SEG2'),
+        ('PIPE32', 'SEG3'),
+        
+        ('PIPE31H', 'SEG2'),
+        ('PIPE32H', 'SEG3'),
 
 # Membrane Element
-       ('M3D3', 'TRI3'),
-       ('M3D4', 'QUAD4'),
-       ('M3D6', 'TRI6'),
-       ('M3D8', 'QUAD8'),
-       ('M3D9', 'QUAD9'),
-
-       ('MAX1', 'SEG2'),
-       ('MAX2', 'SEG3'),
-
-       ('MGAX1', 'SEG2'),
-       ('MGAX2', 'SEG3'),
-
+        ('M3D3', 'TRI3'),
+        ('M3D4', 'QUAD4'),
+        ('M3D6', 'TRI6'),
+        ('M3D8', 'QUAD8'),
+        ('M3D9', 'QUAD9'),
+        
+        ('MAX1', 'SEG2'),
+        ('MAX2', 'SEG3'),
+        
+        ('MGAX1', 'SEG2'),
+        ('MGAX2', 'SEG3'),
+        
 # Reduced Structural Element
-       ('S3R', 'TRI3'),
-       ('S3RS', 'TRI3'),
+        ('S3R', 'TRI3'),
+        ('S3RS', 'TRI3'),
 
-       ('S4R', 'QUAD4'),
-       ('S4RS', 'QUAD4'),
-       ('S4R5', 'QUAD4'),
-       ('S4RSW', 'QUAD4'),
-
-       ('S8R', 'QUAD8'),
-       ('S8RS', 'QUAD8'),
-
-       ('S9R5', 'QUAD9'),
-
+        ('S4R', 'QUAD4'),
+        ('S4RS', 'QUAD4'),
+        ('S4R5', 'QUAD4'),
+        ('S4RSW', 'QUAD4'),
+        
+        ('S8R', 'QUAD8'),
+        ('S8RS', 'QUAD8'),
+        
+        ('S9R5', 'QUAD9'),
+        
 # Structural Element
-       ('S3', 'TRI3'),
-       ('S4', 'QUAD4'),
+        ('S3', 'TRI3'),
+        ('S4', 'QUAD4'),
 
 # Reduced Continuum Element
-       ('CPE4R', 'QUAD4'),
-       ('CPE4RH', 'QUAD4'),
-       ('CPE8R', 'QUAD8'),
-       ('CPE8RH', 'QUAD8'),
+        ('CPE4R', 'QUAD4'),
+        ('CPE4RH', 'QUAD4'),
+        ('CPE8R', 'QUAD8'),
+        ('CPE8RH', 'QUAD8'),
 
-       ('CPS4R', 'QUAD4'),
-       ('CPS8R', 'QUAD8'),
-
-       ('C3D8R', 'HEXA8'),
-       ('C3D8RH', 'HEXA8'),
-       ('C3D20R', 'HEXA20'),
-       ('C3D20RH', 'HEXA20'),
-       ('C3D27R', 'HEXA27'),
-       ('C3D27RH', 'HEXA27'),
-
+        ('CPS4R', 'QUAD4'),
+        ('CPS8R', 'QUAD8'),
+        
+        ('C3D8R', 'HEXA8'),
+        ('C3D8RH', 'HEXA8'),
+        ('C3D20R', 'HEXA20'),
+        ('C3D20RH', 'HEXA20'),
+        ('C3D27R', 'HEXA27'),
+        ('C3D27RH', 'HEXA27'),
+        
 # Plane strain element
-       ('CPE3', 'TRI3'),
-       ('CPE6', 'TRI6'),
-
-       ('CPE4', 'QUAD4'),
-       ('CPE8', 'QUAD8'),
-       ('CPE9', 'QUAD9'),
-
-       ('CPE3H', 'TRI3'),
-       ('CPE6H', 'TRI6'),
-
-       ('CPE4H', 'QUAD4'),
-       ('CPE8H', 'QUAD8'),
-       ('CPE9H', 'QUAD9'),
-
-       ('CPE6M', 'TRI6'),
-       ('CPE6MH', 'TRI6'),
-
-       ('CPE4I', 'QUAD4'),
-       ('CPE4IH', 'QUAD4'),
+        ('CPE3', 'TRI3'),
+        ('CPE6', 'TRI6'),
+        
+        ('CPE4', 'QUAD4'),
+        ('CPE8', 'QUAD8'),
+        ('CPE9', 'QUAD9'),
+        
+        ('CPE3H', 'TRI3'),
+        ('CPE6H', 'TRI6'),
+        
+        ('CPE4H', 'QUAD4'),
+        ('CPE8H', 'QUAD8'),
+        ('CPE9H', 'QUAD9'),
+        
+        ('CPE6M', 'TRI6'),
+        ('CPE6MH', 'TRI6'),
+        
+        ('CPE4I', 'QUAD4'),
+        ('CPE4IH', 'QUAD4'),
 
 # Plane stress element
-       ('CPS3', 'TRI3'),
-       ('CPS6', 'TRI6'),
-       ('CPS6M', 'TRI6'),
-
-       ('CPS4', 'QUAD4'),
-       ('CPS4I', 'QUAD4'),
-       ('CPS8', 'QUAD8'),
-
+        ('CPS3', 'TRI3'),
+        ('CPS6', 'TRI6'),
+        ('CPS6M', 'TRI6'),
+        
+        ('CPS4', 'QUAD4'),
+        ('CPS4I', 'QUAD4'),
+        ('CPS8', 'QUAD8'),
+    
 # Axi element
-       ('CAX3', 'TRI3'),
-       ('CAX6', 'TRI6'),
-
-       ('CAX4', 'QUAD4'),
-       ('CAX8', 'QUAD8'),
-       ('CAX9', 'QUAD9'),
-
-       ('CAX3H', 'TRI3'),
-       ('CAX6H', 'TRI6'),
-
-       ('CAX4H', 'QUAD4'),
-       ('CAX8H', 'QUAD8'),
-       ('CAX9H', 'QUAD9'),
-
-       ('CAX6M', 'TRI6'),
-       ('CAX6MH', 'TRI6'),
-
-       ('CAX4I', 'QUAD4'),
-       ('CAX4IH', 'QUAD4'),
-       ('CAX4R', 'QUAD4'),
-       ('CAX4RH', 'QUAD4'),
-       ('CAX8R', 'QUAD8'),
-       ('CAX8RH', 'QUAD8'),
-
+        ('CAX3', 'TRI3'),
+        ('CAX6', 'TRI6'),
+        
+        ('CAX4', 'QUAD4'),
+        ('CAX8', 'QUAD8'),
+        ('CAX9', 'QUAD9'),
+        
+        ('CAX3H', 'TRI3'),
+        ('CAX6H', 'TRI6'),
+        
+        ('CAX4H', 'QUAD4'),
+        ('CAX8H', 'QUAD8'),
+        ('CAX9H', 'QUAD9'),
+        
+        ('CAX6M', 'TRI6'),
+        ('CAX6MH', 'TRI6'),
+        
+        ('CAX4I', 'QUAD4'),
+        ('CAX4IH', 'QUAD4'),
+        ('CAX4R', 'QUAD4'),
+        ('CAX4RH', 'QUAD4'),
+        ('CAX8R', 'QUAD8'),
+        ('CAX8RH', 'QUAD8'),
+        
 # Continuum Element - Hybrid element
-       ('C3D4H', 'TETRA4'),
-       ('C3D10H', 'TETRA10'),
-       ('C3D10M', 'TETRA10'),
-       ('C3D10MH', 'TETRA10'),
-
-       ('C3D5H', 'PYRA5'),
-       ('C3D13H', 'PYRA13'),
-
-       ('C3D6H', 'PENTA6'),
-       ('C3D15H', 'PENTA15'),
-       ('C3D15VH', 'PENTA18'),
-
-       ('C3D8I', 'HEXA8'),
-       ('C3D8IH', 'HEXA8'),
-       ('C3D8H', 'HEXA8'),
-       ('C3D20H', 'HEXA20'),
-       ('C3D27H', 'HEXA27'),
+        ('C3D4H', 'TETRA4'),
+        ('C3D10H', 'TETRA10'),
+        ('C3D10M', 'TETRA10'),
+        ('C3D10MH', 'TETRA10'),
+        
+        ('C3D5H', 'PYRA5'),
+        ('C3D13H', 'PYRA13'),
+        
+        ('C3D6H', 'PENTA6'),
+        ('C3D15H', 'PENTA15'),
+        ('C3D15VH', 'PENTA18'),
+        
+        ('C3D8I', 'HEXA8'),
+        ('C3D8IH', 'HEXA8'),
+        ('C3D8H', 'HEXA8'),
+        ('C3D20H', 'HEXA20'),
+        ('C3D27H', 'HEXA27'),
 
 # Continuum Element, must be declared last
-       ('C3D4', 'TETRA4'),
-       ('C3D10', 'TETRA10'),
-
-       ('C3D5', 'PYRA5'),
-       ('C3D13', 'PYRA13'),
-
-       ('C3D6', 'PENTA6'),
-       ('C3D15', 'PENTA15'),
-       ('C3D15V', 'PENTA18'),
-
-       ('C3D8', 'HEXA8'),
-       ('C3D20', 'HEXA20'),
-       ('C3D27', 'HEXA27'),
+        ('C3D4', 'TETRA4'),
+        ('C3D10', 'TETRA10'),
+        
+        ('C3D5', 'PYRA5'),
+        ('C3D13', 'PYRA13'),
+        
+        ('C3D6', 'PENTA6'),
+        ('C3D15', 'PENTA15'),
+        ('C3D15V', 'PENTA18'),
+        
+        ('C3D8', 'HEXA8'),
+        ('C3D20', 'HEXA20'),
+        ('C3D27', 'HEXA27'),
     ))
 
     _aster_to_med = {
