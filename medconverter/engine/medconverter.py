@@ -502,11 +502,12 @@ class MedConverter:
         coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
         self.medmesh = MEDFileUMesh()
-
+        max_dim_elements = int(max(self.elements.keys())[0])
+        level_by_dimension = {'%dD'%i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
+        
         # Les clés de elements correspondent aux dimensions dans le maillage
-        for i, dim in enumerate(sorted(self.elements.keys())[::-1]) :
-            level = -1*i
-
+        for dim in sorted(self.elements.keys())[::-1]:
+            level = level_by_dimension[dim]
             mesh_at_current_level = MEDCouplingUMesh(self.mesh_name, int(dim[0]))
             mesh_at_current_level.setCoords(coords)
             number_of_elements_at_level = len(self.elements[dim])
