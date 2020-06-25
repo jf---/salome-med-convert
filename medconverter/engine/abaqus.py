@@ -130,21 +130,13 @@ class MedConverterAbaqus(MedConverter):
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
-            next(file)
             self.filename = filename
-
-            # Lecture du nom du maillage si disponible
-            line_1 = next(file).strip()
-            # self.mesh_name = line_1 if line_1 else 'Mesh'
-            self.mesh_name = line_1 if line_1 else osp.splitext(osp.split(filename)[-1])[0]
+            self.mesh_name = self._read_meshname(filename)
 
             # a priori, this is a 3D mesh
             self.space_dim = 3
 
             for line in file :
-                if(line.startswith("*Instance")):
-                    self._read_name_mesh(line)
-
                 self._read_data(file, line, Nodes, Elements, Nset, Elset)
 
 
@@ -217,6 +209,8 @@ class MedConverterAbaqus(MedConverter):
                         if not group_name in self.groups_e[key]:  self.groups_e[key][group_name] = []
                         self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
 
+    def _read_meshname(self, filename):
+        return(osp.basename(filename))
 
     def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
         keyword = line.replace("*", '').strip()
@@ -262,13 +256,6 @@ class MedConverterAbaqus(MedConverter):
         elif keyword.startswith(('Ncopy', 'NCOPY','Ncopy','ncopy')):
             raise RuntimeError("Keyword not supported: NMAP")
 
-    def _read_name_mesh(self, line0):
-        # find type of element
-        sline = line0.split(",")[1:]
-        etype_sline = sline[0].upper()
-        assert "NAME" in etype_sline, etype_sline
-        self.mesh_name = sline[0].split("=")[1].strip()
-
     def _read_nodes(self, file, line0, Nodes, Nset):
         # get informations about nodes
         params_map = self._get_param_map(line0, )
@@ -313,7 +300,7 @@ class MedConverterAbaqus(MedConverter):
                 break
 
             if l_process_line:
-                entries = self.splitAndCleanLine(line, ',')
+                [line, entries] = self._read_continuous_line(file_to_read, line, ',')
                 # read id and coordinatines
                 nid, x = entries[0], entries[1:]
                 # fill with zero if not enougth coordinates
@@ -327,6 +314,9 @@ class MedConverterAbaqus(MedConverter):
                 # add node in the group
                 if create_nset:
                     list_nodes.append(nid)
+
+                if line.lstrip().startswith("*"):
+                    break
 
         # add group in Nset
         if create_nset:
@@ -343,17 +333,17 @@ class MedConverterAbaqus(MedConverter):
     def _read_continuous_line(self, file, line, separator):
 
         # read the line
-        entries= line.strip().rstrip(",").split(",")
+        entries= [x.strip() for x in line.strip().rstrip(separator).split(separator)]
 
         # more than one line to read
         if line.rstrip().endswith(separator):
-            if line.lstrip().startswith("*"):
-                return entries
-
             line = file.readline()
-            entries += self._read_continuous_line(file, line, separator)
 
-        return entries
+            if not line.lstrip().startswith("*"):
+                [line, new_entries] = self._read_continuous_line(file, line, separator)
+                entries += new_entries
+
+        return [line, entries]
 
 
     # Read a list of element
@@ -404,7 +394,7 @@ class MedConverterAbaqus(MedConverter):
                 break
 
             if l_process_line:
-                entries = self._read_continuous_line(file_to_read, line, ",")
+                [line, entries] = self._read_continuous_line(file_to_read, line, ",")
                 # get id and list of nodes
                 eid, nodes = entries[0], entries[1:]
                 # add element
@@ -412,6 +402,9 @@ class MedConverterAbaqus(MedConverter):
                 # add element in the group
                 if create_elset:
                     list_elem.append(eid)
+
+                if line.lstrip().startswith("*"):
+                    break
 
         # add group in Elset
         if create_elset:
