@@ -16,8 +16,8 @@
 *Assembly, name=Assembly
 **
 *Instance, name=Mallage_1, part=Maille
-*Node, NSET=allnodes, INPUT=SUBMESH_0_n.txt
-*Element, type=C3D20, Elset=Grp_H20, input=SUBMESH_0_e.txt
+*Node, NSET=allnodes, INPUT=ABAQUS_SUBMESH_0_N.txt
+*Element, type=C3D20, Elset=Grp_H20, input=ABAQUS_SUBMESH_0_E.txt
 *Nset, nset=_GN1, internal
   1,    2
 *Elset, elset=_GE1, internal
