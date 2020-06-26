@@ -7,7 +7,6 @@ import os.path as osp
 
 class AbaqusNode:
 
-
     def __init__(self, node_id=-1, node_coordinates = []):
         self.id = node_id
         self.coordinates = node_coordinates
@@ -116,7 +115,7 @@ class AbaqusInstance:
 
     def __init__(self):
         self.name = " "
-        self.Part = " "
+        self.PartName = " "
         self.Nodes = []
         self.Elements = []
         self.Elset = []
@@ -129,11 +128,18 @@ class AbaqusInstance:
     def getName(self):
         return self.name
 
-    def setPart(self, part_name):
-        self.Part = part_name
+    def setPartName(self, part_name):
+        self.PartName = part_name
 
-    def getPart(self):
-        return self.Part
+    def getPartName(self):
+        return self.PartName
+
+    def setPart(self, Part):
+        self.setPartName(Part.getName())
+        self.Nodes += Part.Nodes
+        self.Elements += Part.Elements
+        self.Elset += Part.Elset
+        self.Nset += Part.Nset
 
 class AbaqusAssembly:
 
@@ -163,7 +169,7 @@ class AbaqusAssembly:
             if name == part.getName():
                 return part
 
-        RuntimeError("Part nod found: " + name)
+        raise RuntimeError("Part nod found: " + name)
 
 class AbaqusMesh:
 
@@ -218,40 +224,47 @@ class AbaqusMesh:
         for Group in Groups:
             # add group
             name = Group.getName()
-            print(name, Group.getGroup())
             items = map(int, Group.getGroup())
-            list_item = tuple(corresponding[k] for k in items)
+            list_clean = []
+            for k in items:
+                if int(k) in corresponding:
+                    list_clean.append(int(k))
+                else:
+                    print("Group: ", name)
+                    print("Create Group: this element %d in not in the mesh"%k)
+
+            list_item = tuple(corresponding[k] for k in list_clean)
             if typeGrp == "NSET":
                 self.Nset.append(AbaqusGroup(name, 'internal', list_item))
             elif typeGrp == "ELSET":
                 self.Elset.append(AbaqusGroup(name, 'internal', list_item))
             else:
-                RuntimeError("Unknown type of group")
+                raise RuntimeError("Unknown type of group")
+
+    def addFromEntities(self, Entities):
+        # print(Entities.Nodes)
+        # print(Entities.Elements)
+        # print(Entities.Nset)
+        # print(Entities.Elset)
+        corresponding_nodes = self.addNodes(Entities.Nodes)
+        corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
+        self.addGroups("NSET", Entities.Nset, corresponding_nodes)
+        self.addGroups("ELSET", Entities.Elset, corresponding_elems)
 
     def assemble(self, Assembly):
 
         # loop on instance of Assembly
         for Instance in Assembly.Instance:
-            print("Name Instance: ", Instance.getName())
-            part_name = Instance.getPart()
-            Part = Assembly.getPart(part_name)
-            print("Name Part: ", Part.getName())
+            #print("Name Instance: ", Instance.getName())
+            self.addFromEntities(Instance)
 
-            corresponding_nodes = self.addNodes(Part.Nodes)
-            corresponding_elems = self.addElements(Part.Elements, corresponding_nodes)
-            self.addGroups("NSET", Part.Nset, corresponding_nodes)
-            self.addGroups("ELSET", Part.Elset, corresponding_elems)
+        # add others objects in assembly
+        self.addFromEntities(Assembly)
 
-        # add others objects
-        corresponding_nodes = self.addNodes(Assembly.Nodes)
-        corresponding_elems = self.addElements(Assembly.Elements, corresponding_nodes)
-        self.addGroups("NSET", Assembly.Nset, corresponding_nodes)
-        self.addGroups("ELSET", Assembly.Elset, corresponding_elems)
-
-        print(self.Nodes)
-        print(self.Elements)
-        print(self.Nset)
-        print(self.Elset)
+        # print(self.Nodes)
+        # print(self.Elements)
+        # print(self.Nset)
+        # print(self.Elset)
 
 
 class MedConverterAbaqus(MedConverter):
@@ -281,7 +294,6 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("Reading Abaqus mesh file : %s"%filename)
 
         Assembly = AbaqusAssembly()
-        Nodes, Elements, Nset, Elset, Parts= [], [], [], [], []
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
@@ -293,22 +305,21 @@ class MedConverterAbaqus(MedConverter):
 
             for line in file :
                 self.line = line
-                print("READ:", self.line)
-                self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
+                self._read_data(file, Assembly)
 
 
         file.close()
 
+        # create Abaqus mesh
+        mesh = AbaqusMesh()
+        mesh.setName(self.mesh_name)
+        mesh.assemble(Assembly)
+
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
-        logger.debug("Number of nodes : %d"%(len(Nodes)))
-        logger.debug("Number of elements : %d"%(len(Elements)))
-        logger.debug("Number of groups : %d"%(len(Nset) + len(Elset)))
-
-        Assembly.Parts += Parts
-
-        mesh = AbaqusMesh()
-        mesh.assemble(Assembly)
+        logger.debug("Number of nodes : %d"%(len(mesh.Nodes)))
+        logger.debug("Number of elements : %d"%(len(mesh.Elements)))
+        logger.debug("Number of groups : %d"%(len(mesh.Nset) + len(mesh.Elset)))
 
         # nodes of the mesh (collection of double)
         corresponding_nodes = {}
@@ -375,50 +386,48 @@ class MedConverterAbaqus(MedConverter):
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
 
-    def _read_data(self, file, Nodes, Elements, Nset, Elset, Parts, Assembly):
-        self.line = self.line.replace("*", '').strip()
+    def _read_data(self, file, Entities):
+        self.line = self.line.strip()
 
-        print("KEYWORD: ", self.line)
-
-        if(self.line.upper().startswith("NODE")):
-            self._read_nodes(file, Nodes, Nset)
+        if(self.line.upper().startswith("*NODE")):
+            self._read_nodes(file, Entities.Nodes, Entities.Nset)
             # print("Nodes")
-            # print(Nodes)
-            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
-        elif(self.line.upper().startswith("ELEMENT")):
-            self._read_cells(file, Elements, Elset)
+            # print(Entities.Nodes)
+            self._read_data(file, Entities)
+        elif(self.line.upper().startswith("*ELEMENT")):
+            self._read_cells(file, Entities.Elements, Entities.Elset)
             # print("Cells")
-            # print(Elements)
-            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
-        elif(self.line.upper().startswith("NSET")):
-            self._read_group(file, "NSET", Nset)
+            # print(Entities.Elements)
+            self._read_data(file, Entities)
+        elif(self.line.upper().startswith("*NSET")):
+            self._read_group(file, "NSET", Entities.Nset)
             # print("Nset")
-            # print(Nset)
-            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
-        elif self.line.upper().startswith('ELSET'):
-            self._read_group(file, "ELSET", Elset)
+            # print(Entities.Nset)
+            self._read_data(file, Entities)
+        elif self.line.upper().startswith('*ELSET'):
+            self._read_group(file, "ELSET", Entities.Elset)
             # print("Elset")
-            # print(Elset)
-            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
-        elif self.line.upper().startswith('INCLUDE'):
-            self._read_include_file(file, Nodes, Elements, Nset, Elset)
-        elif self.line.upper().startswith('INSTANCE,'):
-            self._read_instance(file,  Assembly)
-        elif self.line.upper().startswith('PART,'):
-            self._read_part(file, Parts)
-        elif self.line.upper().startswith('ASSEMBLY,'):
-            self._read_assembly(file, Assembly)
+            # print(Entities.Elset)
+            self._read_data(file, Entities)
+        elif self.line.upper().startswith('*INCLUDE'):
+            self._read_include_file(file, Entities)
+        elif self.line.upper().startswith('*INSTANCE,'):
+            self._read_instance(file,  Entities)
+        elif self.line.upper().startswith('*PART'):
+            self._read_part(file, Entities.Parts)
+        elif self.line.upper().startswith('*ASSEMBLY'):
+            self._read_assembly(file, Entities)
             self.nbAssembly += 1
 
             if(self.nbAssembly > 1):
                 raise RuntimeError("Only one Assembly allowed")
-        elif self.line.upper().startswith('NGEN'):
+        elif self.line.upper().startswith('*NGEN'):
             raise RuntimeError("Keyword not supported: NGEN")
-        elif self.line.upper().startswith('NFILL',):
+        elif self.line.upper().startswith('*NFILL',):
             raise RuntimeError("Keyword not supported: NFILL")
-        elif self.line.upper().startswith('NMAP'):
+        elif self.line.upper().startswith('*NMAP'):
             raise RuntimeError("Keyword not supported: NMAP")
-        elif self.line.upper().startswith('NCOPY'):
+        elif self.line.upper().startswith('*NCOPY'):
             raise RuntimeError("Keyword not supported: NMAP")
 
     def _read_nodes(self, file, Nodes, Nset):
@@ -426,7 +435,7 @@ class MedConverterAbaqus(MedConverter):
         params_map = self._get_param_map(self.line)
 
         # this is not a list of node
-        if("NODE" not in params_map):
+        if("*NODE" not in params_map):
             self.line = file.readline()
             return
 
@@ -449,12 +458,10 @@ class MedConverterAbaqus(MedConverter):
         # loop on nodes
         while True:
             self.line = file_to_read.readline()
-            print("NODE: ",self.line)
             l_process_line = True
             if(l_extern_file):
                 if self.line.startswith("*"):
-                    self.line = self.line.replace("*", '').strip()
-                    if(self.line.upper().startswith("NODE")):
+                    if(self.line.upper().startswith("*NODE")):
                         self._read_nodes(file_to_read, Nodes, Nset)
                     else:
                         l_process_line = False
@@ -501,7 +508,7 @@ class MedConverterAbaqus(MedConverter):
         params_map = self._get_param_map(self.line)
 
         # this is not a list of element
-        if("ELEMENT" not in params_map):
+        if("*ELEMENT" not in params_map):
             self.line = file.readline()
             return
 
@@ -523,17 +530,14 @@ class MedConverterAbaqus(MedConverter):
 
         # get type of element to create
         etype = params_map["TYPE"]
-        print(params_map)
 
         # loop on list of elements
         while True:
             self.line = file_to_read.readline()
-            print("ELE: ",self.line)
 
             l_process_line = True
             if(l_extern_file):
                 if self.line.startswith("*"):
-                    self.line = self.line.replace("*", '').strip()
                     if(self.line.upper().startswith("ELEMENT")):
                         self._read_cells(file_to_read, Elements, Elset)
                     else:
@@ -548,7 +552,6 @@ class MedConverterAbaqus(MedConverter):
 
             if l_process_line:
                 entries= self._read_continuous_line(file_to_read, ",")
-                print(entries)
                 # get id and list of nodes
                 eid, nodes = entries[0], entries[1:]
                 # add element
@@ -570,12 +573,12 @@ class MedConverterAbaqus(MedConverter):
             self.line = file.readline()
 
 
-    def _read_group(self, file, param, Group):
+    def _read_group(self, file, typyeGroup, Group):
         # find type of element
         params_map = self._get_param_map(self.line)
 
         # this is not a group
-        if param not in params_map:
+        if typyeGroup not in params_map:
             return file.readline()
 
         list_item = []
@@ -588,7 +591,6 @@ class MedConverterAbaqus(MedConverter):
 
         while True:
             self.line = file.readline()
-            print("GRP: ",self.line)
 
             if self.breakLoop(self.line):
                 break
@@ -619,12 +621,12 @@ class MedConverterAbaqus(MedConverter):
                     list_item += entries
 
         # add group
-        name = params_map[param]
+        name = params_map[typyeGroup]
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
 
     # Read an included file
-    def _read_include_file(self, file, Nodes, Elements, Nset, Elset):
+    def _read_include_file(self, file, Entities):
         # get informations about file
         params_map = self._get_param_map(self.line)
 
@@ -638,7 +640,7 @@ class MedConverterAbaqus(MedConverter):
 
         # read external file
         for self.line in file_to_read :
-            self._read_data(file_to_read, Nodes, Elements, Nset, Elset, Parts, Assembly)
+            self._read_data(file_to_read, Entities)
 
         file_to_read.close()
 
@@ -646,9 +648,8 @@ class MedConverterAbaqus(MedConverter):
          # get informations about part
         params_map = self._get_param_map(self.line)
 
-        print(params_map)
         # this is not an included file
-        if("PART" not in params_map):
+        if("*PART" not in params_map):
             return
 
         Part = AbaqusPart()
@@ -658,26 +659,23 @@ class MedConverterAbaqus(MedConverter):
         l_finish = False
         for line in file :
             self.line = line
-            self._read_data(file, Part.Nodes, Part.Elements, Part.Nset, Part.Elset, Part, None)
-            print("PART: ",self.line)
-            if self.line.strip().lstrip("*").upper().startswith("END PART"):
+            self._read_data(file, Part)
+            if self.line.strip().upper().startswith("*END PART"):
                 l_finish = True
                 break
 
         if not l_finish:
-            RuntimeError("Not Find: End Part")
+            raise RuntimeError("Not Find: End Part")
 
         Parts.append(Part)
-
 
 
     def _read_assembly(self, file, Assembly):
          # get informations about part
         params_map = self._get_param_map(self.line)
 
-        print(params_map)
         # this is not an included file
-        if("ASSEMBLY" not in params_map):
+        if("*ASSEMBLY" not in params_map):
             return file.readline()
 
         Assembly.setName(params_map["NAME"])
@@ -685,41 +683,39 @@ class MedConverterAbaqus(MedConverter):
         l_finish = False
         for line in file :
             self.line = line
-            self._read_data(file, Assembly.Nodes, Assembly.Elements, Assembly.Nset, Assembly.Elset, None, Assembly)
-            print("ASS: ",self.line)
-            if self.line.strip().lstrip("*").upper().startswith("END ASSEMBLY"):
+            self._read_data(file, Assembly)
+            if self.line.strip().upper().startswith("*END ASSEMBLY"):
                 l_finish = True
                 break
 
         if not l_finish:
-            RuntimeError("Not Find: End Assembly")
+            raise RuntimeError("Not Find: End Assembly")
 
 
     def _read_instance(self, file, Assembly):
          # get informations about part
         params_map = self._get_param_map(self.line)
 
-        print(params_map)
         # this is not an included file
-        if("INSTANCE" not in params_map):
+        if("*INSTANCE" not in params_map):
             return file.readline()
 
         Instance = AbaqusInstance()
 
         Instance.setName(params_map["NAME"])
-        Instance.setPart(params_map["PART"])
+        Instance.setPart(Assembly.getPart(params_map["PART"]))
 
         l_finish = False
         for line in file :
             self.line = line
-            self._read_data(file, Instance.Nodes, Instance.Elements, Instance.Nset,Instance.Elset, None, None)
-            print("INSTANCE: ", self.line)
-            if self.line.strip().lstrip("*").upper().startswith("END INSTANCE"):
+            self._read_data(file, Instance)
+
+            if self.line.strip().upper().startswith("*END INSTANCE"):
                 l_finish = True
                 break
 
         if not l_finish:
-            RuntimeError("Not Find: End Assembly")
+            raise RuntimeError("Not Find: End Instance")
 
         Assembly.addInstance(Instance)
 
