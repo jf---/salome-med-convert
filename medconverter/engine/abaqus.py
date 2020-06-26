@@ -116,7 +116,7 @@ class AbaqusInstance:
 
     def __init__(self):
         self.name = " "
-        self.Part = []
+        self.Part = " "
         self.Nodes = []
         self.Elements = []
         self.Elset = []
@@ -144,6 +144,7 @@ class AbaqusAssembly:
         self.Elements = []
         self.Elset = []
         self.Nset = []
+        self.Parts = []
 
     def setName(self, name):
         self.name = name
@@ -156,6 +157,101 @@ class AbaqusAssembly:
 
     def getInstance(self):
         return self.Instance
+
+    def getPart(self, name):
+        for part in self.Parts:
+            if name == part.getName():
+                return part
+
+        RuntimeError("Part nod found: " + name)
+
+class AbaqusMesh:
+
+    def __init__(self):
+        self.name = " "
+        self.Nodes = []
+        self.Elements = []
+        self.Elset = []
+        self.Nset = []
+        self.nodesOffset = 0
+        self.elemsOffset  = 0
+
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+    def addNodes(self, Nodes):
+        corresponding_nodes = {}
+        for idx, node in enumerate(Nodes):
+            if int(node.getId()) in corresponding_nodes:
+                raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
+            else:
+                corresponding_nodes[int(node.getId())] = self.nodesOffset + idx
+
+            # add Node
+            node_id = corresponding_nodes[int(node.getId())]
+            self.Nodes.append(AbaqusNode(node_id, node.getCoordinates()))
+        self.nodesOffset += len(Nodes)
+
+        return corresponding_nodes
+
+    def addElements(self, Elements, corresponding_nodes):
+        corresponding_elems = {}
+        for idx, elem in enumerate(Elements):
+            if int(elem.getId()) in corresponding_elems:
+                raise KeyError("Two elements with identical id: {0}".format(elem.getId()))
+            else:
+                corresponding_elems[int(elem.getId())] = self.elemsOffset + idx
+
+            nodes_elem = map(int, elem.getNodes())
+            list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
+            elem_id = corresponding_elems[int(elem.getId())]
+            self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
+
+        self.elemsOffset += len(Elements)
+
+        return corresponding_elems
+
+    def addGroups(self, typeGrp, Groups, corresponding):
+        for Group in Groups:
+            # add group
+            name = Group.getName()
+            print(name, Group.getGroup())
+            items = map(int, Group.getGroup())
+            list_item = tuple(corresponding[k] for k in items)
+            if typeGrp == "NSET":
+                self.Nset.append(AbaqusGroup(name, 'internal', list_item))
+            elif typeGrp == "ELSET":
+                self.Elset.append(AbaqusGroup(name, 'internal', list_item))
+            else:
+                RuntimeError("Unknown type of group")
+
+    def assemble(self, Assembly):
+
+        # loop on instance of Assembly
+        for Instance in Assembly.Instance:
+            print("Name Instance: ", Instance.getName())
+            part_name = Instance.getPart()
+            Part = Assembly.getPart(part_name)
+            print("Name Part: ", Part.getName())
+
+            corresponding_nodes = self.addNodes(Part.Nodes)
+            corresponding_elems = self.addElements(Part.Elements, corresponding_nodes)
+            self.addGroups("NSET", Part.Nset, corresponding_nodes)
+            self.addGroups("ELSET", Part.Elset, corresponding_elems)
+
+        # add others objects
+        corresponding_nodes = self.addNodes(Assembly.Nodes)
+        corresponding_elems = self.addElements(Assembly.Elements, corresponding_nodes)
+        self.addGroups("NSET", Assembly.Nset, corresponding_nodes)
+        self.addGroups("ELSET", Assembly.Elset, corresponding_elems)
+
+        print(self.Nodes)
+        print(self.Elements)
+        print(self.Nset)
+        print(self.Elset)
 
 
 class MedConverterAbaqus(MedConverter):
@@ -179,7 +275,6 @@ class MedConverterAbaqus(MedConverter):
     def __init__(self):
         super(MedConverterAbaqus, self).__init__()
         self.abaqusmesh = None
-        self.nbParts = 0
         self.nbAssembly = 0
 
     def read_abaqus_mesh(self, filename):
@@ -210,10 +305,15 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("Number of elements : %d"%(len(Elements)))
         logger.debug("Number of groups : %d"%(len(Nset) + len(Elset)))
 
+        Assembly.Parts += Parts
+
+        mesh = AbaqusMesh()
+        mesh.assemble(Assembly)
+
         # nodes of the mesh (collection of double)
         corresponding_nodes = {}
         coor = []
-        for idx, node in enumerate(Nodes):
+        for idx, node in enumerate(mesh.Nodes):
             if(self.checkKey(corresponding_nodes, int(node.getId()))):
                 raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
             else:
@@ -231,7 +331,7 @@ class MedConverterAbaqus(MedConverter):
         e_conv = ElementTypeConverter('ABAQUS')
         c_renum = ConnectivityRenumberer('ABAQUS')
 
-        for elem in Elements :
+        for elem in mesh.Elements :
             idx_element_abaqus = elem.getId()
             element_abaqus_type = elem.getType()
             elements_nodes_abaqus = map(int, elem.getNodes())
@@ -254,15 +354,16 @@ class MedConverterAbaqus(MedConverter):
 
         # Les groups, triés par dimension
         # Nodes' group
-        for group in Nset :
+        for group in mesh.Nset :
             group_name = group.getName()
             group_nodes_abaqus = map(int, group.getGroup())
-            self.groups_n[group_name] = tuple(corresponding_nodes[k] for k in group_nodes_abaqus)
+            if not group_name in self.groups_n:  self.groups_n[group_name] = []
+            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
 
         # Element's group
-        for group in Elset :
+        for group in mesh.Elset :
             group_name = group.getName()
-            group_element_abaqus = map(str, group.getGroup())
+            group_element_abaqus = map(int, group.getGroup())
 
             for element_abaqus in group_element_abaqus :
                 for key in self.elements.keys():
@@ -303,14 +404,8 @@ class MedConverterAbaqus(MedConverter):
             self._read_include_file(file, Nodes, Elements, Nset, Elset)
         elif self.line.upper().startswith('INSTANCE,'):
             self._read_instance(file,  Assembly)
-
-            if(len(Parts) > 1):
-                raise RuntimeError("Only one part allowed")
         elif self.line.upper().startswith('PART,'):
             self._read_part(file, Parts)
-
-            if(len(Parts) > 1):
-                raise RuntimeError("Only one part allowed")
         elif self.line.upper().startswith('ASSEMBLY,'):
             self._read_assembly(file, Assembly)
             self.nbAssembly += 1
@@ -560,12 +655,17 @@ class MedConverterAbaqus(MedConverter):
 
         Part.setName(params_map["NAME"])
 
+        l_finish = False
         for line in file :
             self.line = line
             self._read_data(file, Part.Nodes, Part.Elements, Part.Nset, Part.Elset, Part, None)
             print("PART: ",self.line)
             if self.line.strip().lstrip("*").upper().startswith("END PART"):
+                l_finish = True
                 break
+
+        if not l_finish:
+            RuntimeError("Not Find: End Part")
 
         Parts.append(Part)
 
@@ -582,12 +682,17 @@ class MedConverterAbaqus(MedConverter):
 
         Assembly.setName(params_map["NAME"])
 
+        l_finish = False
         for line in file :
             self.line = line
             self._read_data(file, Assembly.Nodes, Assembly.Elements, Assembly.Nset, Assembly.Elset, None, Assembly)
             print("ASS: ",self.line)
             if self.line.strip().lstrip("*").upper().startswith("END ASSEMBLY"):
+                l_finish = True
                 break
+
+        if not l_finish:
+            RuntimeError("Not Find: End Assembly")
 
 
     def _read_instance(self, file, Assembly):
@@ -604,12 +709,17 @@ class MedConverterAbaqus(MedConverter):
         Instance.setName(params_map["NAME"])
         Instance.setPart(params_map["PART"])
 
+        l_finish = False
         for line in file :
             self.line = line
             self._read_data(file, Instance.Nodes, Instance.Elements, Instance.Nset,Instance.Elset, None, None)
             print("INSTANCE: ", self.line)
             if self.line.strip().lstrip("*").upper().startswith("END INSTANCE"):
+                l_finish = True
                 break
+
+        if not l_finish:
+            RuntimeError("Not Find: End Assembly")
 
         Assembly.addInstance(Instance)
 
