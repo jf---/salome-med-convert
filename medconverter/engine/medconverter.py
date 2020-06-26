@@ -258,6 +258,9 @@ class ElementTypeConverter:
         ('MGAX1', 'SEG2'),
         ('MGAX2', 'SEG3'),
 
+# Eulerian Element
+        ('EC3D8R', 'HEXA8'),
+
 # Reduced Structural Element
         ('S3R', 'TRI3'),
         ('S3RS', 'TRI3'),
@@ -504,7 +507,7 @@ class MedConverter:
         self.medmesh = MEDFileUMesh()
         max_dim_elements = int(max(self.elements.keys())[0])
         level_by_dimension = {'%dD'%i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
-        
+
         # Les clés de elements correspondent aux dimensions dans le maillage
         for dim in sorted(self.elements.keys())[::-1]:
             level = level_by_dimension[dim]

@@ -229,9 +229,9 @@ class AbaqusMesh:
             for k in items:
                 if int(k) in corresponding:
                     list_clean.append(int(k))
-                else:
-                    print("Group: ", name)
-                    print("Create Group: this element %d in not in the mesh"%k)
+                # else:
+                #     print("Group: ", name)
+                #     print("Create Group: this element %d in not in the mesh"%k)
 
             list_item = tuple(corresponding[k] for k in list_clean)
             if typeGrp == "NSET":
@@ -411,7 +411,7 @@ class MedConverterAbaqus(MedConverter):
             self._read_data(file, Entities)
         elif self.line.upper().startswith('*INCLUDE'):
             self._read_include_file(file, Entities)
-        elif self.line.upper().startswith('*INSTANCE,'):
+        elif self.line.upper().startswith('*INSTANCE'):
             self._read_instance(file,  Entities)
         elif self.line.upper().startswith('*PART'):
             self._read_part(file, Entities.Parts)
