@@ -98,6 +98,8 @@
 *Assembly, name=Assembly
 **
 *Instance, name=Mallage_1, part=Maille1
+0.0, -1.0, 0.0
+0.0, 0.0, 0.0, 0, 0, 0, 10
 *End Instance
 *Instance, name=Mallage_2, part=Maille2
 *End Instance

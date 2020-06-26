@@ -121,6 +121,7 @@ class AbaqusInstance:
         self.Elset = []
         self.Nset = []
         self.translation = [0.0, 0.0, 0.0]
+        self.rotation = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ,0.0,0.0]
 
     def setName(self, name):
         self.name = name
@@ -188,7 +189,7 @@ class AbaqusMesh:
     def getName(self):
         return self.name
 
-    def addNodes(self, Nodes):
+    def addNodes(self, Nodes, translation):
         corresponding_nodes = {}
         for idx, node in enumerate(Nodes):
             if int(node.getId()) in corresponding_nodes:
@@ -198,7 +199,11 @@ class AbaqusMesh:
 
             # add Node
             node_id = corresponding_nodes[int(node.getId())]
-            self.Nodes.append(AbaqusNode(node_id, node.getCoordinates()))
+            coor = node.getCoordinates()
+            for i in range(0,3):
+                coor[i] += translation[i]
+            # print(coor)
+            self.Nodes.append(AbaqusNode(node_id, coor))
         self.nodesOffset += len(Nodes)
 
         return corresponding_nodes
@@ -241,12 +246,12 @@ class AbaqusMesh:
             else:
                 raise RuntimeError("Unknown type of group")
 
-    def addFromEntities(self, Entities):
+    def addFromEntities(self, Entities, translation=[0.0, 0.0, 0.0]):
         # print(Entities.Nodes)
         # print(Entities.Elements)
         # print(Entities.Nset)
         # print(Entities.Elset)
-        corresponding_nodes = self.addNodes(Entities.Nodes)
+        corresponding_nodes = self.addNodes(Entities.Nodes, translation)
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
         self.addGroups("ELSET", Entities.Elset, corresponding_elems)
@@ -256,7 +261,7 @@ class AbaqusMesh:
         # loop on instance of Assembly
         for Instance in Assembly.Instance:
             #print("Name Instance: ", Instance.getName())
-            self.addFromEntities(Instance)
+            self.addFromEntities(Instance, Instance.translation)
 
         # add others objects in assembly
         self.addFromEntities(Assembly)
@@ -706,8 +711,20 @@ class MedConverterAbaqus(MedConverter):
         Instance.setPart(Assembly.getPart(params_map["PART"]))
 
         l_finish = False
+        l_first_line = True
         for line in file :
             self.line = line
+            if l_first_line:
+                # read translation
+                if not self.line.strip().startswith("*"):
+                    Instance.translation = [float(x.strip()) for x in self.line.strip().rstrip(',').split(',')]
+                    self.line = file.readline()
+                    if not self.line.strip().startswith("*"):
+                        Instance.rotation = [float(x.strip()) for x in self.line.strip().rstrip(',').split(',')]
+                        self.line = file.readline()
+
+                l_first_line = False
+
             self._read_data(file, Instance)
 
             if self.line.strip().upper().startswith("*END INSTANCE"):
