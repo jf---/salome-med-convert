@@ -96,7 +96,66 @@ class AbaqusGroup:
         return self.group
 
 
+class AbaqusPart:
 
+    def __init__(self):
+        self.name = " "
+        self.Nodes = []
+        self.Elements = []
+        self.Elset = []
+        self.Nset = []
+
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+
+class AbaqusInstance:
+
+    def __init__(self):
+        self.name = " "
+        self.Part = []
+        self.Nodes = []
+        self.Elements = []
+        self.Elset = []
+        self.Nset = []
+        self.translation = [0.0, 0.0, 0.0]
+
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+    def setPart(self, part_name):
+        self.Part = part_name
+
+    def getPart(self):
+        return self.Part
+
+class AbaqusAssembly:
+
+    def __init__(self):
+        self.name = " "
+        self.Instance = []
+        self.Nodes = []
+        self.Elements = []
+        self.Elset = []
+        self.Nset = []
+
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+    def addInstance(self, Instance):
+        self.Instance.append(Instance)
+
+    def getInstance(self):
+        return self.Instance
 
 
 class MedConverterAbaqus(MedConverter):
@@ -126,7 +185,8 @@ class MedConverterAbaqus(MedConverter):
     def read_abaqus_mesh(self, filename):
         logger.debug("Reading Abaqus mesh file : %s"%filename)
 
-        Nodes, Elements, Nset, Elset = [], [], [], []
+        Assembly = AbaqusAssembly()
+        Nodes, Elements, Nset, Elset, Parts= [], [], [], [], []
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
@@ -137,7 +197,9 @@ class MedConverterAbaqus(MedConverter):
             self.space_dim = 3
 
             for line in file :
-                self._read_data(file, line, Nodes, Elements, Nset, Elset)
+                self.line = line
+                print("READ:", self.line)
+                self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
 
 
         file.close()
@@ -212,57 +274,66 @@ class MedConverterAbaqus(MedConverter):
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
 
-    def _read_data(self, file, line, Nodes, Elements, Nset, Elset):
-        keyword = line.replace("*", '').strip()
+    def _read_data(self, file, Nodes, Elements, Nset, Elset, Parts, Assembly):
+        self.line = self.line.replace("*", '').strip()
 
-        if(keyword.startswith( ("Node", "NODE", "node"))):
-            line0 = self._read_nodes(file, keyword, Nodes, Nset)
+        print("KEYWORD: ", self.line)
+
+        if(self.line.upper().startswith("NODE")):
+            self._read_nodes(file, Nodes, Nset)
             # print("Nodes")
             # print(Nodes)
-            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
-        elif(keyword.startswith(("Element", "ELEMENT", "element"))):
-            line0 = self._read_cells(file, keyword, Elements, Elset)
+            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
+        elif(self.line.upper().startswith("ELEMENT")):
+            self._read_cells(file, Elements, Elset)
             # print("Cells")
             # print(Elements)
-            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
-        elif(keyword.startswith(("Nset", "NSET", "nset"))):
-            line0 = self._read_group(file, keyword, "NSET", Nset)
+            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
+        elif(self.line.upper().startswith("NSET")):
+            self._read_group(file, "NSET", Nset)
             # print("Nset")
             # print(Nset)
-            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
-        elif keyword.startswith(('Elset', 'ELSET', "elset")):
-            line0 = self._read_group(file, keyword, "ELSET", Elset)
+            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
+        elif self.line.upper().startswith('ELSET'):
+            self._read_group(file, "ELSET", Elset)
             # print("Elset")
             # print(Elset)
-            self._read_data(file, line0, Nodes, Elements, Nset, Elset)
-        elif keyword.startswith(('Include', 'INCLUDE')):
-            line0 = self._read_include_file(file, keyword, Nodes, Elements, Nset, Elset)
-        elif keyword.startswith(('Part,', 'PART,')):
-            self.nbParts += 1
+            self._read_data(file, Nodes, Elements, Nset, Elset, Parts, Assembly)
+        elif self.line.upper().startswith('INCLUDE'):
+            self._read_include_file(file, Nodes, Elements, Nset, Elset)
+        elif self.line.upper().startswith('INSTANCE,'):
+            self._read_instance(file,  Assembly)
 
-            if(self.nbParts > 1):
+            if(len(Parts) > 1):
                 raise RuntimeError("Only one part allowed")
-        elif keyword.startswith(('Assembly,', 'ASSEMBLY,')):
+        elif self.line.upper().startswith('PART,'):
+            self._read_part(file, Parts)
+
+            if(len(Parts) > 1):
+                raise RuntimeError("Only one part allowed")
+        elif self.line.upper().startswith('ASSEMBLY,'):
+            self._read_assembly(file, Assembly)
             self.nbAssembly += 1
 
             if(self.nbAssembly > 1):
                 raise RuntimeError("Only one Assembly allowed")
-        elif keyword.startswith(('Ngen', 'NGEN','NGen','ngen')):
+        elif self.line.upper().startswith('NGEN'):
             raise RuntimeError("Keyword not supported: NGEN")
-        elif keyword.startswith(('Nfill', 'NFILL','NFill', 'nfill')):
+        elif self.line.upper().startswith('NFILL',):
             raise RuntimeError("Keyword not supported: NFILL")
-        elif keyword.startswith(('Nmap', 'NMAP','NMap','nmap')):
+        elif self.line.upper().startswith('NMAP'):
             raise RuntimeError("Keyword not supported: NMAP")
-        elif keyword.startswith(('Ncopy', 'NCOPY','Ncopy','ncopy')):
+        elif self.line.upper().startswith('NCOPY'):
             raise RuntimeError("Keyword not supported: NMAP")
 
-    def _read_nodes(self, file, line0, Nodes, Nset):
+    def _read_nodes(self, file, Nodes, Nset):
         # get informations about nodes
-        params_map = self._get_param_map(line0, )
+        params_map = self._get_param_map(self.line)
 
         # this is not a list of node
         if("NODE" not in params_map):
-            return file.readline()
+            self.line = file.readline()
+            return
 
         # create directly a group from the list of nodes
         if "NSET" in params_map:
@@ -282,25 +353,26 @@ class MedConverterAbaqus(MedConverter):
 
         # loop on nodes
         while True:
-            line = file_to_read.readline()
+            self.line = file_to_read.readline()
+            print("NODE: ",self.line)
             l_process_line = True
             if(l_extern_file):
-                if line.startswith("*"):
-                    keyword = line.replace("*", '').strip()
-                    if(keyword.startswith(("Node", "NODE", "node"))):
-                        line = self._read_nodes(file_to_read, keyword, Nodes, Nset)
+                if self.line.startswith("*"):
+                    self.line = self.line.replace("*", '').strip()
+                    if(self.line.upper().startswith("NODE")):
+                        self._read_nodes(file_to_read, Nodes, Nset)
                     else:
                         l_process_line = False
 
-                if line == "":
+                if self.line == "":
                     break
-                elif line in ['\n', '\r\n']:
+                elif self.line in ['\n', '\r\n']:
                     break
-            elif self.breakLoop(line):
+            elif self.breakLoop(self.line):
                 break
 
             if l_process_line:
-                [line, entries] = self._read_continuous_line(file_to_read, line, ',')
+                entries = self._read_continuous_line(file_to_read, ',')
                 # read id and coordinatines
                 nid, x = entries[0], entries[1:]
                 # fill with zero if not enougth coordinates
@@ -315,7 +387,7 @@ class MedConverterAbaqus(MedConverter):
                 if create_nset:
                     list_nodes.append(nid)
 
-                if line.lstrip().startswith("*"):
+                if self.line.lstrip().startswith("*"):
                     break
 
         # add group in Nset
@@ -325,35 +397,18 @@ class MedConverterAbaqus(MedConverter):
 
         if(l_extern_file):
             file_to_read.close()
-            line = file.readline()
-
-        return line
-
-    # read a string which are in more that one line. If terminates by separator
-    def _read_continuous_line(self, file, line, separator):
-
-        # read the line
-        entries= [x.strip() for x in line.strip().rstrip(separator).split(separator)]
-
-        # more than one line to read
-        if line.rstrip().endswith(separator):
-            line = file.readline()
-
-            if not line.lstrip().startswith("*"):
-                [line, new_entries] = self._read_continuous_line(file, line, separator)
-                entries += new_entries
-
-        return [line, entries]
+            self.line = file.readline()
 
 
     # Read a list of element
-    def _read_cells(self, file, line0, Elements, Elset):
+    def _read_cells(self, file, Elements, Elset):
         # get informations about elements
-        params_map = self._get_param_map(line0)
+        params_map = self._get_param_map(self.line)
 
         # this is not a list of element
         if("ELEMENT" not in params_map):
-            return file.readline()
+            self.line = file.readline()
+            return
 
         # create directly a group from the list of elements
         if "ELSET" in params_map:
@@ -373,28 +428,32 @@ class MedConverterAbaqus(MedConverter):
 
         # get type of element to create
         etype = params_map["TYPE"]
+        print(params_map)
 
         # loop on list of elements
         while True:
-            line = file_to_read.readline()
+            self.line = file_to_read.readline()
+            print("ELE: ",self.line)
+
             l_process_line = True
             if(l_extern_file):
-                if line.startswith("*"):
-                    keyword = line.replace("*", '').strip()
-                    if(keyword.startswith(("Element", "ELEMENT", "element"))):
-                        line = self._read_cells(file_to_read, keyword, Elements, Elset)
+                if self.line.startswith("*"):
+                    self.line = self.line.replace("*", '').strip()
+                    if(self.line.upper().startswith("ELEMENT")):
+                        self._read_cells(file_to_read, Elements, Elset)
                     else:
                         l_process_line = False
 
-                if line == "":
+                if self.line == "":
                     break
-                elif line in ['\n', '\r\n']:
+                elif self.line in ['\n', '\r\n']:
                     break
-            elif self.breakLoop(line):
+            elif self.breakLoop(self.line):
                 break
 
             if l_process_line:
-                [line, entries] = self._read_continuous_line(file_to_read, line, ",")
+                entries= self._read_continuous_line(file_to_read, ",")
+                print(entries)
                 # get id and list of nodes
                 eid, nodes = entries[0], entries[1:]
                 # add element
@@ -403,7 +462,7 @@ class MedConverterAbaqus(MedConverter):
                 if create_elset:
                     list_elem.append(eid)
 
-                if line.lstrip().startswith("*"):
+                if self.line.lstrip().startswith("*"):
                     break
 
         # add group in Elset
@@ -413,13 +472,12 @@ class MedConverterAbaqus(MedConverter):
 
         if(l_extern_file):
             file_to_read.close()
-            line = file.readline()
+            self.line = file.readline()
 
-        return line
 
-    def _read_group(self, file, line0, param, Group):
+    def _read_group(self, file, param, Group):
         # find type of element
-        params_map = self._get_param_map(line0)
+        params_map = self._get_param_map(self.line)
 
         # this is not a group
         if param not in params_map:
@@ -434,11 +492,13 @@ class MedConverterAbaqus(MedConverter):
             generate = False
 
         while True:
-            line = file.readline()
-            if self.breakLoop(line):
+            self.line = file.readline()
+            print("GRP: ",self.line)
+
+            if self.breakLoop(self.line):
                 break
 
-            entries = [x.strip() for x in line.strip().rstrip(",").split(",")]
+            entries = [x.strip() for x in self.line.strip().rstrip(",").split(",")]
 
             try:
                 int(entries[0])
@@ -467,12 +527,11 @@ class MedConverterAbaqus(MedConverter):
         name = params_map[param]
         Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
 
-        return line
 
     # Read an included file
-    def _read_include_file(self, file, line0, Nodes, Elements, Nset, Elset):
+    def _read_include_file(self, file, Nodes, Elements, Nset, Elset):
         # get informations about file
-        params_map = self._get_param_map(line0)
+        params_map = self._get_param_map(self.line)
 
         # this is not an included file
         if("INPUT" not in params_map):
@@ -483,12 +542,76 @@ class MedConverterAbaqus(MedConverter):
         file_to_read = open(filename_elem, 'r')
 
         # read external file
-        for line in file_to_read :
-            self._read_data(file_to_read, line, Nodes, Elements, Nset, Elset)
+        for self.line in file_to_read :
+            self._read_data(file_to_read, Nodes, Elements, Nset, Elset, Parts, Assembly)
 
         file_to_read.close()
 
-        return file.readline()
+    def _read_part(self, file, Parts):
+         # get informations about part
+        params_map = self._get_param_map(self.line)
+
+        print(params_map)
+        # this is not an included file
+        if("PART" not in params_map):
+            return
+
+        Part = AbaqusPart()
+
+        Part.setName(params_map["NAME"])
+
+        for line in file :
+            self.line = line
+            self._read_data(file, Part.Nodes, Part.Elements, Part.Nset, Part.Elset, Part, None)
+            print("PART: ",self.line)
+            if self.line.strip().lstrip("*").upper().startswith("END PART"):
+                break
+
+        Parts.append(Part)
+
+
+
+    def _read_assembly(self, file, Assembly):
+         # get informations about part
+        params_map = self._get_param_map(self.line)
+
+        print(params_map)
+        # this is not an included file
+        if("ASSEMBLY" not in params_map):
+            return file.readline()
+
+        Assembly.setName(params_map["NAME"])
+
+        for line in file :
+            self.line = line
+            self._read_data(file, Assembly.Nodes, Assembly.Elements, Assembly.Nset, Assembly.Elset, None, Assembly)
+            print("ASS: ",self.line)
+            if self.line.strip().lstrip("*").upper().startswith("END ASSEMBLY"):
+                break
+
+
+    def _read_instance(self, file, Assembly):
+         # get informations about part
+        params_map = self._get_param_map(self.line)
+
+        print(params_map)
+        # this is not an included file
+        if("INSTANCE" not in params_map):
+            return file.readline()
+
+        Instance = AbaqusInstance()
+
+        Instance.setName(params_map["NAME"])
+        Instance.setPart(params_map["PART"])
+
+        for line in file :
+            self.line = line
+            self._read_data(file, Instance.Nodes, Instance.Elements, Instance.Nset,Instance.Elset, None, None)
+            print("INSTANCE: ", self.line)
+            if self.line.strip().lstrip("*").upper().startswith("END INSTANCE"):
+                break
+
+        Assembly.addInstance(Instance)
 
     def _get_param_map(self, word, required_keys=None):
         """
@@ -525,6 +648,21 @@ class MedConverterAbaqus(MedConverter):
         if msg:
             raise RuntimeError(msg)
         return param_map
+
+    # read a string which are in more that one line. If terminates by separator
+    def _read_continuous_line(self, file, separator):
+
+        # read the line
+        entries= [x.strip() for x in self.line.strip().rstrip(separator).split(separator)]
+
+        # more than one line to read
+        if self.line.rstrip().endswith(separator):
+            self.line = file.readline()
+
+            if not self.line.lstrip().startswith("*"):
+                entries += self._read_continuous_line(file, separator)
+
+        return entries
 
     def checkKey(self, dico, key):
         if(key in dico):
