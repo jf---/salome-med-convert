@@ -82,6 +82,13 @@ Abaqus
      - HEXA20
      - 3
      - 3
+   * - ABAQUS_PART.inp
+     - Public
+     - 7
+     - 78
+     - SEG2, HEXA20
+     - 4
+     - 4
    * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
      - Private
      - 1872
