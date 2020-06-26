@@ -123,4 +123,6 @@
  1, 1, 2
  2, 2, 3
  3, 3, 5
+*Nset, Nset=test, instance = Mallage_2
+ 1, 3, 12
 *End assembly

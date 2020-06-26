@@ -122,8 +122,8 @@ class TestSimple(unittest.TestCase):
     def test_BOLT_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_BOLTPIPEFLANGE_3D.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                            2000, 10587, ['HEXA20','PENTA15'],
-                            11, 15)
+                            2000, 10588, ['HEXA20','PENTA15'],
+                            11, 16)
 
     def test_Bending_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_THREEPOINTBENDING.inp")
@@ -183,12 +183,12 @@ class TestSimple(unittest.TestCase):
         filename = osp.join(data_path(), "ABAQUS_ADAT_MESH_1.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             16001, 18492, ['POINT1','HEXA8'],
-                            5, 5)    
+                            5, 5)
 
-   def test_part_abaqus(self):
+    def test_part_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_PART.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                            7, 72, ['HEXA20'], 3, 4,)
+                            7, 72, ["SEG2", 'HEXA20'], 4, 4,)
 
 
 if __name__ == "__main__":

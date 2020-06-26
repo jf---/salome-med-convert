@@ -229,20 +229,25 @@ class AbaqusMesh:
         for Group in Groups:
             # add group
             name = Group.getName()
+            instance = Group.getInstance()
             items = map(int, Group.getGroup())
             list_clean = []
+            # print(Group)
             for k in items:
                 if int(k) in corresponding:
                     list_clean.append(int(k))
-                # else:
-                #     print("Group: ", name)
-                #     print("Create Group: this element %d in not in the mesh"%k)
+                else:
+                    print("Group: ", name)
+                    print("Create Group: this element %d in not in the mesh"%k)
+
+            if len(list_clean) == 0:
+                raise RuntimeError("No items in group: "+name)
 
             list_item = tuple(corresponding[k] for k in list_clean)
             if typeGrp == "NSET":
-                self.Nset.append(AbaqusGroup(name, 'internal', list_item))
+                self.Nset.append(AbaqusGroup(name, instance, list_item))
             elif typeGrp == "ELSET":
-                self.Elset.append(AbaqusGroup(name, 'internal', list_item))
+                self.Elset.append(AbaqusGroup(name, instance, list_item))
             else:
                 raise RuntimeError("Unknown type of group")
 
@@ -256,7 +261,38 @@ class AbaqusMesh:
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
         self.addGroups("ELSET", Entities.Elset, corresponding_elems)
 
+
+    def addGroupsInRightPlace(self, Assembly):
+
+        new_Nset = []
+        for group in Assembly.Nset:
+            instance_name = group.getInstance()
+            #print(group.getName(), instance_name, len(group.getGroup()))
+            if instance_name != "":
+                for Instance in Assembly.Instance:
+                    if Instance.getName() == instance_name:
+                        Instance.Nset.append(group)
+            else:
+                new_Nset.append(group)
+
+        Assembly.Nset = new_Nset
+
+        new_Elset = []
+        for group in Assembly.Elset:
+            instance_name = group.getInstance()
+            if instance_name != "":
+                for Instance in Assembly.Instance:
+                    if Instance.getName() == instance_name:
+                        Instance.Elset.append(group)
+            else:
+                new_Elset.append(group)
+
+        Assembly.Elset = new_Elset
+
+
     def assemble(self, Assembly):
+
+        self.addGroupsInRightPlace(Assembly)
 
         # loop on instance of Assembly
         for Instance in Assembly.Instance:
@@ -478,29 +514,30 @@ class MedConverterAbaqus(MedConverter):
             elif self.breakLoop(self.line):
                 break
 
-            if l_process_line:
-                entries = self._read_continuous_line(file_to_read, ',')
-                # read id and coordinatines
-                nid, x = entries[0], entries[1:]
-                # fill with zero if not enougth coordinates
-                if (len(x) < 3):
-                    for i in range(0, 3-len(x)):
-                        x.append("0.0")
-                assert len(x) == 3
+            if not self.line.startswith("**"):
+                if l_process_line:
+                    entries = self._read_continuous_line(file_to_read, ',')
+                    # read id and coordinatines
+                    nid, x = entries[0], entries[1:]
+                    # fill with zero if not enougth coordinates
+                    if (len(x) < 3):
+                        for i in range(0, 3-len(x)):
+                            x.append("0.0")
+                    assert len(x) == 3
 
-                Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
+                    Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
 
-                # add node in the group
-                if create_nset:
-                    list_nodes.append(nid)
+                    # add node in the group
+                    if create_nset:
+                        list_nodes.append(nid)
 
-                if self.line.lstrip().startswith("*"):
-                    break
+                    if self.line.lstrip().startswith("*"):
+                        break
 
         # add group in Nset
         if create_nset:
             name = params_map["NSET"]
-            Nset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_nodes]))
+            Nset.append(AbaqusGroup(name, "", [int(n) for n in list_nodes]))
 
         if(l_extern_file):
             file_to_read.close()
@@ -555,23 +592,24 @@ class MedConverterAbaqus(MedConverter):
             elif self.breakLoop(self.line):
                 break
 
-            if l_process_line:
-                entries= self._read_continuous_line(file_to_read, ",")
-                # get id and list of nodes
-                eid, nodes = entries[0], entries[1:]
-                # add element
-                Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
-                # add element in the group
-                if create_elset:
-                    list_elem.append(eid)
+            if not self.line.startswith("**"):
+                if l_process_line:
+                    entries= self._read_continuous_line(file_to_read, ",")
+                    # get id and list of nodes
+                    eid, nodes = entries[0], entries[1:]
+                    # add element
+                    Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
+                    # add element in the group
+                    if create_elset:
+                        list_elem.append(eid)
 
-                if self.line.lstrip().startswith("*"):
-                    break
+                    if self.line.lstrip().startswith("*"):
+                        break
 
         # add group in Elset
         if create_elset:
             name = params_map["ELSET"]
-            Elset.append(AbaqusGroup(name, 'internal', [int(n) for n in list_elem]))
+            Elset.append(AbaqusGroup(name, "", [int(n) for n in list_elem]))
 
         if(l_extern_file):
             file_to_read.close()
@@ -587,48 +625,56 @@ class MedConverterAbaqus(MedConverter):
             self.line = file.readline()
             return
 
-        list_item = []
-
         # to generate groups
         if("GENERATE" in params_map.keys()):
             generate = True
         else:
             generate = False
 
+        # to generate groups
+        if("INSTANCE" in params_map.keys()):
+            instance = params_map["INSTANCE"]
+        else:
+            instance = ""
+
+        list_item = []
         while True:
             self.line = file.readline()
-
             if self.breakLoop(self.line):
                 break
 
-            entries = [x.strip() for x in self.line.strip().rstrip(",").split(",")]
+            if not self.line.startswith("**"):
+                entries = [x.strip() for x in self.line.strip().rstrip(",").split(",")]
 
-            try:
-                int(entries[0])
-                l_list_grp = False
-            except:
-                l_list_grp = True
-            if(l_list_grp):
-                for grp_name in entries:
-                    for grp in Group:
-                        if(grp.getName() == grp_name):
-                            # this is a copy of group
-                            list_item += grp.getGroup()
-            else:
-                if(generate):
-                    # default value is 1
-                    if(len(entries) == 2):
-                        entries.append("1")
-                    # generate elements in group
-                    # first element, last_element, step
-                    list_item += [int(n) for n in range(int(entries[0]), int(entries[1])+1, int(entries[2]))]
+                try:
+                    int(entries[0])
+                    l_list_grp = False
+                except:
+                    l_list_grp = True
+                if(l_list_grp):
+                    for grp_name in entries:
+                        for grp in Group:
+                            if(grp.getName() == grp_name):
+                                # this is a copy of group
+                                list_item += grp.getGroup()
                 else:
-                    # read directely list of elements
-                    list_item += entries
+                    if(generate):
+                        # default value is 1
+                        if(len(entries) == 2):
+                            entries.append("1")
+                        # generate elements in group
+                        # first element, last_element, step
 
+                        list_item += [int(n) for n in range(int(entries[0]), int(entries[1])+1, int(entries[2]))]
+                    else:
+                        # read directely list of elements
+                        list_item += entries
+
+        if len(list_item) == 0:
+            raise RuntimeError("No items for this group: "+params_map[typyeGroup])
         # add group
         name = params_map[typyeGroup]
-        Group.append(AbaqusGroup(name, 'internal', [int(n) for n in list_item]))
+        Group.append(AbaqusGroup(name, instance, [int(n) for n in list_item]))
 
 
     # Read an included file
@@ -795,7 +841,7 @@ class MedConverterAbaqus(MedConverter):
             return False
 
     def breakLoop(self, line):
-        if line.startswith("*"):
+        if line.startswith("*") and not line.startswith("**"):
             return True
         elif line == "":
             return True
