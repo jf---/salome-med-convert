@@ -584,7 +584,8 @@ class MedConverterAbaqus(MedConverter):
 
         # this is not a group
         if typyeGroup not in params_map:
-            return file.readline()
+            self.line = file.readline()
+            return
 
         list_item = []
 
@@ -637,7 +638,7 @@ class MedConverterAbaqus(MedConverter):
 
         # this is not an included file
         if("INPUT" not in params_map):
-            return file.readline()
+            return
 
         # open external file
         filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
@@ -681,7 +682,7 @@ class MedConverterAbaqus(MedConverter):
 
         # this is not an included file
         if("*ASSEMBLY" not in params_map):
-            return file.readline()
+            return
 
         Assembly.setName(params_map["NAME"])
 
@@ -703,7 +704,7 @@ class MedConverterAbaqus(MedConverter):
 
         # this is not an included file
         if("*INSTANCE" not in params_map):
-            return file.readline()
+            return
 
         Instance = AbaqusInstance()
 
