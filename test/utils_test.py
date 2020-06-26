@@ -102,7 +102,8 @@ def tempdir(func):
 
 @tempdir
 def standard_conversion(tmpdir, utest, filename, input_format, output_format,
-                        nbcells, nbnodes, cellstypes):
+                        nbcells, nbnodes, cellstypes,
+                        nbcellsgrps, nbnodesgrps):
     """Function to check a mesh conversion.
 
     In debug mode (DEBUG environment variable set to 1) the result med files
@@ -140,6 +141,8 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format,
     convertedcellstypes = [MEDLoader.MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
 
+    total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
+    
     if nbcells * nbnodes == 0:
         print("Number of elements:", total_nb_of_cells)
         print("Number of nodes:", mesh.getNumberOfNodes())
@@ -147,3 +150,5 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format,
         utest.assertEqual(total_nb_of_cells, nbcells)
         utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
         utest.assertEqual(set(convertedcellstypes), set(cellstypes))
+        utest.assertEqual(total_nb_of_cells_groups, nbcellsgrps)
+        utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
