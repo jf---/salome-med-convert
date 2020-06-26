@@ -188,7 +188,7 @@ class TestSimple(unittest.TestCase):
    def test_part_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_PART.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                            4, 64, ['HEXA20'], 3, 4,)
+                            7, 72, ['HEXA20'], 3, 4,)
 
 
 if __name__ == "__main__":
