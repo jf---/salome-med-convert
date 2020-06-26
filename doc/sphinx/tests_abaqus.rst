@@ -15,11 +15,6 @@ Abaqus
      - 1
      - 4
      - QUAD4
-   * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
-     - Private
-     - 1872
-     - 1975
-     - QUAD4
    * - BOLTPIPEFLANGE_3D.inp
      - Public
      - 2000
@@ -64,4 +59,14 @@ Abaqus
      - Public
      - 2
      - 32
+     - HEXA20
+   * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
+     - Private
+     - 1872
+     - 1975
+     - QUAD4
+   * - HNBR3M.inp
+     - Private
+     - 35904
+     - 176092
      - HEXA20

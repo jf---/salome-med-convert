@@ -63,6 +63,12 @@ class TestPrivate(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             1872, 1975, ['QUAD4'])
 
+    def test_graphite(self):
+        filename = get_datafile_path("ABAQUS_HNBR3M.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            35904, 176092, ['HEXA20'])
+
+
 
 if __name__ == "__main__":
     unittest.main()
