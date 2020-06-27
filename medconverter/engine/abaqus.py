@@ -4,6 +4,7 @@
 from .medconverter import *
 import os.path as osp
 import numpy as np
+import time
 
 
 class AbaqusNode:
@@ -193,7 +194,7 @@ class AbaqusMesh:
     def translation(self, point, translation):
         return np.array(point) + np.array(translation)
 
-    def rotation(self, point, center, axis, angle_radian):
+    def matric_rotation(self, axis, angle_radian):
         u = np.array(axis)
         u = u / np.linalg.norm(u)
 
@@ -206,27 +207,39 @@ class AbaqusMesh:
 
         mrot = np.array([row1,row2, row3])
 
-        return mrot @ (np.array(point) - np.array(center)) + np.array(center)
+        return mrot
 
-    def geometric_transfo(self, point, translation=None, rotation_param=None):
+    def rotation(self, point, center, matric_rotation):
+        return matric_rotation @ (np.array(point) - np.array(center)) + np.array(center)
+
+    def geometric_transfo(self, point, translation=None, center=None, matrix_rotation=None):
         if translation is not None:
             transla = self.translation(point, translation)
         else:
             transla = point
 
-        if rotation_param is not None:
-            assert translation is not None
-            center = rotation_param[0:3]
-            axis = rotation_param[3:6]
-            angle = rotation_param[6]
-            angle_radian = np.radians(angle)
-            rota  = self.rotation(transla, center, axis, angle_radian)
+        if matrix_rotation is not None:
+            rota = self.rotation(transla, center, matrix_rotation)
         else:
             rota = transla
 
         return tuple(rota)
 
     def addNodes(self, Nodes, translation=None, rotation_param=None):
+        # object for translation + rotation (optimization for large mesh)
+        if translation is not None:
+            translation = np.array(translation)
+
+        if rotation_param is not None:
+            assert translation is not None
+            center = np.array(rotation_param[0:3])
+            axis = np.array(rotation_param[3:6])
+            angle = rotation_param[6]
+            angle_radian = np.radians(angle)
+            mrot = self.matric_rotation(axis, angle_radian)
+        else:
+            center, mrot = None, None
+
         corresponding_nodes = {}
         for idx, node in enumerate(Nodes):
             if int(node.getId()) in corresponding_nodes:
@@ -237,9 +250,9 @@ class AbaqusMesh:
             # add Node
             node_id = corresponding_nodes[int(node.getId())]
             coor = node.getCoordinates()
-            new_coor = self.geometric_transfo(coor, translation, rotation_param)
-            # print(coor)
+            new_coor = self.geometric_transfo(coor, translation, center, mrot)
             self.Nodes.append(AbaqusNode(node_id, new_coor))
+
         self.nodesOffset += len(Nodes)
 
         return corresponding_nodes
@@ -290,17 +303,29 @@ class AbaqusMesh:
     def addFromEntities(self, Entities, translation=None, \
                          rotation_param=None):
 
+        tic = time.perf_counter()
         corresponding_nodes = self.addNodes(Entities.Nodes, translation, rotation_param)
-        logger.debug("-> Number of nodes : %d"%(len(Entities.Nodes)))
+        toc = time.perf_counter()
+        logger.debug("-> Number of nodes : %d (in %0.4f seconds)"\
+            %(len(Entities.Nodes), toc-tic))
 
+        tic = time.perf_counter()
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
-        logger.debug("-> Number of elements : %d"%(len(Entities.Elements)))
+        toc = time.perf_counter()
+        logger.debug("-> Number of elements : %d (in %0.4f seconds)"\
+            %(len(Entities.Elements), toc-tic))
 
+        tic = time.perf_counter()
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
-        logger.debug("-> Number of groups of nodes : %d"%(len(Entities.Nset)))
+        toc = time.perf_counter()
+        logger.debug("-> Number of groups of nodes : %d (in %0.4f seconds)"\
+            %(len(Entities.Nset), toc-tic))
 
+        tic = time.perf_counter()
         self.addGroups("ELSET", Entities.Elset, corresponding_elems)
-        logger.debug("-> Number of groups of elements : %d"%(len(Entities.Elset)))
+        toc = time.perf_counter()
+        logger.debug("-> Number of groups of elements : %d (in %0.4f seconds)"\
+            %(len(Entities.Elset), toc-tic))
 
 
     def addGroupsInRightPlace(self, Assembly):
@@ -388,12 +413,14 @@ class MedConverterAbaqus(MedConverter):
             logger.debug("Mesh name : %s"%self.mesh_name)
             logger.debug("Space Dimension : %d"%self.space_dim)
             logger.debug("Beginning to parse mesh file")
+            tic = time.perf_counter()
 
             for line in file :
                 self.line = line
                 self._read_data(file, Assembly)
 
-            logger.debug("Ending to parse mesh file")
+            toc = time.perf_counter()
+            logger.debug("Ending to parse mesh file in %0.4f seconds"%(toc-tic))
 
 
         file.close()
@@ -401,9 +428,17 @@ class MedConverterAbaqus(MedConverter):
         # create Abaqus mesh
         logger.debug(" ")
         logger.debug("Creating Abaqus mesh:")
+        tic = time.perf_counter()
+
         mesh = AbaqusMesh()
         mesh.setName(self.mesh_name)
         mesh.assemble(Assembly)
+
+        toc = time.perf_counter()
+
+        logger.debug("End creating Abaqus mesh in %0.4f seconds"%(toc-tic))
+
+
 
         logger.debug("Statistics of the mesh : " + mesh.getName())
         logger.debug("-> Number of nodes : %d"%(len(mesh.Nodes)))
