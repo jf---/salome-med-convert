@@ -3,6 +3,7 @@
 
 from .medconverter import *
 import os.path as osp
+import numpy as np
 
 
 class AbaqusNode:
@@ -120,8 +121,8 @@ class AbaqusInstance:
         self.Elements = []
         self.Elset = []
         self.Nset = []
-        self.translation = [0.0, 0.0, 0.0]
-        self.rotation = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ,0.0,0.0]
+        self.translation = None
+        self.rotation = None
 
     def setName(self, name):
         self.name = name
@@ -189,7 +190,43 @@ class AbaqusMesh:
     def getName(self):
         return self.name
 
-    def addNodes(self, Nodes, translation):
+    def translation(self, point, translation):
+        return np.array(point) + np.array(translation)
+
+    def rotation(self, point, center, axis, angle_radian):
+        u = np.array(axis)
+        u = u / np.linalg.norm(u)
+
+        c = np.cos(angle_radian)
+        s = np.sin(angle_radian)
+
+        row1 = [u[0]*u[0]*(1-c)+c, u[0]*u[1]*(1-c)-u[2]*s, u[0]*u[2]*(1-c) + u[1]*s]
+        row2 = [u[0]*u[1]*(1-c)+u[2]*s ,u[1]*u[1]*(1-c)+c,  u[1]*u[2]*(1-c) - u[0]*s]
+        row3 = [u[0]*u[2]*(1-c)-u[1]*s, u[1]*u[2]*(1-c) + u[0]*s, u[2]*u[2]*(1-c)+c]
+
+        mrot = np.array([row1,row2, row3])
+
+        return mrot @ (np.array(point) - np.array(center)) + np.array(center)
+
+    def geometric_transfo(self, point, translation=None, rotation_param=None):
+        if translation is not None:
+            transla = self.translation(point, translation)
+        else:
+            transla = point
+
+        if rotation_param is not None:
+            assert translation is not None
+            center = rotation_param[0:3]
+            axis = rotation_param[3:6]
+            angle = rotation_param[6]
+            angle_radian = np.radians(angle)
+            rota  = self.rotation(transla, center, axis, angle_radian)
+        else:
+            rota = transla
+
+        return tuple(rota)
+
+    def addNodes(self, Nodes, translation=None, rotation_param=None):
         corresponding_nodes = {}
         for idx, node in enumerate(Nodes):
             if int(node.getId()) in corresponding_nodes:
@@ -200,10 +237,9 @@ class AbaqusMesh:
             # add Node
             node_id = corresponding_nodes[int(node.getId())]
             coor = node.getCoordinates()
-            for i in range(0,3):
-                coor[i] += translation[i]
+            new_coor = self.geometric_transfo(coor, translation, rotation_param)
             # print(coor)
-            self.Nodes.append(AbaqusNode(node_id, coor))
+            self.Nodes.append(AbaqusNode(node_id, new_coor))
         self.nodesOffset += len(Nodes)
 
         return corresponding_nodes
@@ -251,12 +287,13 @@ class AbaqusMesh:
             else:
                 raise RuntimeError("Unknown type of group")
 
-    def addFromEntities(self, Entities, translation=[0.0, 0.0, 0.0]):
+    def addFromEntities(self, Entities, translation=None, \
+                         rotation_param=None):
         # print(Entities.Nodes)
         # print(Entities.Elements)
         # print(Entities.Nset)
         # print(Entities.Elset)
-        corresponding_nodes = self.addNodes(Entities.Nodes, translation)
+        corresponding_nodes = self.addNodes(Entities.Nodes, translation, rotation_param)
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
         self.addGroups("ELSET", Entities.Elset, corresponding_elems)
@@ -297,7 +334,7 @@ class AbaqusMesh:
         # loop on instance of Assembly
         for Instance in Assembly.Instance:
             #print("Name Instance: ", Instance.getName())
-            self.addFromEntities(Instance, Instance.translation)
+            self.addFromEntities(Instance, Instance.translation, Instance.rotation)
 
         # add others objects in assembly
         self.addFromEntities(Assembly)
@@ -765,9 +802,11 @@ class MedConverterAbaqus(MedConverter):
                 # read translation
                 if not self.line.strip().startswith("*"):
                     Instance.translation = [float(x.strip()) for x in self.line.strip().rstrip(',').split(',')]
+                    assert len(Instance.translation) == 3
                     self.line = file.readline()
                     if not self.line.strip().startswith("*"):
                         Instance.rotation = [float(x.strip()) for x in self.line.strip().rstrip(',').split(',')]
+                        assert len(Instance.rotation) == 7
                         self.line = file.readline()
 
                 l_first_line = False
