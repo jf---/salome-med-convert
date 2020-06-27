@@ -270,8 +270,8 @@ class AbaqusMesh:
             list_clean = []
             # print(Group)
             for k in items:
-                if int(k) in corresponding:
-                    list_clean.append(int(k))
+                if k in corresponding:
+                    list_clean.append(k)
                 else:
                     print("Group: ", name)
                     print("Create Group: this element %d in not in the mesh"%k)
@@ -289,14 +289,18 @@ class AbaqusMesh:
 
     def addFromEntities(self, Entities, translation=None, \
                          rotation_param=None):
-        # print(Entities.Nodes)
-        # print(Entities.Elements)
-        # print(Entities.Nset)
-        # print(Entities.Elset)
+
         corresponding_nodes = self.addNodes(Entities.Nodes, translation, rotation_param)
+        logger.debug("-> Number of nodes : %d"%(len(Entities.Nodes)))
+
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
+        logger.debug("-> Number of elements : %d"%(len(Entities.Elements)))
+
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
+        logger.debug("-> Number of groups of nodes : %d"%(len(Entities.Nset)))
+
         self.addGroups("ELSET", Entities.Elset, corresponding_elems)
+        logger.debug("-> Number of groups of elements : %d"%(len(Entities.Elset)))
 
 
     def addGroupsInRightPlace(self, Assembly):
@@ -333,10 +337,11 @@ class AbaqusMesh:
 
         # loop on instance of Assembly
         for Instance in Assembly.Instance:
-            #print("Name Instance: ", Instance.getName())
+            logger.debug("Processing Instance: "+ Instance.getName())
             self.addFromEntities(Instance, Instance.translation, Instance.rotation)
 
         # add others objects in assembly
+        logger.debug("Processing rest of the mesh: ")
         self.addFromEntities(Assembly)
 
         # print(self.Nodes)
@@ -377,27 +382,34 @@ class MedConverterAbaqus(MedConverter):
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
             self.filename = filename
             self.mesh_name = self._read_meshname(filename)
-
             # a priori, this is a 3D mesh
             self.space_dim = 3
+
+            logger.debug("Mesh name : %s"%self.mesh_name)
+            logger.debug("Space Dimension : %d"%self.space_dim)
+            logger.debug("Beginning to parse mesh file")
 
             for line in file :
                 self.line = line
                 self._read_data(file, Assembly)
 
+            logger.debug("Ending to parse mesh file")
+
 
         file.close()
 
         # create Abaqus mesh
+        logger.debug(" ")
+        logger.debug("Creating Abaqus mesh:")
         mesh = AbaqusMesh()
         mesh.setName(self.mesh_name)
         mesh.assemble(Assembly)
 
-        logger.debug("Mesh name : %s"%self.mesh_name)
-        logger.debug("Space Dimension : %d"%self.space_dim)
-        logger.debug("Number of nodes : %d"%(len(mesh.Nodes)))
-        logger.debug("Number of elements : %d"%(len(mesh.Elements)))
-        logger.debug("Number of groups : %d"%(len(mesh.Nset) + len(mesh.Elset)))
+        logger.debug("Statistics of the mesh : " + mesh.getName())
+        logger.debug("-> Number of nodes : %d"%(len(mesh.Nodes)))
+        logger.debug("-> Number of elements : %d"%(len(mesh.Elements)))
+        logger.debug("-> Number of groups of nodes : %d"%(len(mesh.Nset)))
+        logger.debug("-> Number of groups of elements : %d"%(len(mesh.Elset)))
 
         # nodes of the mesh (collection of double)
         corresponding_nodes = {}
@@ -447,7 +459,7 @@ class MedConverterAbaqus(MedConverter):
             group_name = group.getName()
             group_nodes_abaqus = map(int, group.getGroup())
             if not group_name in self.groups_n:  self.groups_n[group_name] = []
-            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
+            self.groups_n[group_name] += [corresponding_nodes[k] for k in group_nodes_abaqus]
 
         # Element's group
         for group in mesh.Elset :
@@ -516,6 +528,9 @@ class MedConverterAbaqus(MedConverter):
         if("*NODE" not in params_map):
             self.line = file.readline()
             return
+
+        logger.debug("-> Reading Nodes")
+
 
         # create directly a group from the list of nodes
         if "NSET" in params_map:
@@ -590,6 +605,9 @@ class MedConverterAbaqus(MedConverter):
         if("*ELEMENT" not in params_map):
             self.line = file.readline()
             return
+
+        logger.debug("-> Reading Elements : " + params_map["TYPE"])
+
 
         # create directly a group from the list of elements
         if "ELSET" in params_map:
@@ -674,6 +692,8 @@ class MedConverterAbaqus(MedConverter):
         else:
             instance = ""
 
+        logger.debug("-> Reading Group: " + params_map[typyeGroup] + " (" + typyeGroup +")")
+
         list_item = []
         while True:
             self.line = file.readline()
@@ -727,6 +747,8 @@ class MedConverterAbaqus(MedConverter):
         filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
         file_to_read = open(filename_elem, 'r')
 
+        logger.debug("-> Reading included file: " + filename_elem)
+
         # read external file
         for self.line in file_to_read :
             self._read_data(file_to_read, Entities)
@@ -744,6 +766,8 @@ class MedConverterAbaqus(MedConverter):
         Part = AbaqusPart()
 
         Part.setName(params_map["NAME"])
+
+        logger.debug("-> Reading Part: " + Part.getName())
 
         l_finish = False
         for line in file :
@@ -793,6 +817,9 @@ class MedConverterAbaqus(MedConverter):
 
         Instance.setName(params_map["NAME"])
         Instance.setPart(Assembly.getPart(params_map["PART"]))
+
+        logger.debug("-> Reading Instance: " + Instance.getName())
+
 
         l_finish = False
         l_first_line = True

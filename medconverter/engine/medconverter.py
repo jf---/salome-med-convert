@@ -504,6 +504,7 @@ class MedConverter:
     def create_med_mesh(self):
         coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
+        logger.debug("Creating MED mesh:")
         self.medmesh = MEDFileUMesh()
         max_dim_elements = int(max(self.elements.keys())[0])
         level_by_dimension = {'%dD'%i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
