@@ -90,6 +90,9 @@ class AbaqusGroup:
     def getInstance(self):
         return self.instance
 
+    def addGroup(self, group):
+        self.group += group
+
     def setGroup(self, group):
         self.group = group
 
@@ -274,6 +277,19 @@ class AbaqusMesh:
 
         return corresponding_elems
 
+    def fuseCommonGroup(self, Groups, Group):
+        name = Group.getName()
+        l_save = False
+        for grp in Groups:
+            name_grp = grp.getName()
+            if name == name_grp:
+                l_save = True
+                grp.addGroup(Group.getGroup())
+
+        if not l_save:
+            Groups.append(Group)
+
+
     def addGroups(self, typeGrp, Groups, corresponding):
         for Group in Groups:
             # add group
@@ -294,9 +310,9 @@ class AbaqusMesh:
 
             list_item = tuple(corresponding[k] for k in list_clean)
             if typeGrp == "NSET":
-                self.Nset.append(AbaqusGroup(name, instance, list_item))
+                self.fuseCommonGroup(self.Nset, AbaqusGroup(name, instance, list_item))
             elif typeGrp == "ELSET":
-                self.Elset.append(AbaqusGroup(name, instance, list_item))
+                self.fuseCommonGroup(self.Elset, AbaqusGroup(name, instance, list_item))
             else:
                 raise RuntimeError("Unknown type of group")
 
@@ -354,7 +370,6 @@ class AbaqusMesh:
                 new_Elset.append(group)
 
         Assembly.Elset = new_Elset
-
 
     def assemble(self, Assembly):
 
@@ -494,7 +509,7 @@ class MedConverterAbaqus(MedConverter):
             group_name = group.getName()
             group_nodes_abaqus = map(int, group.getGroup())
             if not group_name in self.groups_n:  self.groups_n[group_name] = []
-            self.groups_n[group_name] += [corresponding_nodes[k] for k in group_nodes_abaqus]
+            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
 
         # Element's group
         for group in mesh.Elset :

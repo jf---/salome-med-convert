@@ -68,7 +68,7 @@ class TestPrivate(unittest.TestCase):
     def test_flam(self):
         filename = get_datafile_path("ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                            1872, 1975, ['QUAD4'],
+                            1872, 1976, ['QUAD4'],
                             9, 8)
 
     def test_graphite(self):
@@ -76,6 +76,12 @@ class TestPrivate(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             35904, 176092, ['HEXA20'],
                             1, 0)
+
+    def test_perf(self):
+        filename = get_datafile_path("ABAQUS_PERF.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            600768, 969128, ['HEXA8', 'TETRA10'],
+                            14, 17)
 
 
 
