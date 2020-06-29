@@ -119,6 +119,18 @@ class TestSimple(unittest.TestCase):
                             4, 13, ['TETRA4','PYRA5','HEXA8','PENTA6'],
                             4, 0)
 
+    def test_Beam_2_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_BEAM2.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 2, ['SEG2'],
+                            1, 1)
+
+    def test_Beam_3_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_BEAM3.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 3, ['SEG3'],
+                            1, 1)
+        
     def test_CPE3_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_CPE3.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,

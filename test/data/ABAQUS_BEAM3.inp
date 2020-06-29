@@ -1,0 +1,10 @@
+** Maille élémentaire pour qualification Abaqus
+*Heading
+ Maille élémentaire pour qualification Abaqus
+**
+*Node, Nset=Allnodes
+      1,           0.,           0.,     0.0
+      2,           0.,           1.,     0.0
+      3,           0.,           2.,     0.0
+*Element, type=B22, elset=SEG3
+  1, 1, 2, 3
