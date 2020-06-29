@@ -40,6 +40,20 @@ Abaqus
      - QUAD4
      - 11
      - 4
+   * - CPE3.inp
+     - Public
+     - 1
+     - 3
+     - TRI3
+     - 1
+     - 1
+   * - CPE4.inp
+     - Public
+     - 1
+     - 4
+     - QUAD4
+     - 1
+     - 1
    * - CPE6.inp
      - Public
      - 1
@@ -54,6 +68,13 @@ Abaqus
      - QUAD8
      - 1
      - 1
+   * - 1EltPENTA15.inp
+     - Public
+     - 1
+     - 15
+     - PENTA15
+     - 1
+     - 0
    * - PENTA15.inp
      - Public
      - 24
