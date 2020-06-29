@@ -82,6 +82,20 @@ Abaqus
      - QUAD8
      - 1
      - 1
+   * - PYRA5_1ELEMENT.inp
+     - Public
+     - 1
+     - 5
+     - PYRA5
+     - 0
+     - 0
+   * - PENTA6.inp
+     - Public
+     - 14
+     - 16
+     - PENTA6
+     - 1
+     - 0
    * - 1EltPENTA15.inp
      - Public
      - 1
@@ -124,6 +138,20 @@ Abaqus
      - POINT1, SEG2
      - 3
      - 2
+   * - 2CUBEH20.inp
+     - Public
+     - 2
+     - 32
+     - HEXA20
+     - 5
+     - 3
+   * - 2CUBE.inp
+     - Public
+     - 2
+     - 12
+     - HEXA8
+     - 2
+     - 2
    * - SPRING.inp
      - Public
      - 3
@@ -131,6 +159,27 @@ Abaqus
      - POINT1, SEG2
      - 3
      - 2
+   * - MESHTET.inp
+     - Public
+     - 192
+     - 457
+     - TETRA10
+     - 0
+     - 0
+   * - TET4.inp
+     - Public
+     - 1
+     - 4
+     - TETRA4
+     - 2
+     - 2
+   * - TET10.inp
+     - Public
+     - 1
+     - 10
+     - TETRA10
+     - 0
+     - 0
    * - SUBMESH_0.inp
      - Public
      - 2
@@ -145,6 +194,27 @@ Abaqus
      - SEG2, HEXA20
      - 4
      - 4
+   * - MIXT_ELEMENT.inp
+     - Public
+     - 4
+     - 13
+     - TETRA4, PYRA5, HEXA8, PENTA6
+     - 4
+     - 0
+   * - SELFCONTACT_BUMP_XPL_CAX3.inp
+     - Public
+     - 1331
+     - 746
+     - POINT1, TRI3
+     - 2
+     - 6
+   * - ADAT_MESH_1.inp
+     - Public
+     - 16001
+     - 18492
+     - POINT1, HEXA8
+     - 5
+     - 5
    * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
      - Private
      - 1872

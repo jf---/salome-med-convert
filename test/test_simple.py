@@ -221,7 +221,7 @@ class TestSimple(unittest.TestCase):
                             2, 32, ['HEXA20'],
                             3, 3)
 
-    def test_smesh1_abaqus(self):
+    def test_selfcontact_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_SELFCONTACT_BUMP_XPL_CAX3.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             1331, 746, ['POINT1','TRI3'],
