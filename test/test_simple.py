@@ -173,6 +173,12 @@ class TestSimple(unittest.TestCase):
                             4, 54, ['PENTA18'],
                             4, 6)
 
+    def test_MULTI_PENTA15V_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_MULTI_PENTA15V.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            18, 109, ['SEG3', 'TRI3', 'QUAD8', 'PENTA15', 'PENTA18', 'HEXA20'],
+                            9, 1)
+
     def test_TET4_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_TET4.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,

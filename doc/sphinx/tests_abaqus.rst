@@ -117,6 +117,13 @@ Abaqus
      - PENTA18
      - 4
      - 6
+   * - MULTI_PENTA15V.inp
+     - Public
+     - 18
+     - 109
+     - SEG3, TRI3, QUAD8, PENTA15, PENTA18, HEXA20
+     - 9
+     - 1
    * - NOTCHED_BEAM.inp
      - Public
      - 165

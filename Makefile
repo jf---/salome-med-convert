@@ -38,6 +38,6 @@ uninstall: ## Uninstall a previous installation ($SALOMEMECA_MEDCONVERTER_ROOT_D
 clean: ## Remove Python cache files
 	@rm -f $$(find . -name '*.pyc')
 	@rm -rf $$(find . -type d -name __pycache__) 2> /dev/null || true
-
+	@rm -rf /tmp/_med_convert_cache/
 
 .DEFAULT_GOAL := help
