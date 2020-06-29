@@ -40,6 +40,27 @@ Abaqus
      - QUAD4
      - 11
      - 4
+   * - CPE6.inp
+     - Public
+     - 1
+     - 6
+     - TRI6
+     - 1
+     - 1
+   * - CPE8.inp
+     - Public
+     - 1
+     - 8
+     - QUAD8
+     - 1
+     - 1
+   * - PENTA15.inp
+     - Public
+     - 24
+     - 127
+     - PENTA15
+     - 1
+     - 10
    * - NOTCHED_BEAM.inp
      - Public
      - 165

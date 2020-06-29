@@ -77,6 +77,18 @@ class TestSimple(unittest.TestCase):
                             192, 457, ['TETRA10'],
                             0,0)
 
+    def test_cpe6_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_CPE6.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 6, ['TRI6'],
+                            1, 1)
+
+    def test_cpe8_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_CPE8.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            1, 8, ['QUAD8'],
+                            1, 1)
+
     def test_pyra5_1element_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_PYRA5_1ELEMENT.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
@@ -112,6 +124,12 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             14, 16, ['PENTA6'],
                             1, 0)
+
+    def test_PENTA15_abaqus(self):
+        filename = osp.join(data_path(), "ABAQUS_PENTA15.inp")
+        standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                            24, 127, ['PENTA15'],
+                            2, 1)
 
     def test_TET4_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_TET4.inp")
