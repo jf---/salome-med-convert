@@ -40,6 +40,20 @@ Abaqus
      - QUAD4
      - 11
      - 4
+   * - BEAM2.inp
+     - Public
+     - 1
+     - 2
+     - SEG2
+     - 1
+     - 1
+   * - BEAM3.inp
+     - Public
+     - 1
+     - 2
+     - SEG3
+     - 1
+     - 1
    * - CPE3.inp
      - Public
      - 1
