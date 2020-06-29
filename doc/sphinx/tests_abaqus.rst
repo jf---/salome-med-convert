@@ -26,90 +26,97 @@ Abaqus
      - HEXA20, PENTA15
      - 11
      - 15
-   * - ABAQUS_THREEPOINTBENDING.inp
+   * - THREEPOINTBENDING.inp
      - Public
      - 14600
      - 14973
      - QUAD4
      - 7
      - 5
-   * - ABAQUS_BRAKE.inp
+   * - BRAKE.inp
      - Public
      - 236
      - 288
      - QUAD4
      - 11
      - 4
-   * - ABAQUS_BEAM2.inp
+   * - BEAM2.inp
      - Public
      - 1
      - 2
      - SEG2
      - 1
      - 1
-   * - ABAQUS_BEAM3.inp
+   * - BEAM3.inp
      - Public
      - 1
      - 2
      - SEG3
      - 1
      - 1
-   * - ABAQUS_CPE3.inp
+   * - CPE3.inp
      - Public
      - 1
      - 3
      - TRI3
      - 1
      - 1
-   * - ABAQUS_CPE4.inp
+   * - CPE4.inp
      - Public
      - 1
      - 4
      - QUAD4
      - 1
      - 1
-   * - ABAQUS_CPE6.inp
+   * - CPE6.inp
      - Public
      - 1
      - 6
      - TRI6
      - 1
      - 1
-   * - ABAQUS_CPE8.inp
+   * - CPE8.inp
      - Public
      - 1
      - 8
      - QUAD8
      - 1
      - 1
-   * - ABAQUS_PYRA5_1ELEMENT.inp
+   * - PYRA5_1ELEMENT.inp
      - Public
      - 1
      - 5
      - PYRA5
      - 0
      - 0
-   * - ABAQUS_PENTA6.inp
+   * - PENTA6.inp
      - Public
      - 14
      - 16
      - PENTA6
      - 1
      - 0
-   * - ABAQUS_1EltPENTA15.inp
+   * - 1EltPENTA15.inp
      - Public
      - 1
      - 15
      - PENTA15
      - 1
      - 0
-   * - ABAQUS_PENTA15.inp
+   * - PENTA15.inp
      - Public
      - 24
      - 127
      - PENTA15
      - 1
      - 10
+   * - PENTA15V.inp
+     - Public
+     - 4
+     - 54
+     - PENTA18
+     - 4
+     - 6
    * - NOTCHED_BEAM.inp
      - Public
      - 165
@@ -117,70 +124,77 @@ Abaqus
      - QUAD8
      - 2
      - 2
-   * - ABAQUS_STACKEDASSEMBLY.inp
+   * - STACKEDASSEMBLY.inp
      - Public
      - 984
      - 1117
      - TRI3, QUAD4
      - 8
      - 14
-   * - ABAQUS_STACKEDASSEMBLY2.inp
+   * - STACKEDASSEMBLY2.inp
      - Public
      - 984
      - 1117
      - TRI3, QUAD4
      - 8
      - 14
-   * - ABAQUS_MASS.inp
+   * - MASS.inp
      - Public
      - 2
      - 2
      - POINT1, SEG2
      - 3
      - 2
-   * - ABAQUS_2CUBEH20.inp
+   * - 2CUBEH20.inp
      - Public
      - 2
      - 32
      - HEXA20
      - 5
      - 3
-   * - ABAQUS_2CUBE.inp
+   * - HEXA27.inp
+     - Public
+     - 4
+     - 90
+     - HEXA27
+     - 4
+     - 6
+   * - 2CUBE.inp
      - Public
      - 2
      - 12
      - HEXA8
      - 2
      - 2
-   * - ABAQUS_SPRING.inp
+   * - SPRING.inp
      - Public
      - 3
      - 3
      - POINT1, SEG2
      - 3
      - 2
-   * - ABAQUS_MESHTET.inp
+   * - MESHTET.inp
      - Public
      - 192
      - 457
      - TETRA10
      - 0
      - 0
-   * - ABAQUS_TET4.inp
+   * - TET4.inp
      - Public
      - 1
      - 4
      - TETRA4
      - 2
      - 2
-   * - ABAQUS_TET10.inp
+   * - TET10.inp
      - Public
      - 1
      - 10
      - TETRA10
      - 0
      - 0
-   * - ABAQUS_SUBMESH_0.inp
+   * - SUBMESH_0.inp
      - Public
      - 2
      - 32
@@ -194,35 +208,35 @@ Abaqus
      - SEG2, HEXA20
      - 4
      - 4
-   * - ABAQUS_MIXT_ELEMENT.inp
+   * - MIXT_ELEMENT.inp
      - Public
      - 4
      - 13
      - TETRA4, PYRA5, HEXA8, PENTA6
      - 4
      - 0
-   * - ABAQUS_SELFCONTACT_BUMP_XPL_CAX3.inp
+   * - SELFCONTACT_BUMP_XPL_CAX3.inp
      - Public
      - 1331
      - 746
      - POINT1, TRI3
      - 2
      - 6
-   * - ABAQUS_ADAT_MESH_1.inp
+   * - ADAT_MESH_1.inp
      - Public
      - 16001
      - 18492
      - POINT1, HEXA8
      - 5
      - 5
-   * - ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN.inp
+   * - MAILLE_MF_FLAM-ELAS-CLEAN.inp
      - Private
      - 1872
      - 1975
      - QUAD4
      - 9
      - 8
-   * - ABAQUS_HNBR3M.inp
+   * - HNBR3M.inp
      - Private
      - 35904
      - 176092

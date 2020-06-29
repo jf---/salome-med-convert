@@ -189,6 +189,7 @@ class ElementTypeConverter:
 # Truss Element
         ('T3D2', 'SEG2'),
         ('T3D3', 'SEG3'),
+        ('T3D3H', 'SEG3'),
 
 # Elbow Element
         ('ELBOW31', 'SEG2'),
