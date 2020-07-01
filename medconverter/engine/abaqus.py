@@ -35,10 +35,11 @@ class AbaqusNode:
 
 class AbaqusElement:
 
-    def __init__(self, elem_type="", elem_id=-1, elem_nodes=[]):
+    def __init__(self, elem_type="", elem_id=-1, elem_nodes=[], multilevel=False):
         self.id = elem_id
         self.nodes = elem_nodes
         self.type = elem_type
+        self.multilevel = multilevel
 
     def __repr__(self):
         return "<Element> Id: {0}, Type: {1}, Nodes: {2}".format(self.id, self.type, self.nodes)
@@ -67,16 +68,19 @@ class AbaqusElement:
 
 class AbaqusGroup:
 
-    def __init__(self, name="", instance="", group=[]):
+    def __init__(self, name="", instance="", multilevel=False, group=[]):
         self.name = name
         self.instance = instance
+        self.multilevel = multilevel
         self.group = group
 
     def __repr__(self):
-        return "<Group> Name: {0}, Instance: {1}, Group: {2}".format(self.name, self.instance, self.group)
+        return "<Group> Name: {0}, Instance: {1}, Group: {2}".\
+            format(self.name, self.instance, self.group)
 
     def __str__(self):
-        return "<Group> Name: {0}, Instance: {1}, Group: {2}".format(self.name, self.instance, self.group)
+        return "<Group> Name: {0}, Instance: {1}, Group: {2}".\
+            format(self.name, self.instance, self.group)
 
     def setName(self, name):
         self.name = name
@@ -108,6 +112,8 @@ class AbaqusPart:
         self.Elements = []
         self.Elset = []
         self.Nset = []
+        self.ElsetName = {}
+        self.NsetName = {}
 
     def setName(self, name):
         self.name = name
@@ -125,6 +131,8 @@ class AbaqusInstance:
         self.Elements = []
         self.Elset = []
         self.Nset = []
+        self.ElsetName = {}
+        self.NsetName = {}
         self.translation = None
         self.rotation = None
 
@@ -142,10 +150,12 @@ class AbaqusInstance:
 
     def setPart(self, Part):
         self.setPartName(Part.getName())
-        self.Nodes += Part.Nodes
-        self.Elements += Part.Elements
-        self.Elset += Part.Elset
-        self.Nset += Part.Nset
+        self.Nodes = Part.Nodes
+        self.Elements = Part.Elements
+        self.Elset = Part.Elset
+        self.Nset = Part.Nset
+        self.ElsetName = Part.ElsetName
+        self.NsetName = Part.NsetName
 
 class AbaqusAssembly:
 
@@ -156,6 +166,8 @@ class AbaqusAssembly:
         self.Elements = []
         self.Elset = []
         self.Nset = []
+        self.ElsetName = {}
+        self.NsetName = {}
         self.Parts = []
 
     def setName(self, name):
@@ -177,6 +189,18 @@ class AbaqusAssembly:
 
         raise RuntimeError("Part nod found: " + name)
 
+class AbaqusNumbering:
+    def __init__(self):
+        self.name = ' '
+        self.corresponding_nodes = None
+        self.corresponding_elems = None
+
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
 class AbaqusMesh:
 
     def __init__(self):
@@ -185,8 +209,11 @@ class AbaqusMesh:
         self.Elements = []
         self.Elset = []
         self.Nset = []
+        self.ElsetName = {}
+        self.NsetName = {}
         self.nodesOffset = 0
         self.elemsOffset  = 0
+        self.Numbering = []
 
     def setName(self, name):
         self.name = name
@@ -268,26 +295,61 @@ class AbaqusMesh:
             else:
                 corresponding_elems[int(elem.getId())] = self.elemsOffset + idx
 
-            nodes_elem = map(int, elem.getNodes())
-            list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
+            if elem.multilevel:
+                list_nodes = []
+                for node in elem.getNodes():
+                    try:
+                        node_local_id = int(node)
+                        list_nodes.append(corresponding_nodes[node_local_id])
+                    except:
+                        entries = [x.strip() for x in node.strip().split(".")]
+                        assert len(entries) == 2
+                        subinstance = entries[0]
+                        node_local_id = int(entries[1])
+
+                        l_find = False
+                        for nume in self.Numbering:
+                            if subinstance == nume.getName():
+                                global_id = self.getGlobalId(nume.corresponding_nodes, node_local_id)
+
+                                if global_id is None:
+                                    raise RuntimeError("Create Element: node %s is \
+                                        not in the mesh"%node)
+                                else:
+                                    list_nodes.append(global_id)
+
+                                l_find = True
+                                break
+
+                        if not l_find:
+                            raise RuntimeError("Create Element: node %s is \
+                                    not in the mesh"%{node})
+            else:
+                nodes_elem = map(int, elem.getNodes())
+                list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
             elem_id = corresponding_elems[int(elem.getId())]
-            self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
+            self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes, False))
 
         self.elemsOffset += len(Elements)
 
         return corresponding_elems
 
-    def fuseCommonGroup(self, Groups, Group):
+    def fuseCommonGroup(self, Groups, GroupsName, Group):
         name = Group.getName()
-        l_save = False
-        for grp in Groups:
-            name_grp = grp.getName()
-            if name == name_grp:
-                l_save = True
-                grp.addGroup(Group.getGroup())
-
-        if not l_save:
+        if name in GroupsName:
+            Groups[GroupsName[name]].addGroup(Group.getGroup())
+        else:
             Groups.append(Group)
+            GroupsName[name] = len(Groups) - 1
+
+    def getGlobalId(self, corresponding, local_id):
+
+        if local_id in corresponding:
+            global_id = corresponding[local_id]
+        else:
+            global_id = None
+
+        return global_id
 
 
     def addGroups(self, typeGrp, Groups, corresponding):
@@ -295,24 +357,57 @@ class AbaqusMesh:
             # add group
             name = Group.getName()
             instance = Group.getInstance()
-            items = map(int, Group.getGroup())
             list_clean = []
-            # print(Group)
-            for k in items:
-                if k in corresponding:
-                    list_clean.append(k)
-                else:
-                    print("Group: ", name)
-                    print("Create Group: this element %d in not in the mesh"%k)
+            if Group.multilevel:
+                for k in Group.getGroup():
+                    entries = [x.strip() for x in k.strip().split(".")]
+                    assert len(entries) == 2
+                    subinstance = entries[0]
+                    local_id = int(entries[1])
+                    l_find = False
+                    for nume in self.Numbering:
+                        if subinstance == nume.getName():
+                            if typeGrp == "NSET":
+                                global_id = self.getGlobalId(nume.corresponding_nodes, local_id)
+                            elif typeGrp == "ELSET":
+                                global_id = self.getGlobalId(nume.corresponding_elems, local_id)
+                            else:
+                                raise RuntimeError("Unknown type of group")
 
-            if len(list_clean) == 0:
+                            if global_id is None:
+                                raise RuntimeError("Create Group %s: element %s is \
+                                    not in the mesh"%{name,k})
+                            else:
+                                list_clean.append(global_id)
+
+                            l_find = True
+                            break
+
+                    if not l_find:
+                        raise RuntimeError("Create Group %s: element %s is \
+                                    not in the mesh"%{name,k})
+
+                list_item = tuple(int(k) for k in list_clean)
+            else:
+                items = map(int, Group.getGroup())
+                for k in items:
+                    if k in corresponding:
+                        list_clean.append(k)
+                    else:
+                        raise RuntimeError("Create Group %s: element %s is \
+                                    not in the mesh"%{name,k})
+
+                list_item = tuple(corresponding[k] for k in list_clean)
+
+            if len(list_item) == 0:
                 raise RuntimeError("No items in group: "+name)
 
-            list_item = tuple(corresponding[k] for k in list_clean)
             if typeGrp == "NSET":
-                self.fuseCommonGroup(self.Nset, AbaqusGroup(name, instance, list_item))
+                self.fuseCommonGroup(self.Nset, self.NsetName, \
+                     AbaqusGroup(name, instance, False, list_item))
             elif typeGrp == "ELSET":
-                self.fuseCommonGroup(self.Elset, AbaqusGroup(name, instance, list_item))
+                self.fuseCommonGroup(self.Elset, self.ElsetName, \
+                     AbaqusGroup(name, instance, False, list_item))
             else:
                 raise RuntimeError("Unknown type of group")
 
@@ -343,13 +438,18 @@ class AbaqusMesh:
         logger.debug("-> Number of groups of elements : %d (in %0.4f seconds)"\
             %(len(Entities.Elset), toc-tic))
 
+        localNumbering = AbaqusNumbering()
+        localNumbering.setName(Entities.getName())
+        localNumbering.corresponding_nodes = corresponding_nodes
+        localNumbering.corresponding_elems = corresponding_elems
+        self.Numbering.append(localNumbering)
+
 
     def addGroupsInRightPlace(self, Assembly):
 
         new_Nset = []
         for group in Assembly.Nset:
             instance_name = group.getInstance()
-            #print(group.getName(), instance_name, len(group.getGroup()))
             if instance_name != "":
                 for Instance in Assembly.Instance:
                     if Instance.getName() == instance_name:
@@ -383,11 +483,6 @@ class AbaqusMesh:
         # add others objects in assembly
         logger.debug("Processing rest of the mesh: ")
         self.addFromEntities(Assembly)
-
-        # print(self.Nodes)
-        # print(self.Elements)
-        # print(self.Nset)
-        # print(self.Elset)
 
 
 class MedConverterAbaqus(MedConverter):
@@ -496,7 +591,6 @@ class MedConverterAbaqus(MedConverter):
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
 
             key = '%dD'%element_dim
-            # print(element_dim, element_abaqus_type, element_medcoupling_type, nbnodes)
             if not key in self.elements : self.elements[key] = []
             if not key in corresponding_elements : corresponding_elements[key] = {}
             self.elements[key].append((element_medcoupling_type, element_nodes_med))
@@ -530,22 +624,22 @@ class MedConverterAbaqus(MedConverter):
         self.line = self.line.strip()
 
         if(self.line.upper().startswith("*NODE")):
-            self._read_nodes(file, Entities.Nodes, Entities.Nset)
+            self._read_nodes(file, Entities.Nodes, Entities.Nset, Entities.NsetName)
             # print("Nodes")
             # print(Entities.Nodes)
             self._read_data(file, Entities)
         elif(self.line.upper().startswith("*ELEMENT")):
-            self._read_cells(file, Entities.Elements, Entities.Elset)
+            self._read_cells(file, Entities.Elements, Entities.Elset, Entities.ElsetName)
             # print("Cells")
             # print(Entities.Elements)
             self._read_data(file, Entities)
         elif(self.line.upper().startswith("*NSET")):
-            self._read_group(file, "NSET", Entities.Nset)
+            self._read_group(file, "NSET", Entities.Nset, Entities.NsetName)
             # print("Nset")
             # print(Entities.Nset)
             self._read_data(file, Entities)
         elif self.line.upper().startswith('*ELSET'):
-            self._read_group(file, "ELSET", Entities.Elset)
+            self._read_group(file, "ELSET", Entities.Elset, Entities.ElsetName)
             # print("Elset")
             # print(Entities.Elset)
             self._read_data(file, Entities)
@@ -570,7 +664,7 @@ class MedConverterAbaqus(MedConverter):
         elif self.line.upper().startswith('*NCOPY'):
             raise RuntimeError("Keyword not supported: NMAP")
 
-    def _read_nodes(self, file, Nodes, Nset):
+    def _read_nodes(self, file, Nodes, Nset, NsetName):
         # get informations about nodes
         params_map = self._get_param_map(self.line)
 
@@ -605,7 +699,7 @@ class MedConverterAbaqus(MedConverter):
             if(l_extern_file):
                 if self.line.startswith("*"):
                     if(self.line.upper().startswith("*NODE")):
-                        self._read_nodes(file_to_read, Nodes, Nset)
+                        self._read_nodes(file_to_read, Nodes, Nset, NsetName)
                     else:
                         l_process_line = False
 
@@ -639,7 +733,11 @@ class MedConverterAbaqus(MedConverter):
         # add group in Nset
         if create_nset:
             name = params_map["NSET"]
-            Nset.append(AbaqusGroup(name, "", [int(n) for n in list_nodes]))
+            if name in NsetName:
+                Nset[NsetName[name]].addGroup( [int(n) for n in list_nodes])
+            else:
+                Nset.append(AbaqusGroup(name, "", False, [int(n) for n in list_nodes]))
+                NsetName[name] = len(Nset) - 1
 
         if(l_extern_file):
             file_to_read.close()
@@ -647,7 +745,7 @@ class MedConverterAbaqus(MedConverter):
 
 
     # Read a list of element
-    def _read_cells(self, file, Elements, Elset):
+    def _read_cells(self, file, Elements, Elset, ElsetName):
         # get informations about elements
         params_map = self._get_param_map(self.line)
 
@@ -676,7 +774,7 @@ class MedConverterAbaqus(MedConverter):
             file_to_read = file
 
         # get type of element to create
-        etype = params_map["TYPE"]
+        etype = params_map["TYPE"].upper()
 
         # loop on list of elements
         while True:
@@ -686,7 +784,7 @@ class MedConverterAbaqus(MedConverter):
             if(l_extern_file):
                 if self.line.startswith("*"):
                     if(self.line.upper().startswith("ELEMENT")):
-                        self._read_cells(file_to_read, Elements, Elset)
+                        self._read_cells(file_to_read, Elements, Elset, ElsetName)
                     else:
                         l_process_line = False
 
@@ -697,13 +795,19 @@ class MedConverterAbaqus(MedConverter):
             elif self.breakLoop(self.line):
                 break
 
+            multilevel = False
             if not self.line.startswith("**"):
                 if l_process_line:
                     entries= self._read_continuous_line(file_to_read, ",")
                     # get id and list of nodes
                     eid, nodes = entries[0], entries[1:]
+                    try:
+                        index_nodes = [int(n) for n in nodes]
+                    except:
+                        index_nodes = nodes
+                        multilevel = True
                     # add element
-                    Elements.append(AbaqusElement(etype, eid, [int(n) for n in nodes]))
+                    Elements.append(AbaqusElement(etype, eid, index_nodes, multilevel))
                     # add element in the group
                     if create_elset:
                         list_elem.append(eid)
@@ -714,14 +818,19 @@ class MedConverterAbaqus(MedConverter):
         # add group in Elset
         if create_elset:
             name = params_map["ELSET"]
-            Elset.append(AbaqusGroup(name, "", [int(n) for n in list_elem]))
+
+            if name in ElsetName:
+                Elset[ElsetName[name]].addGroup( [int(n) for n in list_elem])
+            else:
+                Elset.append(AbaqusGroup(name, "", False, [int(n) for n in list_elem]))
+                ElsetName[name] = len(Elset) - 1
 
         if(l_extern_file):
             file_to_read.close()
             self.line = file.readline()
 
 
-    def _read_group(self, file, typyeGroup, Group):
+    def _read_group(self, file, typyeGroup, Group, GroupName):
         # find type of element
         params_map = self._get_param_map(self.line)
 
@@ -745,6 +854,7 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("-> Reading Group: " + params_map[typyeGroup] + " (" + typyeGroup +")")
 
         list_item = []
+        multilevel = False
         while True:
             self.line = file.readline()
             if self.breakLoop(self.line):
@@ -759,11 +869,18 @@ class MedConverterAbaqus(MedConverter):
                 except:
                     l_list_grp = True
                 if(l_list_grp):
+                    l_find = False
                     for grp_name in entries:
-                        for grp in Group:
-                            if(grp.getName() == grp_name):
-                                # this is a copy of group
-                                list_item += grp.getGroup()
+                        try:
+                            index_group = GroupName[grp_name]
+                            list_item += Group[index_group].getGroup()
+                            l_find = True
+                        except:
+                            pass
+
+                    if not l_find:
+                        multilevel = True
+                        list_item += entries
                 else:
                     if(generate):
                         # default value is 1
@@ -775,13 +892,21 @@ class MedConverterAbaqus(MedConverter):
                         list_item += [int(n) for n in range(int(entries[0]), int(entries[1])+1, int(entries[2]))]
                     else:
                         # read directely list of elements
-                        list_item += entries
+                        list_item += [int(n) for n in entries]
 
         if len(list_item) == 0:
             raise RuntimeError("No items for this group: "+params_map[typyeGroup])
         # add group
         name = params_map[typyeGroup]
-        Group.append(AbaqusGroup(name, instance, [int(n) for n in list_item]))
+        if name in GroupName:
+            if Group[GroupName[name]].getInstance() == instance:
+                Group[GroupName[name]].addGroup(list_item)
+            else:
+                Group.append(AbaqusGroup(name, instance, multilevel, list_item))
+                GroupName[name] = [GroupName[name], len(Group) - 1]
+        else:
+            Group.append(AbaqusGroup(name, instance, multilevel, list_item))
+            GroupName[name] = len(Group) - 1
 
 
     # Read an included file

@@ -210,11 +210,11 @@ Abaqus
      - 3
    * - ABAQUS_PART.inp
      - Public
-     - 7
-     - 78
+     - 8
+     - 72
      - SEG2, HEXA20
      - 4
-     - 4
+     - 5
    * - MIXT_ELEMENT.inp
      - Public
      - 4

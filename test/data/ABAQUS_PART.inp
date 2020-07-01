@@ -123,6 +123,10 @@
  1, 1, 2
  2, 2, 3
  3, 3, 5
+*Element, type=Spring1
+4, Mallage_2.1
 *Nset, Nset=test, instance = Mallage_2
  1, 3, 12
+*Nset, Nset=Nset2
+ Mallage_1.1, Mallage_2.1, Mallage_1.22, Mallage_2.23
 *End assembly

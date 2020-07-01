@@ -136,13 +136,13 @@ class TestSimple(unittest.TestCase):
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             1, 3, ['SEG3'],
                             1, 1)
-        
+
     def test_CPE3_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_CPE3.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                             1, 3, ['TRI3'],
                             1, 1)
-        
+
     def test_CPE4_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_CPE4.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
@@ -254,7 +254,7 @@ class TestSimple(unittest.TestCase):
     def test_part_abaqus(self):
         filename = osp.join(data_path(), "ABAQUS_PART.inp")
         standard_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                            7, 72, ["SEG2", 'HEXA20'], 4, 4,)
+                            8, 72, ["POINT1", "SEG2", 'HEXA20'], 4, 5,)
 
 
 if __name__ == "__main__":
