@@ -503,6 +503,9 @@ class MedConverter:
         self.medmesh.write(filename, 2)
 
     def create_med_mesh(self):
+
+        assert self._med_ok()
+               
         coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
         logger.debug("Creating MED mesh:")
@@ -550,5 +553,26 @@ class MedConverter:
             group_medcoupling.setName(group_name)
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
-        self.medmesh.setName(self.mesh_name[0:63])
+        self.medmesh.setName(self.mesh_name)
         self.medmesh.rearrangeFamilies()
+
+    def _check_med_group_names(self, lnames):
+        MED_LNAME_SIZE = 80      
+        for group_name in lnames:
+            len_name = len(group_name)
+            if len_name > MED_LNAME_SIZE :
+                msg = "Group name '%s' is too long %d>%d"%(group_name, len_name, MED_LNAME_SIZE)
+                raise MedConverterError(msg)
+        
+    def _med_ok(self):
+
+        MED_NAME_SIZE = 64
+        if len(self.mesh_name) > MED_NAME_SIZE :
+            msg = "Mesh name '%s' is too long %d>%d"%(self.mesh_name, len(self.mesh_name), MED_NAME_SIZE)
+            raise MedConverterError(msg)
+
+        self._check_med_group_names(self.groups_n.keys())
+        for groups_e_at_level in self.groups_e.values():
+            self._check_med_group_names(groups_e_at_level.keys())
+            
+        return True
