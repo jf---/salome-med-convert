@@ -527,8 +527,7 @@ class MedConverter:
             number_of_elements_at_level = len(self.elements[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
             toc = time.perf_counter()
-            logger.debug("-> Add nodes : %d (in %0.4f seconds)"\
-            %(len(coords), toc-tic))
+            logger.debug("-> Add nodes : %d (in %0.4f seconds)"%(len(coords), toc-tic))
             tic = time.perf_counter()
 
             # Elements par niveau, avec renumerotation au passage
@@ -543,8 +542,7 @@ class MedConverter:
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
             toc = time.perf_counter()
-            logger.debug("-> Add elements : %d (in %0.4f seconds)"\
-            %(len(self.elements[dim]), toc-tic))
+            logger.debug("-> Add elements : %d (in %0.4f seconds)"%(len(self.elements[dim]), toc-tic))
             tic = time.perf_counter()
 
             # Groupes d'elements par niveau
@@ -560,8 +558,7 @@ class MedConverter:
                 # On peut ne pas avoir de groupes de mailles d'une certaine dimension
                 pass
             toc = time.perf_counter()
-            logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"\
-            %(len(groups_e_at_level), toc-tic))
+            logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"%(len(groups_e_at_level), toc-tic))
 
 
         tic = time.perf_counter()
@@ -575,16 +572,15 @@ class MedConverter:
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
         self.medmesh.setName(self.mesh_name)
         toc = time.perf_counter()
-        logger.debug("-> Add groups of nodes : %d (in %0.4f seconds)"\
-            %(len(groups_n_at_level), toc-tic))
+        logger.debug("-> Add groups of nodes : %d (in %0.4f seconds)"%(len(groups_n_at_level), toc-tic))
 
         tic = time.perf_counter()
         self.medmesh.rearrangeFamilies()
         toc = time.perf_counter()
-        logger.debug("-> Sort families : (in %0.4f seconds)"\
-            %( toc-tic))
-
+        logger.debug("-> Sort families : (in %0.4f seconds)"%(toc-tic))
+        
     def _check_med_group_names(self, lnames):
+
         MED_LNAME_SIZE = 80
         for group_name in lnames:
             len_name = len(group_name)

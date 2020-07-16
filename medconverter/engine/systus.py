@@ -206,7 +206,7 @@ BEGIN_INFORMATIONS
  4 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 3 3 9 0 0 0 0 9 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0
 END_INFORMATIONS
-""".format(*[strftime("%y%m%d %H%M%S"), mesh_name, nb_nodes, nb_elements])
+""".format(*[time.strftime("%y%m%d %H%M%S"), mesh_name, nb_nodes, nb_elements])
 
         txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n"%(nb_nodes, space_dim, '\n'.join(nodes_lines))
         txt_elements = "BEGIN_ELEMENTS %d\n%s\nEND_ELEMENTS\n"%(nb_elements, '\n'.join(elements_lines))
