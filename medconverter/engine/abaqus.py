@@ -509,7 +509,7 @@ class MedConverterAbaqus(MedConverter):
         self.nbAssembly = 0
 
     def read_abaqus_mesh(self, filename):
-        logger.debug("Reading Abaqus mesh file : %s"%filename)
+        logger.debug("Reading ABAQUS mesh file : %s"%filename)
 
         Assembly = AbaqusAssembly()
 
@@ -537,7 +537,7 @@ class MedConverterAbaqus(MedConverter):
 
         # create Abaqus mesh
         logger.debug(" ")
-        logger.debug("Creating Abaqus mesh:")
+        logger.debug("Creating ABAQUS mesh:")
         tic = time.perf_counter()
 
         mesh = AbaqusMesh()
@@ -546,7 +546,7 @@ class MedConverterAbaqus(MedConverter):
 
         toc = time.perf_counter()
 
-        logger.debug("End creating Abaqus mesh in %0.4f seconds"%(toc-tic))
+        logger.debug("End creating ABAQUS mesh in %0.4f seconds"%(toc-tic))
 
 
 

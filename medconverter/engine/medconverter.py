@@ -7,7 +7,7 @@ import logging
 import os.path as osp
 from operator import itemgetter
 from collections import OrderedDict
-from time import strftime
+import time
 
 import medcoupling
 from MEDLoader import *
@@ -495,17 +495,21 @@ class MedConverter:
         raise MedConverterError(msg)
 
     def read_med_mesh(self, filename):
-        logger.debug("Reading Med mesh file : %s"%filename)
+        logger.debug("Reading MED mesh file : %s"%filename)
         self.medmesh = MEDFileUMesh(filename)
 
     def write_med_mesh(self, filename):
-        logger.debug("Writing Med mesh file : %s"%filename)
+        logger.debug("Writing MED mesh file : %s"%filename)
+        tic = time.perf_counter()
         self.medmesh.write(filename, 2)
+        toc = time.perf_counter()
+        logger.debug("End writing in %0.4f seconds" %(toc-tic))
+
 
     def create_med_mesh(self):
 
         assert self._med_ok()
-               
+
         coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
 
         logger.debug("Creating MED mesh:")
@@ -515,11 +519,17 @@ class MedConverter:
 
         # Les clés de elements correspondent aux dimensions dans le maillage
         for dim in sorted(self.elements.keys())[::-1]:
+            tic = time.perf_counter()
+
             level = level_by_dimension[dim]
             mesh_at_current_level = MEDCouplingUMesh(self.mesh_name, int(dim[0]))
             mesh_at_current_level.setCoords(coords)
             number_of_elements_at_level = len(self.elements[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
+            toc = time.perf_counter()
+            logger.debug("-> Add nodes : %d (in %0.4f seconds)"\
+            %(len(coords), toc-tic))
+            tic = time.perf_counter()
 
             # Elements par niveau, avec renumerotation au passage
             for (medcoupling_type, element_nodes_med) in self.elements[dim]:
@@ -532,6 +542,10 @@ class MedConverter:
             sort_dict = {idx : item for idx, item in enumerate(sort_order.getValues())}
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
+            toc = time.perf_counter()
+            logger.debug("-> Add elements : %d (in %0.4f seconds)"\
+            %(len(self.elements[dim]), toc-tic))
+            tic = time.perf_counter()
 
             # Groupes d'elements par niveau
             try :
@@ -545,6 +559,12 @@ class MedConverter:
             except KeyError :
                 # On peut ne pas avoir de groupes de mailles d'une certaine dimension
                 pass
+            toc = time.perf_counter()
+            logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"\
+            %(len(groups_e_at_level), toc-tic))
+
+
+        tic = time.perf_counter()
 
         # Groupes de noeuds
         groups_n_at_level = []
@@ -554,16 +574,24 @@ class MedConverter:
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
         self.medmesh.setName(self.mesh_name)
+        toc = time.perf_counter()
+        logger.debug("-> Add groups of nodes : %d (in %0.4f seconds)"\
+            %(len(groups_n_at_level), toc-tic))
+
+        tic = time.perf_counter()
         self.medmesh.rearrangeFamilies()
+        toc = time.perf_counter()
+        logger.debug("-> Sort families : (in %0.4f seconds)"\
+            %( toc-tic))
 
     def _check_med_group_names(self, lnames):
-        MED_LNAME_SIZE = 80      
+        MED_LNAME_SIZE = 80
         for group_name in lnames:
             len_name = len(group_name)
             if len_name > MED_LNAME_SIZE :
                 msg = "Group name '%s' is too long %d>%d"%(group_name, len_name, MED_LNAME_SIZE)
                 raise MedConverterError(msg)
-        
+
     def _med_ok(self):
 
         MED_NAME_SIZE = 64
@@ -574,5 +602,5 @@ class MedConverter:
         self._check_med_group_names(self.groups_n.keys())
         for groups_e_at_level in self.groups_e.values():
             self._check_med_group_names(groups_e_at_level.keys())
-            
+
         return True

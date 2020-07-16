@@ -84,7 +84,7 @@ class MedConverterSystus(MedConverter):
         max_dim_elements = '0D'
         e_conv = ElementTypeConverter('SYSTUS')
         c_renum = ConnectivityRenumberer('SYSTUS')
-        
+
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
@@ -93,10 +93,10 @@ class MedConverterSystus(MedConverter):
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
             element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
-            
+
             element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
-            
+
             key = '%dD'%element_dim
             if not key in self.elements : self.elements[key] = []
             if not key in corresponding_elements : corresponding_elements[key] = {}
