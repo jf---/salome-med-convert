@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .medconverter import *
+from .mesh import *
 
 class MedConverterSystus(MedConverter):
 
@@ -72,16 +73,21 @@ class MedConverterSystus(MedConverter):
         logger.debug("Number of elements : %d"%(len(ELEMENTS)-1))
         logger.debug("Number of groups : %d"%(len(GROUPS)-1))
 
-        # Les noeuds du maillage
-        iter_idx = (int(line.split()[0]) for line in NODES[:-1])
-        corresponding_nodes = { item : i for i, item in enumerate(iter_idx)}
-        idx_coords = tuple(range(-self.space_dim, 0, 1))
-        iter_nodes = ((map(float, itemgetter(*idx_coords)(line.split()))) for line in NODES[:-1])
-        self.nodes = tuple(coord for node in iter_nodes for coord in node)
+        # Fill self.mesh
+        self.mesh = Mesh()
+        self.mesh.setMeshName(self.mesh_name)
+        self.mesh.setDimension(self.space_dim)
 
-        # Les elements, triés par dimension
-        corresponding_elements = {}
-        max_dim_elements = '0D'
+        # Les noeuds du maillage
+        idx_coords = tuple(range(-self.space_dim, 0, 1))
+        for line in NODES[:-1]:
+            spline = line.split()
+            idx_node_systus = int(spline[0])
+            iter_nodes = map(float, itemgetter(*idx_coords)(spline))
+
+            self.mesh.addNode(idx_node_systus, tuple(k for k in iter_nodes))
+
+        # Les elements
         e_conv = ElementTypeConverter('SYSTUS')
         c_renum = ConnectivityRenumberer('SYSTUS')
 
@@ -92,19 +98,13 @@ class MedConverterSystus(MedConverter):
             elements_nodes_systus = map(int, spline[5:])
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
-            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
 
-            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
+            element_nodes_asc = tuple(k for k in elements_nodes_systus)
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
 
-            key = '%dD'%element_dim
-            if not key in self.elements : self.elements[key] = []
-            if not key in corresponding_elements : corresponding_elements[key] = {}
-            self.elements[key].append((element_medcoupling_type, element_nodes_med))
-            corresponding_elements[key][idx_element_systus] = len(corresponding_elements[key])
-            max_dim_elements = max(max_dim_elements, key)
+            self.mesh.addCell(element_medcoupling_type, idx_element_systus, element_nodes_med)
 
-        # Les groups, triés par dimension
+        # Les groups
         for line in GROUPS[:-1] :
             spline = line.split()
             values =  map(int, line.split('"')[-1].split())
@@ -112,15 +112,12 @@ class MedConverterSystus(MedConverter):
             group_tag_systus = spline[2]
 
             if group_tag_systus == '1' :
-                self.groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
-
+                self.mesh.addGroupOfNodes(group_name, tuple(k for k in values))
             else :
-                for element_systus in values :
-                    for key in self.elements.keys():
-                        if element_systus in corresponding_elements[key]:
-                            if not key in self.groups_e : self.groups_e[key] = {}
-                            if not group_name in self.groups_e[key]:  self.groups_e[key][group_name] = []
-                            self.groups_e[key][group_name].append(corresponding_elements[key][element_systus])
+                self.mesh.addGroupOfCells(group_name, tuple(k for k in values))
+
+        # Finish by renumbering
+        self.mesh.renumbering()
 
 
     def write_systus_mesh(self, filename):
@@ -130,8 +127,6 @@ class MedConverterSystus(MedConverter):
     def create_systus_mesh(self):
 
         mesh_name = self.medmesh.getName()
-        groups_names = self.medmesh.getGroupsNames()
-        mesh_dim = self.medmesh.getMeshDimension()
 
         # Noeuds
         coords = self.medmesh.getCoords()

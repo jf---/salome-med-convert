@@ -13,6 +13,8 @@ import medcoupling
 from MEDLoader import *
 from .logger import logger
 
+from .mesh import Mesh
+
 class MedConverterError(Exception):
     "Base class for exceptions raised by the medconverter module."
     pass
@@ -469,16 +471,7 @@ class ElementTypeConverter:
 class MedConverter:
 
     def __init__(self):
-        self.mesh_name = None
-        self.space_dim = None
-        self.nodes = None
-        self.elements = {}
-        self.groups_e = {}
-        self.groups_n = {}
-
         self.verbose = False
-
-        self.medmesh = None
 
     def _get_file_encoding(self, filename):
 
@@ -498,6 +491,26 @@ class MedConverter:
         logger.debug("Reading MED mesh file : %s"%filename)
         self.medmesh = MEDFileUMesh(filename)
 
+        self.mesh = Mesh()
+        self.mesh.setMeshName(self.medmesh.getName())
+        self.mesh.setDimension(self.medmesh.getSpaceDimension())
+
+        # Nodes
+        coords = self.medmesh.getCoords()
+        for idx, coord in enumerate(coords):
+            self.mesh.addNode(idx, coord)
+
+        # Cells (to do)
+
+        # Group's of Cell (to do)
+
+        # Group's of Node
+        groups_n = self.medmesh.getGroupsOnSpecifiedLev(1)
+        for group in groups_n :
+            self.mesh.addGroupOfNodes(group, self.medmesh.getGroupArr(1, group).getValues())
+
+        self.mesh.renumbering()
+
     def write_med_mesh(self, filename):
         logger.debug("Writing MED mesh file : %s"%filename)
         tic = time.perf_counter()
@@ -510,67 +523,74 @@ class MedConverter:
 
         assert self._med_ok()
 
-        coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
+        coords = medcoupling.DataArrayDouble(self.mesh.getNodesCoordinates(), \
+                    self.mesh.getNumberOfNodes(), self.mesh.getDimension())
 
         logger.debug("Creating MED mesh:")
         self.medmesh = MEDFileUMesh()
-        max_dim_elements = int(max(self.elements.keys())[0])
-        level_by_dimension = {'%dD'%i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
+
+        cellIdsByDim = self.mesh.getCellIdsByDimension()
+        max_dim_elements = int(max(cellIdsByDim.keys()))
+        level_by_dimension = {i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
+
+        grpCellsByDim = self.mesh.getGroupsOfCellIdsByDimension()
 
         # Les clés de elements correspondent aux dimensions dans le maillage
-        for dim in sorted(self.elements.keys())[::-1]:
+        for dim in sorted(cellIdsByDim.keys())[::-1]:
             tic = time.perf_counter()
 
             level = level_by_dimension[dim]
-            mesh_at_current_level = MEDCouplingUMesh(self.mesh_name, int(dim[0]))
+            mesh_at_current_level = MEDCouplingUMesh(self.mesh.getMeshName(), int(dim))
             mesh_at_current_level.setCoords(coords)
-            number_of_elements_at_level = len(self.elements[dim])
+            number_of_elements_at_level = len(cellIdsByDim[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
             toc = time.perf_counter()
             logger.debug("-> Add nodes : %d (in %0.4f seconds)"%(len(coords), toc-tic))
             tic = time.perf_counter()
 
             # Elements par niveau, avec renumerotation au passage
-            for (medcoupling_type, element_nodes_med) in self.elements[dim]:
-
+            sort_dict = {}
+            for idx, cell_id in enumerate(cellIdsByDim[dim]):
+                sort_dict[cell_id] = idx
+                cell = self.mesh.cells[cell_id]
+                medcoupling_type = cell.getType()
+                element_nodes_med = cell.getNodes()
                 number_of_nodes_current_element = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
-                mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
+                mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element, \
+                    element_nodes_med)
 
             mesh_at_current_level.finishInsertingCells()
             sort_order = mesh_at_current_level.sortCellsInMEDFileFrmt()
-            sort_dict = {idx : item for idx, item in enumerate(sort_order.getValues())}
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
             toc = time.perf_counter()
-            logger.debug("-> Add elements : %d (in %0.4f seconds)"%(len(self.elements[dim]), toc-tic))
-            tic = time.perf_counter()
+            logger.debug("-> Add elements : %d (in %0.4f seconds)"%(len(cellIdsByDim[dim]), toc-tic))
 
             # Groupes d'elements par niveau
             try :
+                tic = time.perf_counter()
                 groups_e_at_level = []
-                for group_name, group_elements in self.groups_e[dim].items():
-                    sorted_group = tuple(sort_dict[item] for item in group_elements)
+                for group_e in grpCellsByDim[dim]:
+                    sorted_group = tuple(sort_dict[item] for item in group_e.getElements())
                     group_medcoupling = medcoupling.DataArrayInt(sorted_group)
-                    group_medcoupling.setName(group_name)
+                    group_medcoupling.setName(str(group_e.getId()))
                     groups_e_at_level.append(group_medcoupling)
                 self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
+                toc = time.perf_counter()
+                logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"%(len(groups_e_at_level), toc-tic))
             except KeyError :
                 # On peut ne pas avoir de groupes de mailles d'une certaine dimension
                 pass
-            toc = time.perf_counter()
-            logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"%(len(groups_e_at_level), toc-tic))
-
-
-        tic = time.perf_counter()
 
         # Groupes de noeuds
+        tic = time.perf_counter()
         groups_n_at_level = []
-        for group_name, group_nodes in self.groups_n.items():
-            group_medcoupling = medcoupling.DataArrayInt(group_nodes)
-            group_medcoupling.setName(group_name)
+        for group_n in self.mesh.groupsOfNodes:
+            group_medcoupling = medcoupling.DataArrayInt(group_n.getElements())
+            group_medcoupling.setName(str(group_n.getId()))
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
-        self.medmesh.setName(self.mesh_name)
+        self.medmesh.setName(self.mesh.getMeshName())
         toc = time.perf_counter()
         logger.debug("-> Add groups of nodes : %d (in %0.4f seconds)"%(len(groups_n_at_level), toc-tic))
 
@@ -578,11 +598,12 @@ class MedConverter:
         self.medmesh.rearrangeFamilies()
         toc = time.perf_counter()
         logger.debug("-> Sort families : (in %0.4f seconds)"%(toc-tic))
-        
-    def _check_med_group_names(self, lnames):
+
+    def _check_med_group_names(self, lgrp):
 
         MED_LNAME_SIZE = 80
-        for group_name in lnames:
+        for group in lgrp:
+            group_name = str(group.getId())
             len_name = len(group_name)
             if len_name > MED_LNAME_SIZE :
                 msg = "Group name '%s' is too long %d>%d"%(group_name, len_name, MED_LNAME_SIZE)
@@ -591,12 +612,12 @@ class MedConverter:
     def _med_ok(self):
 
         MED_NAME_SIZE = 64
-        if len(self.mesh_name) > MED_NAME_SIZE :
-            msg = "Mesh name '%s' is too long %d>%d"%(self.mesh_name, len(self.mesh_name), MED_NAME_SIZE)
+        if len(self.mesh.getMeshName()) > MED_NAME_SIZE :
+            msg = "Mesh name '%s' is too long %d>%d"%(self.mesh.getMeshName(), \
+                   len(self.mesh.getMeshName()), MED_NAME_SIZE)
             raise MedConverterError(msg)
 
-        self._check_med_group_names(self.groups_n.keys())
-        for groups_e_at_level in self.groups_e.values():
-            self._check_med_group_names(groups_e_at_level.keys())
+        self._check_med_group_names(self.mesh.groupsOfNodes)
+        self._check_med_group_names(self.mesh.groupsOfCells)
 
         return True

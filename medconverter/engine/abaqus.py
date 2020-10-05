@@ -2,42 +2,20 @@
 # -*- coding: utf-8 -*-
 
 from .medconverter import *
+from .mesh import *
 import os.path as osp
 import numpy as np
 import time
 
 
-class AbaqusNode:
-
-    def __init__(self, node_id=-1, node_coordinates = []):
-        self.id = node_id
-        self.coordinates = node_coordinates
-
-    def __repr__(self):
-        return "<Node> Id: {0}, Coordinates: {1}".format(self.id, self.coordinates)
-
-    def __str__(self):
-        return "<Node> Id: {0}, Coordinates: {1}".format(self.id, self.coordinates)
-
-    def setId(self, node_id):
-        self.id = node_id
-
-    def getId(self):
-        return self.id
-
-    def setCoordinates(self, node_coordinates):
-        self.coordinates = node_coordinates
-
-    def getCoordinates(self):
-        if(len(self.coordinates) != 3):
-            raise RuntimeError("Coordinates have to have 3 elements")
-        return self.coordinates
-
 class AbaqusElement:
 
-    def __init__(self, elem_type="", elem_id=-1, elem_nodes=[], multilevel=False):
+    def __init__(self, elem_type=None, elem_id=None, elem_nodes=None, multilevel=False):
         self.id = elem_id
-        self.nodes = elem_nodes
+        if elem_nodes is not None:
+            self.nodes = elem_nodes
+        else:
+            self.nodes = []
         self.type = elem_type
         self.multilevel = multilevel
 
@@ -68,11 +46,14 @@ class AbaqusElement:
 
 class AbaqusGroup:
 
-    def __init__(self, name="", instance="", multilevel=False, group=[]):
+    def __init__(self, name=None, instance=None, multilevel=False, group=None):
         self.name = name
         self.instance = instance
         self.multilevel = multilevel
-        self.group = group
+        if group is not None:
+            self.group = group
+        else:
+            self.group = []
 
     def __repr__(self):
         return "<Group> Name: {0}, Instance: {1}, Group: {2}".\
@@ -281,7 +262,7 @@ class AbaqusMesh:
             node_id = corresponding_nodes[int(node.getId())]
             coor = node.getCoordinates()
             new_coor = self.geometric_transfo(coor, translation, center, mrot)
-            self.Nodes.append(AbaqusNode(node_id, new_coor))
+            self.Nodes.append(Node(node_id, new_coor))
 
         self.nodesOffset += len(Nodes)
 
@@ -328,7 +309,7 @@ class AbaqusMesh:
                 nodes_elem = map(int, elem.getNodes())
                 list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
             elem_id = corresponding_elems[int(elem.getId())]
-            self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes, False))
+            self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
 
         self.elemsOffset += len(Elements)
 
@@ -517,11 +498,9 @@ class MedConverterAbaqus(MedConverter):
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
             self.filename = filename
             self.mesh_name = self._read_meshname(filename)
-            # a priori, this is a 3D mesh
-            self.space_dim = 3
 
             logger.debug("Mesh name : %s"%self.mesh_name)
-            logger.debug("Space Dimension : %d"%self.space_dim)
+            logger.debug("Space Dimension : 3")
             logger.debug("Beginning to parse mesh file")
             tic = time.perf_counter()
 
@@ -544,11 +523,11 @@ class MedConverterAbaqus(MedConverter):
         mesh.setName(self.mesh_name)
         mesh.assemble(Assembly)
 
+        del Assembly
+
         toc = time.perf_counter()
 
         logger.debug("End creating ABAQUS mesh in %0.4f seconds"%(toc-tic))
-
-
 
         logger.debug("Statistics of the mesh : " + mesh.getName())
         logger.debug("-> Number of nodes : %d"%(len(mesh.Nodes)))
@@ -556,66 +535,43 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("-> Number of groups of nodes : %d"%(len(mesh.Nset)))
         logger.debug("-> Number of groups of elements : %d"%(len(mesh.Elset)))
 
-        # nodes of the mesh (collection of double)
-        corresponding_nodes = {}
-        coor = []
-        for idx, node in enumerate(mesh.Nodes):
-            if(self.checkKey(corresponding_nodes, int(node.getId()))):
-                raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
-            else:
-                corresponding_nodes[int(node.getId())] = idx
+        # fill self.mesh
+        self.mesh = Mesh()
+        self.mesh.setMeshName(self.mesh_name)
+        self.mesh.setDimension(3)
 
-            coor_node = node.getCoordinates()
-            for xx in coor_node:
-                coor.append(xx)
+        # Nodes
+        self.mesh.nodes = mesh.Nodes
 
-        self.nodes = tuple(coor)
-
-        # Les elements, triés par dimension
-        corresponding_elements = {}
-        max_dim_elements = '0D'
+        # Cells
         e_conv = ElementTypeConverter('ABAQUS')
         c_renum = ConnectivityRenumberer('ABAQUS')
 
         for elem in mesh.Elements :
-            idx_element_abaqus = elem.getId()
             element_abaqus_type = elem.getType()
             elements_nodes_abaqus = map(int, elem.getNodes())
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
-            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
             nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(element_medcoupling_type)
 
             assert nbnodes == len(elem.getNodes())
-            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_abaqus)
+            element_nodes_asc = tuple(k for k in elements_nodes_abaqus)
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
 
-            key = '%dD'%element_dim
-            if not key in self.elements : self.elements[key] = []
-            if not key in corresponding_elements : corresponding_elements[key] = {}
-            self.elements[key].append((element_medcoupling_type, element_nodes_med))
-            corresponding_elements[key][idx_element_abaqus] = len(corresponding_elements[key])
-            max_dim_elements = max(max_dim_elements, key)
+            self.mesh.addCell(element_medcoupling_type, elem.getId(), element_nodes_med, element_abaqus_type)
 
-        # Les groups, triés par dimension
         # Nodes' group
         for group in mesh.Nset :
-            group_name = group.getName()
-            group_nodes_abaqus = map(int, group.getGroup())
-            if not group_name in self.groups_n:  self.groups_n[group_name] = []
-            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
+            self.mesh.addGroupOfNodes(group.getName(), group.getGroup())
 
         # Element's group
         for group in mesh.Elset :
-            group_name = group.getName()
-            group_element_abaqus = map(int, group.getGroup())
+            self.mesh.addGroupOfCells(group.getName(), group.getGroup())
 
-            for element_abaqus in group_element_abaqus :
-                for key in self.elements.keys():
-                    if element_abaqus in corresponding_elements[key]:
-                        if not key in self.groups_e : self.groups_e[key] = {}
-                        if not group_name in self.groups_e[key]:  self.groups_e[key][group_name] = []
-                        self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
+
+        # Finish by renumbering
+        self.mesh.renumbering()
+
 
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
@@ -721,7 +677,7 @@ class MedConverterAbaqus(MedConverter):
                             x.append("0.0")
                     assert len(x) == 3
 
-                    Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
+                    Nodes.append(Node(nid, [float(xx) for xx in x]))
 
                     # add node in the group
                     if create_nset:
@@ -1074,12 +1030,6 @@ class MedConverterAbaqus(MedConverter):
                 entries += self._read_continuous_line(file, separator)
 
         return entries
-
-    def checkKey(self, dico, key):
-        if(key in dico):
-            return True
-        else:
-            return False
 
     def breakLoop(self, line):
         if line.startswith("*") and not line.startswith("**"):
