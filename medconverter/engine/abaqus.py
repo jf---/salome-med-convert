@@ -205,7 +205,7 @@ class AbaqusMesh:
     def translation(self, point, translation):
         return np.array(point) + np.array(translation)
 
-    def matric_rotation(self, axis, angle_radian):
+    def matrix_rotation(self, axis, angle_radian):
         u = np.array(axis)
         u = u / np.linalg.norm(u)
 
@@ -220,8 +220,8 @@ class AbaqusMesh:
 
         return mrot
 
-    def rotation(self, point, center, matric_rotation):
-        return matric_rotation @ (np.array(point) - np.array(center)) + np.array(center)
+    def rotation(self, point, center, matrix_rotation):
+        return matrix_rotation @ (np.array(point) - np.array(center)) + np.array(center)
 
     def geometric_transfo(self, point, translation=None, center=None, matrix_rotation=None):
         if translation is not None:
@@ -247,7 +247,7 @@ class AbaqusMesh:
             axis = np.array(rotation_param[3:6])
             angle = rotation_param[6]
             angle_radian = np.radians(angle)
-            mrot = self.matric_rotation(axis, angle_radian)
+            mrot = self.matrix_rotation(axis, angle_radian)
         else:
             center, mrot = None, None
 
@@ -535,42 +535,50 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("-> Number of groups of nodes : %d"%(len(mesh.Nset)))
         logger.debug("-> Number of groups of elements : %d"%(len(mesh.Elset)))
 
-        # fill self.mesh
+        # Fill self.mesh
+        logger.debug("Creating internal mesh:")
+        tic = time.perf_counter()
         self.mesh = Mesh()
+        self.mesh.setInputFormat("ABAQUS")
         self.mesh.setMeshName(self.mesh_name)
         self.mesh.setDimension(3)
 
         # Nodes
+        ticc = time.perf_counter()
         self.mesh.nodes = mesh.Nodes
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
 
         # Cells
-        e_conv = ElementTypeConverter('ABAQUS')
-        c_renum = ConnectivityRenumberer('ABAQUS')
-
+        ticc = time.perf_counter()
         for elem in mesh.Elements :
-            element_abaqus_type = elem.getType()
-            elements_nodes_abaqus = map(int, elem.getNodes())
-
-            element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
-            nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(element_medcoupling_type)
-
-            assert nbnodes == len(elem.getNodes())
-            element_nodes_asc = tuple(k for k in elements_nodes_abaqus)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
-
-            self.mesh.addCell(element_medcoupling_type, elem.getId(), element_nodes_med, element_abaqus_type)
+            self.mesh.addCell(elem.getType(), elem.getId(),elem.getNodes(), elem.getType())
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
 
         # Nodes' group
+        ticc = time.perf_counter()
         for group in mesh.Nset :
             self.mesh.addGroupOfNodes(group.getName(), group.getGroup())
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal groups of nodes in %0.4f seconds"%(tocc-ticc))
 
         # Element's group
+        ticc = time.perf_counter()
         for group in mesh.Elset :
             self.mesh.addGroupOfCells(group.getName(), group.getGroup())
-
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal groups of cells in %0.4f seconds"%(tocc-ticc))
 
         # Finish by renumbering
+        ticc = time.perf_counter()
         self.mesh.renumbering()
+        tocc = time.perf_counter()
+        logger.debug("-> Renumbering in %0.4f seconds"%(tocc-ticc))
+
+        toc = time.perf_counter()
+        logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
+
 
 
     def _read_meshname(self, filename):

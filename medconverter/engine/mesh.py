@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from medcoupling import MEDCouplingUMesh
+from .connectivity import ConnectivityRenumberer
+from .cells import ElementTypeConverter
+from .errors import MedConverterError
 
 class Node:
 
@@ -259,11 +262,12 @@ class Mesh:
 
     """Definition of the mesh """
 
-    def __init__(self, mesh_name=None, dimension=3, nodes=None, cells=None, \
+    def __init__(self, input_format=None, mesh_name=None, dimension=3, nodes=None, cells=None, \
         groupsOfNodes=None, groupsOfCells=None):
         """Initialization of the mesh
 
         Arguments:
+            input_format (str): format of the original mesh
             mesh_name (str): name of the mesh
             dimension=3 (str): topological dimension of the mesh
             nodes (list or tuple of Node): list of nodes in the mesh
@@ -271,6 +275,11 @@ class Mesh:
             groupsOfNodes (list or tuple of Group): list of groups of nodes in the mesh
             groupsOfCells (list or tuple of Group): list of groups of cells in the mesh
         """
+        if input_format is None:
+            self.input_format = None
+        else:
+            self.setInputFormat(input_format)
+
         self.mesh_name = mesh_name
         self.dimension = dimension
 
@@ -294,6 +303,30 @@ class Mesh:
         else:
             self.groupsOfCells = []
 
+    def setInputFormat(self, input_format):
+        """Set original mesh format
+
+        Arguments:
+            input_format (str): format of the original mesh
+        """
+
+        if input_format in ("MED", "ABAQUS", "SYSTUS"):
+            self.input_format = input_format
+
+            if self.input_format is not "MED":
+                self.e_conv = ElementTypeConverter(self.input_format)
+                self.c_renum = ConnectivityRenumberer(self.input_format)
+        else:
+            raise MedConverterError("Unknown mesh format: {}".format(input_format))
+
+    def getInputFormat(self):
+        """Get original mesh format
+
+        Returns:
+            (str): format of the original mesh
+        """
+
+        return self.input_format
 
     def setMeshName(self, mesh_name):
         """Set name of the mesh
@@ -397,13 +430,29 @@ class Mesh:
         """Add a group of nodes
 
         Arguments:
-            cell_type (str): MED geometric type of cell (0D, SEG2, SEG3, ...)
+            cell_type (str): geometric type of cell (0D, SEG2, SEG3, ...)
             cell_id (integer or str): identifier of the cell
             cell_nodes (list or tuple): list of the identifier of the nodes of the cell
             finite_element (str): finite element attached to the cell
         """
 
-        self.cells.append(Cell(cell_type, cell_id, cell_nodes, finite_element))
+        if self.input_format is "MED":
+            self.cells.append(Cell(cell_type, cell_id, cell_nodes, finite_element))
+        else:
+            medcoupling_type = self.e_conv.external_to_medcoupling(cell_type)
+            elements_nodes = map(int, cell_nodes)
+
+            nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
+
+            element_nodes_asc = tuple(k for k in elements_nodes)
+            assert nbnodes == len(element_nodes_asc)
+            medcoupling_nodes = self.c_renum.external_to_medcoupling(medcoupling_type, element_nodes_asc)
+
+            self.cells.append(Cell(medcoupling_type, cell_id, medcoupling_nodes, finite_element))
+
+
+
+
 
     def addGroupOfNodes(self, name, nodes):
         """Add a group of nodes

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os.path as osp
+
+from operator import itemgetter
+
 from .medconverter import *
 from .mesh import *
 
@@ -74,11 +78,15 @@ class MedConverterSystus(MedConverter):
         logger.debug("Number of groups : %d"%(len(GROUPS)-1))
 
         # Fill self.mesh
+        logger.debug("Creating internal mesh:")
+        tic = time.perf_counter()
         self.mesh = Mesh()
+        self.mesh.setInputFormat("SYSTUS")
         self.mesh.setMeshName(self.mesh_name)
         self.mesh.setDimension(self.space_dim)
 
         # Les noeuds du maillage
+        ticc = time.perf_counter()
         idx_coords = tuple(range(-self.space_dim, 0, 1))
         for line in NODES[:-1]:
             spline = line.split()
@@ -86,25 +94,23 @@ class MedConverterSystus(MedConverter):
             iter_nodes = map(float, itemgetter(*idx_coords)(spline))
 
             self.mesh.addNode(idx_node_systus, tuple(k for k in iter_nodes))
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
 
         # Les elements
-        e_conv = ElementTypeConverter('SYSTUS')
-        c_renum = ConnectivityRenumberer('SYSTUS')
-
+        ticc = time.perf_counter()
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
             element_systus_type = spline[1]
             elements_nodes_systus = map(int, spline[5:])
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
-
-            element_nodes_asc = tuple(k for k in elements_nodes_systus)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
-
-            self.mesh.addCell(element_medcoupling_type, idx_element_systus, element_nodes_med)
+            self.mesh.addCell(element_systus_type, idx_element_systus, elements_nodes_systus)
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
 
         # Les groups
+        ticc = time.perf_counter()
         for line in GROUPS[:-1] :
             spline = line.split()
             values =  map(int, line.split('"')[-1].split())
@@ -115,9 +121,17 @@ class MedConverterSystus(MedConverter):
                 self.mesh.addGroupOfNodes(group_name, tuple(k for k in values))
             else :
                 self.mesh.addGroupOfCells(group_name, tuple(k for k in values))
+        tocc = time.perf_counter()
+        logger.debug("-> Adding internal groups in %0.4f seconds"%(tocc-ticc))
 
         # Finish by renumbering
+        ticc = time.perf_counter()
         self.mesh.renumbering()
+        tocc = time.perf_counter()
+        logger.debug("-> Renumbering in %0.4f seconds"%(tocc-ticc))
+
+        toc = time.perf_counter()
+        logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
 
 
     def write_systus_mesh(self, filename):
