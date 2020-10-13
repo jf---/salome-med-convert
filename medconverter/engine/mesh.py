@@ -427,10 +427,11 @@ class Mesh:
         self.nodes.append(Node(node_id, node_coordinates))
 
     def addCell(self, cell_type, cell_id, cell_nodes, finite_element=None):
-        """Add a group of nodes
+        """Add a cell (MED-geometric type and MED-connectivity will be created automaticaly \
+            if the input_format is not MED)
 
         Arguments:
-            cell_type (str): geometric type of cell (0D, SEG2, SEG3, ...)
+            cell_type (str): geometric type of cell
             cell_id (integer or str): identifier of the cell
             cell_nodes (list or tuple): list of the identifier of the nodes of the cell
             finite_element (str): finite element attached to the cell
@@ -449,9 +450,6 @@ class Mesh:
             medcoupling_nodes = self.c_renum.external_to_medcoupling(medcoupling_type, element_nodes_asc)
 
             self.cells.append(Cell(medcoupling_type, cell_id, medcoupling_nodes, finite_element))
-
-
-
 
 
     def addGroupOfNodes(self, name, nodes):
