@@ -17,12 +17,20 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 import unittest
+import time
 
 from utils_test import standard_conversion, get_datafile_path
 from medconverter.engine import Fmt
 
 class TestPrivate(unittest.TestCase):
-    
+
+    def setUp(self):
+        self.startTime = time.perf_counter()
+
+    def tearDown(self):
+        t = time.perf_counter() - self.startTime
+        print('%s in %.3f sec' %(self.id(), t))
+
     def test_cuve(self):
         filename = get_datafile_path("SYSTUS_01_CUVE_900_DONN20.ASC")
         standard_conversion(self, filename, Fmt.Systus, Fmt.Salome,

@@ -16,6 +16,7 @@
 # from https://www.gnu.org/licenses/gpl-3.0.
 
 import unittest
+import time
 import os.path as osp
 
 from medconverter.utilities import data_path
@@ -23,6 +24,13 @@ from utils_test import standard_conversion
 from medconverter.engine import Fmt
 
 class TestSimple(unittest.TestCase):
+
+    def setUp(self):
+        self.startTime = time.perf_counter()
+
+    def tearDown(self):
+        t = time.perf_counter() - self.startTime
+        print('%s in %.3f sec' %(self.id(), t))
 
     def test_carre(self):
         filename = osp.join(data_path(),"SYSTUS_CARRE_DONN1.ASC")
