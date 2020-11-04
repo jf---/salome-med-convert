@@ -310,7 +310,7 @@ class Mesh:
             input_format (str): format of the original mesh
         """
 
-        if input_format in ("MED", "ABAQUS", "SYSTUS"):
+        if input_format in ("MED", "ABAQUS", "SYSTUS", "ANSYS"): #FIXME : l'enumerateur est deja dans init.
             self.input_format = input_format
 
             if self.input_format is not "MED":

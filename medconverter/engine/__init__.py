@@ -21,6 +21,7 @@ This package defines the *engine* of the *medconverter* plugin.
 
 from .systus import MedConverterSystus
 from .abaqus import MedConverterAbaqus
+from .ansys import MedConverterAnsys
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -35,6 +36,7 @@ class Fmt:
     Aster = 0x002
     Systus = 0x004
     Abaqus = 0x005
+    Ansys = 0x006
 
     @classmethod
     def get(cls, format_name):
@@ -71,6 +73,7 @@ class Fmt:
             Fmt.Aster : "Aster",
             Fmt.Systus : "Systus",
             Fmt.Abaqus : "Abaqus",
+            Fmt.Ansys : "Ansys",
         }.get(format, "Unknown")
 
     @staticmethod
@@ -89,6 +92,7 @@ class Fmt:
             Fmt.Aster:  ('.mail',),
             Fmt.Systus: ('.ASC', '.asc'),
             Fmt.Abaqus: ('.inp',),
+            Fmt.Ansys : ('.MESHDAT', '.dat'),
         }.get(format, "Unknown")
     
 
@@ -118,6 +122,12 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
 
     elif (input_format == Fmt.Salome and output_format == Fmt.Abaqus):
         MedConverterAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Ansys and output_format == Fmt.Salome):
+        MedConverterAnsys.convert_ansys_to_med(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Salome and output_format == Fmt.Ansys):
+        MedConverterAnsys.convert_med_to_ansys(input_file, output_file, verbose)
 
     else :
         raise ValueError("Unsupported format conversion!")
