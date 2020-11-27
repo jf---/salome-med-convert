@@ -1,12 +1,44 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .medconverter import *
-from .mesh import *
+import time
 import os.path as osp
 import numpy as np
-import time
+from collections import OrderedDict
+import medcoupling
+from medcoupling import *
 
+from .logger import logger
+from .medconverter import MedConverterMesh
+from .errors import MedConverterError
+from .cells import CellsTypeConverter
+from .connectivity import ConnectivityRenumberer
+
+class AbaqusNode:
+
+    def __init__(self, node_id=-1, node_coordinates = []):
+        self.id = node_id
+        self.coordinates = node_coordinates
+
+    def __repr__(self):
+        return "<Node> Id: {0}, Coordinates: {1}".format(self.id, self.coordinates)
+
+    def __str__(self):
+        return "<Node> Id: {0}, Coordinates: {1}".format(self.id, self.coordinates)
+
+    def setId(self, node_id):
+        self.id = node_id
+
+    def getId(self):
+        return self.id
+
+    def setCoordinates(self, node_coordinates):
+        self.coordinates = node_coordinates
+
+    def getCoordinates(self):
+        if(len(self.coordinates) != 3):
+            raise RuntimeError("Coordinates have to have 3 elements")
+        return self.coordinates
 
 class AbaqusElement:
 
@@ -262,7 +294,7 @@ class AbaqusMesh:
             node_id = corresponding_nodes[int(node.getId())]
             coor = node.getCoordinates()
             new_coor = self.geometric_transfo(coor, translation, center, mrot)
-            self.Nodes.append(Node(node_id, new_coor))
+            self.Nodes.append(AbaqusNode(node_id, new_coor))
 
         self.nodesOffset += len(Nodes)
 
@@ -466,11 +498,12 @@ class AbaqusMesh:
         self.addFromEntities(Assembly)
 
 
-class MedConverterAbaqus(MedConverter):
+class MedConverterAbaqus(MedConverterMesh):
 
     @staticmethod
     def convert_abaqus_to_med(filename_abaqus, filename_med, verbose = False):
-        if verbose : logger.setLevel(logging.DEBUG)
+        if verbose :
+            logger.setLevel(logging.DEBUG)
         c = MedConverterAbaqus()
         c.read_abaqus_mesh(filename_abaqus)
         c.create_med_mesh()
@@ -478,7 +511,8 @@ class MedConverterAbaqus(MedConverter):
 
     @staticmethod
     def convert_med_to_abaqus(filename_med, filename_abaqus, verbose = False):
-        if verbose : logger.setLevel(logging.DEBUG)
+        if verbose :
+            logger.setLevel(logging.DEBUG)
         c = MedConverterAbaqus()
         c.read_med_mesh(filename_med)
         c.create_abaqus_mesh()
@@ -498,6 +532,8 @@ class MedConverterAbaqus(MedConverter):
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
             self.filename = filename
             self.mesh_name = self._read_meshname(filename)
+            # a priori, this is a 3D mesh
+            self.space_dim = 3
 
             logger.debug("Mesh name : %s"%self.mesh_name)
             logger.debug("Space Dimension : 3")
@@ -535,51 +571,66 @@ class MedConverterAbaqus(MedConverter):
         logger.debug("-> Number of groups of nodes : %d"%(len(mesh.Nset)))
         logger.debug("-> Number of groups of elements : %d"%(len(mesh.Elset)))
 
-        # Fill self.mesh
-        logger.debug("Creating internal mesh:")
-        tic = time.perf_counter()
-        self.mesh = Mesh()
-        self.mesh.setInputFormat("ABAQUS")
-        self.mesh.setMeshName(self.mesh_name)
-        self.mesh.setDimension(3)
+        # nodes of the mesh (collection of double)
+        corresponding_nodes = {}
+        coor = []
+        for idx, node in enumerate(mesh.Nodes):
+            if( int(node.getId() in corresponding_nodes)):
+                raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
+            else:
+                corresponding_nodes[int(node.getId())] = idx
 
-        # Nodes
-        ticc = time.perf_counter()
-        self.mesh.nodes = mesh.Nodes
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
+            coor_node = node.getCoordinates()
+            for xx in coor_node:
+                coor.append(xx)
 
-        # Cells
-        ticc = time.perf_counter()
+        self.nodes = tuple(coor)
+
+        # Les elements, triés par dimension
+        corresponding_elements = {}
+        max_dim_elements = '0D'
+        e_conv = CellsTypeConverter('ABAQUS')
+        c_renum = ConnectivityRenumberer('ABAQUS')
+
         for elem in mesh.Elements :
-            self.mesh.addCell(elem.getType(), elem.getId(),elem.getNodes(), elem.getType())
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
+            idx_element_abaqus = elem.getId()
+            element_abaqus_type = elem.getType()
+            elements_nodes_abaqus = map(int, elem.getNodes())
 
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
+            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
+            nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(element_medcoupling_type)
+
+            assert nbnodes == len(elem.getNodes())
+            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_abaqus)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
+
+            key = '%dD'%element_dim
+            if not key in self.elements : self.elements[key] = []
+            if not key in corresponding_elements : corresponding_elements[key] = {}
+            self.elements[key].append((element_medcoupling_type, element_nodes_med))
+            corresponding_elements[key][idx_element_abaqus] = len(corresponding_elements[key])
+            max_dim_elements = max(max_dim_elements, key)
+
+        # Les groups, triés par dimension
         # Nodes' group
-        ticc = time.perf_counter()
         for group in mesh.Nset :
-            self.mesh.addGroupOfNodes(group.getName(), group.getGroup())
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal groups of nodes in %0.4f seconds"%(tocc-ticc))
+            group_name = group.getName()
+            group_nodes_abaqus = map(int, group.getGroup())
+            if not group_name in self.groups_n:  self.groups_n[group_name] = []
+            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
 
         # Element's group
-        ticc = time.perf_counter()
         for group in mesh.Elset :
-            self.mesh.addGroupOfCells(group.getName(), group.getGroup())
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal groups of cells in %0.4f seconds"%(tocc-ticc))
+            group_name = group.getName()
+            group_element_abaqus = map(int, group.getGroup())
 
-        # Finish by renumbering
-        ticc = time.perf_counter()
-        self.mesh.renumbering()
-        tocc = time.perf_counter()
-        logger.debug("-> Renumbering in %0.4f seconds"%(tocc-ticc))
-
-        toc = time.perf_counter()
-        logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
-
-
+            for element_abaqus in group_element_abaqus :
+                for key in self.elements.keys():
+                    if element_abaqus in corresponding_elements[key]:
+                        if not key in self.groups_e : self.groups_e[key] = {}
+                        if not group_name in self.groups_e[key]:  self.groups_e[key][group_name] = []
+                        self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
 
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
@@ -685,7 +736,7 @@ class MedConverterAbaqus(MedConverter):
                             x.append("0.0")
                     assert len(x) == 3
 
-                    Nodes.append(Node(nid, [float(xx) for xx in x]))
+                    Nodes.append(AbaqusNode(nid, [float(xx) for xx in x]))
 
                     # add node in the group
                     if create_nset:

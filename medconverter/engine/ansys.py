@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
 import os.path as osp
-
 from operator import itemgetter
+import medcoupling
+from medcoupling import *
 
-from .medconverter import *
-from .mesh import *
+from .logger import logger
+from .medconverter import MedConverterMesh
+from .errors import MedConverterError
+from .cells import CellsTypeConverter
+from .connectivity import ConnectivityRenumberer
 
-class MedConverterAnsys(MedConverter):
+class MedConverterAnsys(MedConverterMesh):
 
     @staticmethod
     def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
@@ -34,10 +39,7 @@ class MedConverterAnsys(MedConverter):
 
     def read_ansys_mesh(self, filename):
         logger.debug("Reading ANSYS mesh file : %s"%filename)
-        self.mesh = Mesh()
-        self.mesh.setInputFormat("ANSYS")
-        pass
-
+        
     def write_ansys_mesh(self, filename):
         raise NotImplementedError()
     

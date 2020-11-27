@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import medcoupling
-from MEDLoader import *
-
+import time
+import os.path as osp
+import numpy as np
 from collections import OrderedDict
+import medcoupling
+from medcoupling import *
 
+from .errors import MedConverterError
 
 class ConnectivityRenumberer:
 
@@ -23,9 +26,9 @@ class ConnectivityRenumberer:
     _systus = {
         'POINT1'  : [0],
 
-        'SEG2'    : [0, 1],
-        'TRI3'    : [0, 1, 2],
-        'QUAD4'   : [0, 1, 2, 3],
+        'SEG2'    : range(2),
+        'TRI3'    : range(3),
+        'QUAD4'   : range(4),
         'TETRA4'  : [0, 2, 1, 3],
         'HEXA8'   : [0, 3, 2, 1,   4, 7, 6, 5],
         'PYRA5'   : [0, 3, 2, 1, 4],

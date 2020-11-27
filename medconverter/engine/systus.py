@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
 import os.path as osp
-
 from operator import itemgetter
+import medcoupling
+from medcoupling import *
 
-from .medconverter import *
-from .mesh import *
+from .logger import logger
+from .medconverter import MedConverterMesh
+from .errors import MedConverterError
+from .cells import CellsTypeConverter
+from .connectivity import ConnectivityRenumberer
 
-class MedConverterSystus(MedConverter):
+class MedConverterSystus(MedConverterMesh):
 
     @staticmethod
     def convert_systus_to_med(filename_systus, filename_med, verbose = False):
-        if verbose : logger.setLevel(logging.DEBUG)
+        if verbose :
+            logger.setLevel(logging.DEBUG)
         c = MedConverterSystus()
         c.read_systus_mesh(filename_systus)
         c.create_med_mesh()
@@ -20,7 +26,8 @@ class MedConverterSystus(MedConverter):
 
     @staticmethod
     def convert_med_to_systus(filename_med, filename_systus, verbose = False):
-        if verbose : logger.setLevel(logging.DEBUG)
+        if verbose :
+            logger.setLevel(logging.DEBUG)
         c = MedConverterSystus()
         c.read_med_mesh(filename_med)
         c.create_systus_mesh()
@@ -46,14 +53,16 @@ class MedConverterSystus(MedConverter):
 
             # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
-            # self.mesh_name = line_1 if line_1 else 'Mesh'
-            self.mesh_name = line_1 if line_1 else osp.splitext(osp.split(filename)[-1])[0]
+            self.mesh_name = line_1 or osp.splitext(osp.split(filename)[-1])[0]
 
             for line in f :
 
-                if flag['NODES'] is 1 : NODES.append(line)
-                elif flag['ELEMENTS'] is 1 : ELEMENTS.append(line)
-                elif flag['GROUPS'] is 1 : GROUPS.append(line)
+                if flag['NODES'] is 1 :
+                    NODES.append(line)
+                elif flag['ELEMENTS'] is 1 :
+                    ELEMENTS.append(line)
+                elif flag['GROUPS'] is 1 :
+                    GROUPS.append(line)
 
                 if "BEGIN_NODES" in line :
                     flag['NODES'] = 1
@@ -77,40 +86,41 @@ class MedConverterSystus(MedConverter):
         logger.debug("Number of elements : %d"%(len(ELEMENTS)-1))
         logger.debug("Number of groups : %d"%(len(GROUPS)-1))
 
-        # Fill self.mesh
-        logger.debug("Creating internal mesh:")
-        tic = time.perf_counter()
-        self.mesh = Mesh()
-        self.mesh.setInputFormat("SYSTUS")
-        self.mesh.setMeshName(self.mesh_name)
-        self.mesh.setDimension(self.space_dim)
-
         # Les noeuds du maillage
-        ticc = time.perf_counter()
+        iter_idx = (int(line.split()[0]) for line in NODES[:-1])
+        corresponding_nodes = { item : i for i, item in enumerate(iter_idx)}
         idx_coords = tuple(range(-self.space_dim, 0, 1))
-        for line in NODES[:-1]:
-            spline = line.split()
-            idx_node_systus = int(spline[0])
-            iter_nodes = map(float, itemgetter(*idx_coords)(spline))
+        iter_nodes = ((map(float, itemgetter(*idx_coords)(line.split()))) for line in NODES[:-1])
+        self.nodes = tuple(coord for node in iter_nodes for coord in node)
 
-            self.mesh.addNode(idx_node_systus, tuple(k for k in iter_nodes))
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
+        # Les elements, triés par dimension
+        corresponding_elements = {}
+        max_dim_elements = '0D'
+        e_conv = CellsTypeConverter('SYSTUS')
+        c_renum = ConnectivityRenumberer('SYSTUS')
 
-        # Les elements
-        ticc = time.perf_counter()
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
             element_systus_type = spline[1]
             elements_nodes_systus = map(int, spline[5:])
 
-            self.mesh.addCell(element_systus_type, idx_element_systus, elements_nodes_systus)
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
+            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
 
-        # Les groups
-        ticc = time.perf_counter()
+            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
+
+            key = '%dD'%element_dim
+            if not key in self.elements :
+                self.elements[key] = []
+            if not key in corresponding_elements :
+                corresponding_elements[key] = {}
+            self.elements[key].append((element_medcoupling_type, element_nodes_med))
+            corresponding_elements[key][idx_element_systus] = len(corresponding_elements[key])
+            max_dim_elements = max(max_dim_elements, key)
+
+        # Les groups, triés par dimension
         for line in GROUPS[:-1] :
             spline = line.split()
             values =  map(int, line.split('"')[-1].split())
@@ -118,20 +128,17 @@ class MedConverterSystus(MedConverter):
             group_tag_systus = spline[2]
 
             if group_tag_systus == '1' :
-                self.mesh.addGroupOfNodes(group_name, tuple(k for k in values))
+                self.groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
+
             else :
-                self.mesh.addGroupOfCells(group_name, tuple(k for k in values))
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal groups in %0.4f seconds"%(tocc-ticc))
-
-        # Finish by renumbering
-        ticc = time.perf_counter()
-        self.mesh.renumbering()
-        tocc = time.perf_counter()
-        logger.debug("-> Renumbering in %0.4f seconds"%(tocc-ticc))
-
-        toc = time.perf_counter()
-        logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
+                for element_systus in values :
+                    for key in self.elements.keys():
+                        if element_systus in corresponding_elements[key]:
+                            if not key in self.groups_e :
+                                self.groups_e[key] = {}
+                            if not group_name in self.groups_e[key]:
+                                self.groups_e[key][group_name] = []
+                            self.groups_e[key][group_name].append(corresponding_elements[key][element_systus])
 
 
     def write_systus_mesh(self, filename):
@@ -141,6 +148,8 @@ class MedConverterSystus(MedConverter):
     def create_systus_mesh(self):
 
         mesh_name = self.medmesh.getName()
+        groups_names = self.medmesh.getGroupsNames()
+        mesh_dim = self.medmesh.getMeshDimension()
 
         # Noeuds
         coords = self.medmesh.getCoords()
@@ -157,7 +166,7 @@ class MedConverterSystus(MedConverter):
         cells_shift = 1 # La numérotation SYSTUS des éléments démarre à 1. De plus la numérotation MED est compacte par niveau. On se servira de cette variable pour créer une numérotation globale
 
         c_renum = ConnectivityRenumberer('SYSTUS')
-        e_conv = ElementTypeConverter('SYSTUS')
+        e_conv = CellsTypeConverter('SYSTUS')
         non_empty_levs = self.medmesh.getNonEmptyLevels()
         for lev in non_empty_levs:
             mesh_lev = self.medmesh[lev]

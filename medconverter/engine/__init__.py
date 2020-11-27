@@ -92,7 +92,7 @@ class Fmt:
             Fmt.Aster:  ('.mail',),
             Fmt.Systus: ('.ASC', '.asc'),
             Fmt.Abaqus: ('.inp',),
-            Fmt.Ansys : ('.MESHDAT', '.dat'),
+            Fmt.Ansys : ('.cdb',),
         }.get(format, "Unknown")
     
 

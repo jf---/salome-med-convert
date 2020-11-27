@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
+import os.path as osp
+import numpy as np
 from collections import OrderedDict
+import medcoupling
+from medcoupling import *
 
 from .errors import MedConverterError
 
-import medcoupling
-
-
-class ElementTypeConverter:
+class CellsTypeConverter:
 
     _systus_to_med = {
         '001' : 'POINT1',
@@ -329,3 +331,4 @@ class ElementTypeConverter:
             return self._medcoupling_to_external[medcoupling_type]
         except KeyError:
             raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+
