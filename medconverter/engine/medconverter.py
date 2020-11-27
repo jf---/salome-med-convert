@@ -14,8 +14,19 @@ from .errors import MedConverterError
 
 class MedConverterMesh:
 
+    @property
+    def mesh_name(self):
+        return self._mesh_name
+    
+    @mesh_name.setter
+    def mesh_name(self, name):
+        not_allowed_symbols_in_name = ('/',)
+        if any(symbol in name for symbol in not_allowed_symbols_in_name) :
+            raise MedConverterError("The following symbols are not allowed in MED mesh name: {}".format(not_allowed_symbols_in_name))
+        self._mesh_name = name
+        
     def __init__(self):
-        self.mesh_name = None
+        self._mesh_name = None
         self.space_dim = None
         self.nodes = None
         self.elements = {}
