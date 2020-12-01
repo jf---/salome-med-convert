@@ -142,39 +142,23 @@ class MedConverterSystus(MedConverterMesh):
 
         c_renum = ConnectivityRenumberer('SYSTUS')
         e_conv = CellsTypeConverter('SYSTUS')
-        non_empty_levs = self.medmesh.getNonEmptyLevels()
-        for lev in non_empty_levs:
-            mesh_lev = self.medmesh[lev]
-            j = 0 # Un index pour compter les cells par niveau
-            types_at_level = mesh_lev.getAllGeoTypesSorted()
-            for a_type in types_at_level :
-                nb_nodes_per_cell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(a_type)
-                systus_type = e_conv.medcoupling_to_external(a_type)
-                cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
-                for cell in cells_by_type :
-                    element_nodes_med = DataArrayInt(mesh_lev.getNodeIdsOfCell(cell)) + nodes_shift
-                    element_nodes_asc = c_renum.medcoupling_to_external(a_type, element_nodes_med)
-                    elements_lines.append('%d %s 1 0 0 '%(j+cells_shift, systus_type) + ' '.join(map(str,element_nodes_asc)))
-                    j+=1
 
-            groups_e_at_level = self.medmesh.getGroupsOnSpecifiedLev(lev)
-            for group in groups_e_at_level :
-                ids = cells_shift + self.medmesh.getGroupArr(lev, group)
-                # Gestion des groupes sur plusierus niveaux
-                if group in groups_e_ids :
-                    groups_e_ids[group].append(ids.getValues())
-                else:
-                    groups_e_ids[group] = ids.getValues()
+        for j, (medcoupling_type, element_nodes_med) in self.cells_continuous.items():
+            systus_type = e_conv.medcoupling_to_external(medcoupling_type)
+            element_nodes_med = cells_shift + DataArrayInt(element_nodes_med)
+            element_nodes_asc = c_renum.medcoupling_to_external(medcoupling_type, element_nodes_med)
+            elements_lines.append('%d %s 1 0 0 '%(j+cells_shift, systus_type) + ' '.join(map(str,element_nodes_asc)))
 
-            cells_shift+=mesh_lev.getNumberOfCells() # Pour créer une numérotation globale
+        nb_elements = len(self.cells_continuous)
 
-        groups_n = self.medmesh.getGroupsOnSpecifiedLev(1)
-        for group in groups_n :
-            ids = nodes_shift + self.medmesh.getGroupArr(1, group)
+        for group, values in self.groups_e_continuous.items():
+            ids = cells_shift + DataArrayInt(values)
+            groups_e_ids[group] = ids.getValues()
+            
+        for group, values in self.groups_n.items():
+            ids = nodes_shift + DataArrayInt(values)
             groups_n_ids[group] = ids.getValues()
-
-        nb_elements = cells_shift-1
-
+            
         id_groups = 1 # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()) :
             group_e = groups_e_ids[name]

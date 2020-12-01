@@ -48,17 +48,19 @@ class MedConverterMesh:
         self._mesh_name = None
         self.space_dim = None
         self.nodes = []
-        self.cells = {}
-        self.groups_e = {}
-        self.groups_n = {}
+        self.cells = OrderedDict()
+        self.groups_e = OrderedDict()
+        self.groups_n = OrderedDict()
+        
+        self.groups_e_continuous = OrderedDict()
+        self.cells_continuous = OrderedDict()
         
         self.verbose = False
         self.medmesh = None
         
         self._corresponding_nodes = {}
         self._corresponding_cells = {}
-
-
+        
     def _get_file_encoding(self, filename):
         
         encodings = 'utf8 latin_1 cp437'.split()
@@ -114,8 +116,7 @@ class MedConverterMesh:
                     if not group_name in self.groups_e[dim]:
                         self.groups_e[dim][group_name] = []
                     self.groups_e[dim][group_name].append(self._corresponding_cells[dim][cell])
-
-
+                   
     def read_med_mesh(self, filename):
         logger.debug("Reading MED mesh file : %s"%filename)
         self.medmesh = MEDFileUMesh(filename)
@@ -124,8 +125,9 @@ class MedConverterMesh:
         
         self.nodes = self.medmesh.getCoords().getValuesAsTuple()
         self._corresponding_nodes = {i : i  for i in range(len(self.nodes))}
-        
+
         non_empty_levs = self.medmesh.getNonEmptyLevels()
+        cells_shift = 0
         for lev in non_empty_levs:
             mesh_lev = self.medmesh[lev]
             j = 0
@@ -134,17 +136,25 @@ class MedConverterMesh:
                 cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
                 for cell in cells_by_type :
                     element_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-                    self.add_cell(j, a_type, element_nodes_med)
-                    j=+1
+                    self.add_cell(cells_shift+j, a_type, element_nodes_med)
+                    self.cells_continuous[cells_shift+j] = (a_type, element_nodes_med)
+                    j+=1
                     
             for group in self.medmesh.getGroupsOnSpecifiedLev(lev):
-                ids = self.medmesh.getGroupArr(lev, group).getValues()
-                self.add_group_cells(group, ids)
-    
+                ids = cells_shift + self.medmesh.getGroupArr(lev, group)
+                self.add_group_cells(group, ids.getValues())
+                if group in self.groups_e_continuous :
+                    for v in ids.getValues():
+                        self.groups_e_continuous[group].append(v)
+                else:
+                    self.groups_e_continuous[group] = ids.getValues()
+
+            cells_shift+=mesh_lev.getNumberOfCells()
+
         for group in self.medmesh.getGroupsOnSpecifiedLev(1):
             ids = self.medmesh.getGroupArr(1, group).getValues()
             self.add_group_nodes(group, ids)
-                    
+                   
     def write_med_mesh(self, filename):
         logger.debug("Writing MED mesh file : %s"%filename)
         tic = time.perf_counter()
