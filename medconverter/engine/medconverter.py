@@ -124,14 +124,27 @@ class MedConverterMesh:
         
         self.nodes = self.medmesh.getCoords().getValuesAsTuple()
         self._corresponding_nodes = {i : i  for i in range(len(self.nodes))}
-
-        # non_empty_levs = self.medmesh.getNonEmptyLevels()
-        # for lev in non_empty_levs:
-        #     mesh_lev = self.medmesh[lev]
-        #     types_at_level = mesh_lev.getAllGeoTypesSorted()
-        #     for a_type in types_at_level :
-                
         
+        non_empty_levs = self.medmesh.getNonEmptyLevels()
+        for lev in non_empty_levs:
+            mesh_lev = self.medmesh[lev]
+            j = 0
+            types_at_level = mesh_lev.getAllGeoTypesSorted()
+            for a_type in types_at_level :
+                cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
+                for cell in cells_by_type :
+                    element_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
+                    self.add_cell(j, a_type, element_nodes_med)
+                    j=+1
+                    
+            for group in self.medmesh.getGroupsOnSpecifiedLev(lev):
+                ids = self.medmesh.getGroupArr(lev, group).getValues()
+                self.add_group_cells(group, ids)
+    
+        for group in self.medmesh.getGroupsOnSpecifiedLev(1):
+            ids = self.medmesh.getGroupArr(1, group).getValues()
+            self.add_group_nodes(group, ids)
+                    
     def write_med_mesh(self, filename):
         logger.debug("Writing MED mesh file : %s"%filename)
         tic = time.perf_counter()
