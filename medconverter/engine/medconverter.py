@@ -22,23 +22,45 @@ class MedConverterMesh:
     def mesh_name(self, name):
         not_allowed_symbols_in_name = ('/',)
         if any(symbol in name for symbol in not_allowed_symbols_in_name) :
-            raise MedConverterError("The following symbols are not allowed in MED mesh name: {}".format(not_allowed_symbols_in_name))
-        self._mesh_name = name
+            msg = "The following symbols are not allowed in MED mesh name: {}".format(not_allowed_symbols_in_name)
+            raise MedConverterError(msg)
+
+        MED_NAME_SIZE = 64
+        if len(name) > MED_NAME_SIZE :
+            msg = "Mesh name '%s' is too long %d>%d"%(name, len(name), MED_NAME_SIZE)
+            raise MedConverterError(msg)
         
+        self._mesh_name = name
+
+
+    @property
+    def dimensions(self):
+        return sorted(self.cells.keys())[::-1]
+
+
+    @property
+    def levels(self):
+        max_dim_cells = int(max(self.cells.keys())[0])
+        return {'%dD'%i : i-max_dim_cells for i in range(max_dim_cells,-1,-1)}
+                    
+
     def __init__(self):
         self._mesh_name = None
         self.space_dim = None
-        self.nodes = None
-        self.elements = {}
+        self.nodes = []
+        self.cells = {}
         self.groups_e = {}
         self.groups_n = {}
-
+        
         self.verbose = False
-
         self.medmesh = None
+        
+        self._corresponding_nodes = {}
+        self._corresponding_cells = {}
+
 
     def _get_file_encoding(self, filename):
-
+        
         encodings = 'utf8 latin_1 cp437'.split()
 
         for enc in encodings :
@@ -51,10 +73,65 @@ class MedConverterMesh:
         msg = "File encoding is not among : %s"%(', '.join(encodings))
         raise MedConverterError(msg)
 
+    def _check_group_name(self, name):
+        MED_LNAME_SIZE = 80
+        if len(name) > MED_LNAME_SIZE :
+            msg = "Group name '%s' is too long %d>%d"%(name, len(name), MED_LNAME_SIZE)
+            raise MedConverterError(msg)
+
+    def add_node(self, idx, coords):
+        self._corresponding_nodes[idx] = len(self.nodes)
+        self.nodes.append(coords)
+        
+
+    def add_cell(self, idx, medcoupling_cell_type, cell_nodes):
+        
+        cell_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(medcoupling_cell_type)
+        cell_nodes_med = tuple(self._corresponding_nodes[k] for k in cell_nodes)
+        
+        key = '%dD'%cell_dim
+        if not key in self.cells :
+            self.cells[key] = []
+        if not key in self._corresponding_cells :
+            self._corresponding_cells[key] = {}
+
+        self.cells[key].append((medcoupling_cell_type, cell_nodes_med))
+        self._corresponding_cells[key][idx] = len(self._corresponding_cells[key])
+
+    
+    def add_group_nodes(self, group_name, group_nodes):
+        self._check_group_name(group_name)
+        self.groups_n[group_name] = tuple(self._corresponding_nodes[k] for k in group_nodes)
+
+    
+    def add_group_cells(self, group_name, group_cells):
+        self._check_group_name(group_name)
+        for cell in group_cells :
+            for dim in self.cells.keys():
+                if cell in self._corresponding_cells[dim]:
+                    if not dim in self.groups_e :
+                        self.groups_e[dim] = {}
+                    if not group_name in self.groups_e[dim]:
+                        self.groups_e[dim][group_name] = []
+                    self.groups_e[dim][group_name].append(self._corresponding_cells[dim][cell])
+
+
     def read_med_mesh(self, filename):
         logger.debug("Reading MED mesh file : %s"%filename)
         self.medmesh = MEDFileUMesh(filename)
+        self.mesh_name = self.medmesh.getName()
+        self.space_dim = self.medmesh.getSpaceDimension()
+        
+        self.nodes = self.medmesh.getCoords().getValuesAsTuple()
+        self._corresponding_nodes = {i : i  for i in range(len(self.nodes))}
 
+        # non_empty_levs = self.medmesh.getNonEmptyLevels()
+        # for lev in non_empty_levs:
+        #     mesh_lev = self.medmesh[lev]
+        #     types_at_level = mesh_lev.getAllGeoTypesSorted()
+        #     for a_type in types_at_level :
+                
+        
     def write_med_mesh(self, filename):
         logger.debug("Writing MED mesh file : %s"%filename)
         tic = time.perf_counter()
@@ -65,49 +142,43 @@ class MedConverterMesh:
 
     def create_med_mesh(self):
 
-        assert self._med_ok()
-
-        coords = medcoupling.DataArrayDouble(self.nodes, len(self.nodes)//self.space_dim, self.space_dim)
+        coords = DataArrayDouble(self.nodes)
 
         logger.debug("Creating MED mesh:")
         self.medmesh = MEDFileUMesh()
-        max_dim_elements = int(max(self.elements.keys())[0])
-        level_by_dimension = {'%dD'%i : i-max_dim_elements for i in range(max_dim_elements,-1,-1)}
 
         # Les clés de elements correspondent aux dimensions dans le maillage
-        for dim in sorted(self.elements.keys())[::-1]:
+        for dim in self.dimensions:
             tic = time.perf_counter()
 
-            level = level_by_dimension[dim]
+            level = self.levels[dim]
             mesh_at_current_level = MEDCouplingUMesh(self.mesh_name, int(dim[0]))
             mesh_at_current_level.setCoords(coords)
-            number_of_elements_at_level = len(self.elements[dim])
+            number_of_elements_at_level = len(self.cells[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
             toc = time.perf_counter()
             logger.debug("-> Add nodes : %d (in %0.4f seconds)"%(len(coords), toc-tic))
             tic = time.perf_counter()
-
+            
             # Elements par niveau, avec renumerotation au passage
-            for (medcoupling_type, element_nodes_med) in self.elements[dim]:
-
+            for (medcoupling_type, element_nodes_med) in self.cells[dim]:
                 number_of_nodes_current_element = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
                 mesh_at_current_level.insertNextCell(medcoupling_type, number_of_nodes_current_element , element_nodes_med)
 
             mesh_at_current_level.finishInsertingCells()
-            sort_order = mesh_at_current_level.sortCellsInMEDFileFrmt()
-            sort_dict = {idx : item for idx, item in enumerate(sort_order.getValues())}
+            o2n = mesh_at_current_level.sortCellsInMEDFileFrmt()
             mesh_at_current_level.checkConsistencyLight()
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
             toc = time.perf_counter()
-            logger.debug("-> Add elements : %d (in %0.4f seconds)"%(len(self.elements[dim]), toc-tic))
+            logger.debug("-> Add elements : %d (in %0.4f seconds)"%(len(self.cells[dim]), toc-tic))
             tic = time.perf_counter()
 
             # Groupes d'elements par niveau
             try :
                 groups_e_at_level = []
                 for group_name, group_elements in self.groups_e[dim].items():
-                    sorted_group = tuple(sort_dict[item] for item in group_elements)
-                    group_medcoupling = medcoupling.DataArrayInt(sorted_group)
+                    group_medcoupling = medcoupling.DataArrayInt(group_elements)
+                    group_medcoupling.transformWithIndArr(o2n)
                     group_medcoupling.setName(group_name)
                     groups_e_at_level.append(group_medcoupling)
                 self.medmesh.setGroupsAtLevel(level, groups_e_at_level)
@@ -116,7 +187,6 @@ class MedConverterMesh:
                 pass
             toc = time.perf_counter()
             logger.debug("-> Add groups of elements : %d (in %0.4f seconds)"%(len(groups_e_at_level), toc-tic))
-
 
         tic = time.perf_counter()
 
@@ -135,25 +205,3 @@ class MedConverterMesh:
         self.medmesh.rearrangeFamilies()
         toc = time.perf_counter()
         logger.debug("-> Sort families : (in %0.4f seconds)"%(toc-tic))
-        
-    def _check_med_group_names(self, lnames):
-
-        MED_LNAME_SIZE = 80
-        for group_name in lnames:
-            len_name = len(group_name)
-            if len_name > MED_LNAME_SIZE :
-                msg = "Group name '%s' is too long %d>%d"%(group_name, len_name, MED_LNAME_SIZE)
-                raise MedConverterError(msg)
-
-    def _med_ok(self):
-
-        MED_NAME_SIZE = 64
-        if len(self.mesh_name) > MED_NAME_SIZE :
-            msg = "Mesh name '%s' is too long %d>%d"%(self.mesh_name, len(self.mesh_name), MED_NAME_SIZE)
-            raise MedConverterError(msg)
-
-        self._check_med_group_names(self.groups_n.keys())
-        for groups_e_at_level in self.groups_e.values():
-            self._check_med_group_names(groups_e_at_level.keys())
-
-        return True

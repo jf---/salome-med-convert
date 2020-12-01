@@ -32,8 +32,7 @@ if __name__ == "__main__":
     if not (args.input or args.output) :
         start()
     else :
-        args.foutput = "Salome"
-        
+       
         if not args.input:
             parser.error("Missing input filename: use '--input'")
         if not args.output:

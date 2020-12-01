@@ -86,16 +86,14 @@ class MedConverterSystus(MedConverterMesh):
         logger.debug("Number of elements : %d"%(len(ELEMENTS)-1))
         logger.debug("Number of groups : %d"%(len(GROUPS)-1))
 
-        # Les noeuds du maillage
-        iter_idx = (int(line.split()[0]) for line in NODES[:-1])
-        corresponding_nodes = { item : i for i, item in enumerate(iter_idx)}
-        idx_coords = tuple(range(-self.space_dim, 0, 1))
-        iter_nodes = ((map(float, itemgetter(*idx_coords)(line.split()))) for line in NODES[:-1])
-        self.nodes = tuple(coord for node in iter_nodes for coord in node)
+        # Les noeuds
+        for line in NODES[:-1]:
+            spline = line.split()
+            idx_systus = int(spline[0])
+            coords = tuple(map(float, spline[-self.space_dim:]))
+            self.add_node(idx_systus, coords)
 
-        # Les elements, triés par dimension
-        corresponding_elements = {}
-        max_dim_elements = '0D'
+        # Les elements
         e_conv = CellsTypeConverter('SYSTUS')
         c_renum = ConnectivityRenumberer('SYSTUS')
 
@@ -103,24 +101,14 @@ class MedConverterSystus(MedConverterMesh):
             spline = line.split()
             idx_element_systus = int(spline[0])
             element_systus_type = spline[1]
-            elements_nodes_systus = map(int, spline[5:])
+            elements_nodes_systus = tuple(map(int, spline[5:]))
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
-            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_systus)
 
-            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_systus)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
+            self.add_cell(idx_element_systus, element_medcoupling_type, element_nodes_med)
 
-            key = '%dD'%element_dim
-            if not key in self.elements :
-                self.elements[key] = []
-            if not key in corresponding_elements :
-                corresponding_elements[key] = {}
-            self.elements[key].append((element_medcoupling_type, element_nodes_med))
-            corresponding_elements[key][idx_element_systus] = len(corresponding_elements[key])
-            max_dim_elements = max(max_dim_elements, key)
-
-        # Les groups, triés par dimension
+        # Les groups
         for line in GROUPS[:-1] :
             spline = line.split()
             values =  map(int, line.split('"')[-1].split())
@@ -128,19 +116,10 @@ class MedConverterSystus(MedConverterMesh):
             group_tag_systus = spline[2]
 
             if group_tag_systus == '1' :
-                self.groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
-
+                self.add_group_nodes(group_name, values)
             else :
-                for element_systus in values :
-                    for key in self.elements.keys():
-                        if element_systus in corresponding_elements[key]:
-                            if not key in self.groups_e :
-                                self.groups_e[key] = {}
-                            if not group_name in self.groups_e[key]:
-                                self.groups_e[key][group_name] = []
-                            self.groups_e[key][group_name].append(corresponding_elements[key][element_systus])
-
-
+                self.add_group_cells(group_name, values)
+             
     def write_systus_mesh(self, filename):
         logger.debug("Writing SYSTUS mesh file : %s"%filename)
         with open(filename, 'w') as f : f.write(self.systusmesh)
@@ -148,15 +127,11 @@ class MedConverterSystus(MedConverterMesh):
     def create_systus_mesh(self):
 
         mesh_name = self.medmesh.getName()
-        groups_names = self.medmesh.getGroupsNames()
-        mesh_dim = self.medmesh.getMeshDimension()
-
+        
         # Noeuds
-        coords = self.medmesh.getCoords()
-        space_dim = self.medmesh.getSpaceDimension()
-        nb_nodes = len(coords)
+        nb_nodes = len(self.nodes)
         nodes_shift = 1 # La numérotation SYSTUS des noeuds démarre à 1
-        nodes_lines = ('%d 0 0 0 0 0 '%(i+nodes_shift) + ' '.join(map(str,node)) for i, node in enumerate(coords))
+        nodes_lines = ('%d 0 0 0 0 0 '%(i+nodes_shift) + ' '.join(map(str,node)) for i, node in enumerate(self.nodes))
 
         # Elements et groupes
         elements_lines = []
@@ -226,7 +201,7 @@ BEGIN_INFORMATIONS
 END_INFORMATIONS
 """.format(*[time.strftime("%y%m%d %H%M%S"), mesh_name, nb_nodes, nb_elements])
 
-        txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n"%(nb_nodes, space_dim, '\n'.join(nodes_lines))
+        txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n"%(nb_nodes, self.space_dim, '\n'.join(nodes_lines))
         txt_elements = "BEGIN_ELEMENTS %d\n%s\nEND_ELEMENTS\n"%(nb_elements, '\n'.join(elements_lines))
         txt_groups = "BEGIN_GROUPS %d\n%s\nEND_GROUPS\n"%(nb_groups, '\n'.join(groups_lines)) if groups_lines else ''
         self.systusmesh = ''.join((txt_header, txt_nodes, txt_elements, txt_groups))

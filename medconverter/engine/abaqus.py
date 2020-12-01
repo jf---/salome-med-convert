@@ -572,66 +572,37 @@ class MedConverterAbaqus(MedConverterMesh):
         logger.debug("-> Number of groups of elements : %d"%(len(mesh.Elset)))
 
         # nodes of the mesh (collection of double)
-        corresponding_nodes = {}
-        coor = []
-        for idx, node in enumerate(mesh.Nodes):
-            if( int(node.getId() in corresponding_nodes)):
-                raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
-            else:
-                corresponding_nodes[int(node.getId())] = idx
-
-            coor_node = node.getCoordinates()
-            for xx in coor_node:
-                coor.append(xx)
-
-        self.nodes = tuple(coor)
-
+        for node in mesh.Nodes:
+            self.add_node(int(node.getId()), node.getCoordinates())
+ 
         # Les elements, triés par dimension
-        corresponding_elements = {}
-        max_dim_elements = '0D'
         e_conv = CellsTypeConverter('ABAQUS')
         c_renum = ConnectivityRenumberer('ABAQUS')
 
         for elem in mesh.Elements :
             idx_element_abaqus = elem.getId()
             element_abaqus_type = elem.getType()
-            elements_nodes_abaqus = map(int, elem.getNodes())
+            elements_nodes_abaqus = tuple(map(int, elem.getNodes()))
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
-            element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
-            nbnodes = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(element_medcoupling_type)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_abaqus)
 
-            assert nbnodes == len(elem.getNodes())
-            element_nodes_asc = tuple(corresponding_nodes[k] for k in elements_nodes_abaqus)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_asc)
+            self.add_cell(idx_element_abaqus, element_medcoupling_type, element_nodes_med)            
 
-            key = '%dD'%element_dim
-            if not key in self.elements : self.elements[key] = []
-            if not key in corresponding_elements : corresponding_elements[key] = {}
-            self.elements[key].append((element_medcoupling_type, element_nodes_med))
-            corresponding_elements[key][idx_element_abaqus] = len(corresponding_elements[key])
-            max_dim_elements = max(max_dim_elements, key)
-
-        # Les groups, triés par dimension
+        # Les groups
         # Nodes' group
         for group in mesh.Nset :
             group_name = group.getName()
             group_nodes_abaqus = map(int, group.getGroup())
-            if not group_name in self.groups_n:  self.groups_n[group_name] = []
-            self.groups_n[group_name].append(tuple(corresponding_nodes[k] for k in group_nodes_abaqus))
-
+            self.add_group_nodes(group_name, group_nodes_abaqus)
+           
         # Element's group
         for group in mesh.Elset :
             group_name = group.getName()
             group_element_abaqus = map(int, group.getGroup())
+            self.add_group_cells(group_name, group_element_abaqus)
 
-            for element_abaqus in group_element_abaqus :
-                for key in self.elements.keys():
-                    if element_abaqus in corresponding_elements[key]:
-                        if not key in self.groups_e : self.groups_e[key] = {}
-                        if not group_name in self.groups_e[key]:  self.groups_e[key][group_name] = []
-                        self.groups_e[key][group_name].append(corresponding_elements[key][element_abaqus])
-
+          
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
 
