@@ -19,6 +19,7 @@ import os
 import os.path as osp
 import shutil
 import sys
+import json
 import tempfile
 from functools import wraps
 import ssl
@@ -26,11 +27,12 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 
 from medconverter.engine import Fmt, convert as convert_engine
+from medconverter.utilities import MAX_ELTS_CHECK_GROUPS
 
 DEBUG = int(os.getenv("DEBUG", 0))
 
 try:
-    import MEDLoader
+    from medcoupling import *
 except ImportError:
     sys.stderr.write("Please read the README file to execute the unittests "
                      "inside SALOME environment.")
@@ -99,12 +101,9 @@ def tempdir(func):
         return retcode
     return wrapper
 
-
 @tempdir
-def standard_conversion(tmpdir, utest, filename, input_format, output_format,
-                        nbcells, nbnodes, cellstypes,
-                        nbcellsgrps, nbnodesgrps):
-    """Function to check a mesh conversion.
+def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
+    """Base function to check a mesh conversion.
 
     In debug mode (DEBUG environment variable set to 1) the result med files
     are written in the current directory.
@@ -114,13 +113,11 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format,
         utest (*unittest.TestCase*): Test object.
         filename (str): Input mesh file.
         input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
-        nbcells (int): Expected number of cells of dimension 0.
-        nbnodes (int): Expected number of nodes.
     """
     if not filename:
         print("Test skipped", end="\n")
         return
-
+    
     utest.assertTrue(osp.isfile(filename), filename)
 
     outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
@@ -133,22 +130,84 @@ def standard_conversion(tmpdir, utest, filename, input_format, output_format,
     utest.assertTrue(osp.isfile(outfile))
 
     if output_format is Fmt.Salome :
-        mesh = MEDLoader.MEDFileUMesh(outfile)
+        mesh = MEDFileUMesh(outfile)
     else :
         convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
-        mesh = MEDLoader.MEDFileUMesh('%s.med'%outfile)
+        mesh = MEDFileUMesh('%s.med'%outfile)
 
-    convertedcellstypes = [MEDLoader.MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
+    return mesh
+
+def standard_test_conversion(utest, filename, input_format, output_format,
+                             nbcells, nbnodes, cellstypes,
+                             nbcellsgrps, nbnodesgrps):
+    """Function to check a mesh conversion.
+
+     Arguments:
+        utest (*unittest.TestCase*): Test object.
+        filename (str): Input mesh file.
+        input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
+        nbcells (int): Expected number of cells of dimension 0.
+        nbnodes (int): Expected number of nodes.
+    """
+
+    mesh = base_test_conversion(utest, filename, input_format, output_format)
+    utest.assertTrue(isinstance(mesh, MEDFileUMesh))
+
+    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
 
     total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
     
-    if nbcells * nbnodes == 0:
-        print("Number of elements:", total_nb_of_cells)
-        print("Number of nodes:", mesh.getNumberOfNodes())
-    else:
-        utest.assertEqual(total_nb_of_cells, nbcells)
-        utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
-        utest.assertEqual(set(convertedcellstypes), set(cellstypes))
-        utest.assertEqual(total_nb_of_cells_groups, nbcellsgrps)
-        utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
+    utest.assertEqual(total_nb_of_cells, nbcells)
+    utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
+    utest.assertEqual(set(convertedcellstypes), set(cellstypes))
+    utest.assertEqual(total_nb_of_cells_groups, nbcellsgrps)
+    utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
+
+
+def deep_test_conversion(utest, filename, input_format, output_format,
+                         jsonfile):
+
+    """Function to deep check a mesh conversion.
+       
+    Arguments:
+        utest (*unittest.TestCase*): Test object.
+        filename (str): Input mesh file.
+        input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
+        nbcells (int): Expected number of cells of dimension 0.
+        nbnodes (int): Expected number of nodes.
+    """
+
+    mesh = base_test_conversion(utest, filename, input_format, output_format)
+    utest.assertTrue(isinstance(mesh, MEDFileUMesh))
+
+    with open(jsonfile) as f:
+        refe = json.load(f)
+        
+    total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
+    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i) for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
+    total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
+
+    utest.assertEqual(total_nb_of_cells, refe['NB_CELLS'])
+    utest.assertEqual(total_nb_of_cells_groups, refe['NB_GRP_CELLS'])
+    utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), refe['NB_GRP_NODES'])
+    utest.assertEqual(mesh.getNumberOfNodes(), refe['NB_NODES'])
+    utest.assertEqual(set(mesh.getNonEmptyLevels()), set(map(int,refe['CELLS'].keys())))
+
+    for n, coords in refe['NODES'].items():
+        utest.assertEqual(mesh.getCoords()[int(n)].getValues(), coords)
+
+    refe_cells_types = []
+    for lev, item in refe['CELLS'].items():
+        for cell, values in item.items():
+            idx = int(cell.split('_')[0].strip('ID'))
+            cell_type = "NORM_%s"%cell.split('_')[1]
+            refe_cells_types.append(cell_type)
+            utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)          
+            utest.assertEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
+
+    utest.assertEqual(set(convertedcellstypes), set(refe_cells_types))
+
+    for lev, item in refe['GROUPS'].items():
+        for name, values in item.items():
+            utest.assertEqual(mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS], values)

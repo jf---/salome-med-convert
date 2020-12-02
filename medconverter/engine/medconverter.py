@@ -32,28 +32,25 @@ class MedConverterMesh:
         
         self._mesh_name = name
 
-
     @property
     def dimensions(self):
         return sorted(self.cells.keys())[::-1]
-
 
     @property
     def levels(self):
         max_dim_cells = int(max(self.cells.keys())[0])
         return {'%dD'%i : i-max_dim_cells for i in range(max_dim_cells,-1,-1)}
                     
-
     def __init__(self):
         self._mesh_name = None
         self.space_dim = None
         self.nodes = []
-        self.cells = OrderedDict()
-        self.groups_e = OrderedDict()
+        self.cells = OrderedDict() # Par niveau
+        self.groups_e = OrderedDict() # Par niveau
         self.groups_n = OrderedDict()
         
-        self.groups_e_continuous = OrderedDict()
-        self.cells_continuous = OrderedDict()
+        self.groups_e_continuous = OrderedDict() # Numérotation globale
+        self.cells_continuous = OrderedDict() # Numérotation globale
         
         self.verbose = False
         self.medmesh = None
@@ -85,7 +82,6 @@ class MedConverterMesh:
         self._corresponding_nodes[idx] = len(self.nodes)
         self.nodes.append(coords)
         
-
     def add_cell(self, idx, medcoupling_cell_type, cell_nodes):
         
         cell_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(medcoupling_cell_type)
@@ -100,11 +96,9 @@ class MedConverterMesh:
         self.cells[key].append((medcoupling_cell_type, cell_nodes_med))
         self._corresponding_cells[key][idx] = len(self._corresponding_cells[key])
 
-    
     def add_group_nodes(self, group_name, group_nodes):
         self._check_group_name(group_name)
         self.groups_n[group_name] = tuple(self._corresponding_nodes[k] for k in group_nodes)
-
     
     def add_group_cells(self, group_name, group_cells):
         self._check_group_name(group_name)
@@ -119,6 +113,7 @@ class MedConverterMesh:
                    
     def read_med_mesh(self, filename):
         logger.debug("Reading MED mesh file : %s"%filename)
+        
         self.medmesh = MEDFileUMesh(filename)
         self.mesh_name = self.medmesh.getName()
         self.space_dim = self.medmesh.getSpaceDimension()
@@ -127,19 +122,19 @@ class MedConverterMesh:
         self._corresponding_nodes = {i : i  for i in range(len(self.nodes))}
 
         non_empty_levs = self.medmesh.getNonEmptyLevels()
-        cells_shift = 0
+        cells_shift = 0 # Variable pour la creation d'une numérotation globale
         for lev in non_empty_levs:
             mesh_lev = self.medmesh[lev]
-            j = 0
+            j = 0 # Variable pour conter le nombre d'elements par niveau
             types_at_level = mesh_lev.getAllGeoTypesSorted()
-            for a_type in types_at_level :
-                cells_by_type = mesh_lev.giveCellsWithType(a_type).getValues()
+            for medcoupling_cell_type in types_at_level :
+                cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
                 for cell in cells_by_type :
                     element_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-                    self.add_cell(cells_shift+j, a_type, element_nodes_med)
-                    self.cells_continuous[cells_shift+j] = (a_type, element_nodes_med)
+                    self.add_cell(cells_shift+j, medcoupling_cell_type, element_nodes_med)
+                    self.cells_continuous[cells_shift+j] = (medcoupling_cell_type, element_nodes_med)
                     j+=1
-                    
+
             for group in self.medmesh.getGroupsOnSpecifiedLev(lev):
                 ids = cells_shift + self.medmesh.getGroupArr(lev, group)
                 self.add_group_cells(group, ids.getValues())
@@ -162,11 +157,10 @@ class MedConverterMesh:
         toc = time.perf_counter()
         logger.debug("End writing in %0.4f seconds" %(toc-tic))
 
-
     def create_med_mesh(self):
-
+        
         coords = DataArrayDouble(self.nodes)
-
+        
         logger.debug("Creating MED mesh:")
         self.medmesh = MEDFileUMesh()
 

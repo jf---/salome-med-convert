@@ -72,7 +72,8 @@ DATA = [
     ('bin/salome/test', glob('bin/salome/test/CTestTestfile.cmake')),
     ('share/salome/resources/medconverter', glob('resources/medconverter/*.qm') + glob('resources/medconverter/*.ui')),
     ('share/salome/resources/test', glob('test/*.py')),
-    ('share/salome/resources/test/data', glob('test/data/*')),
+    ('share/salome/resources/test/data', glob('test/data/*.*')),
+    ('share/salome/resources/test/data/json', glob('test/data/json/*.json')),
     ('share/doc/salome/gui/medconverter/html', glob('doc/*.html')),
 ]
 
