@@ -102,6 +102,25 @@ class ConnectivityRenumberer:
 
     _ansys = {
 
+        'POINT1' : [0],
+
+        'SEG2'   : range(2),
+        'TRI3'   : range(3),
+        'QUAD4'  : range(4),
+        'HEXA8'  : range(8),
+        'PENTA6' : range(6),
+        'TETRA4' : range(4),
+        'PYRA5'  : range(5),
+
+        'SEG3'   : range(3),
+        'TRI6'   : range(6),
+        'TETRA10': range(10),
+
+        'QUAD8'  : range(8),
+        'PYRA13' : range(13),
+        'PENTA15': range(15),
+        'HEXA20' : range(20),
+
     }
 
     _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()

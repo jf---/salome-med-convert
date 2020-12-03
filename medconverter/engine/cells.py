@@ -278,6 +278,136 @@ class CellsTypeConverter:
 
     _ansys_to_med = {
 
+        # Mass element - 0D
+        ('21_1', 'POINT1'),
+        ('71_1', 'POINT1'),
+
+        #LINK11
+        ('11_2', 'SEG2'),
+
+        #LINK180
+        ('180_2', 'SEG2'),
+
+        # BEAM4 
+        ('4_2', 'SEG2'),
+
+        #BEAM188
+        ('188_2', 'SEG2'),
+
+        #BEAM189
+        ('189_3', 'SEG3'),
+
+        #SHELL63
+        ('63_4', 'QUAD4'),
+        ('63_3', 'TRI3'),
+
+        #SHELL143 : n'existe plus mais ce comporte comme un SHELL181
+        ('143_4', 'QUAD4'),
+        ('143_3', 'TRI3'),
+        ('143_8', 'QUAD8'),
+        ('143_6', 'TRI6'),
+        
+        #SHELL181
+        ('181_4', 'QUAD4'),
+        ('181_3', 'TRI3'),
+        
+        #SHELL281
+        ('281_8', 'QUAD8'),
+        ('281_6', 'TRI6'),
+
+        #PIPE16
+        ('16_2', 'SEG2'),
+
+        #PIPE59
+        ('59_2', 'SEG2'),
+        
+        #PIPE288
+        ('288_2', 'SEG2'),
+
+        #PIPE289
+        ('289_3', 'SEG3'),
+
+        #PLANE42
+        ('42_4', 'QUAD4'),
+
+        #PLANE82
+        ('82_8', 'QUAD8'),
+        ('82_6', 'TRI6'),
+
+        #PLANE182
+        ('182_4', 'QUAD4'),
+        ('182_3', 'TRI3'),
+
+        #PLANE183
+        ('183_8', 'QUAD8'),
+        ('183_6', 'TRI6'),
+
+        #SOLID45
+        ('45_8', 'HEXA8'),
+        ('45_6', 'PENTA6'),
+
+        #SOLID65
+        ('65_8', 'HEXA8'),
+        ('65_6', 'PENTA6'),
+
+        #SOLID92
+        ('92_10', 'TETRA10'),
+
+        #SOLID95
+        ('95_20', 'HEXA20'),
+        ('95_10', 'TETRA10'),
+        ('95_13', 'PYRA13'),
+        ('95_15', 'PENTA15'),
+
+        #SOLID96
+        ('96_8', 'HEXA8'),
+        ('96_4', 'TETRA4'),
+        ('96_6', 'PENTA6'),
+        ('96_5', 'PYRA5'),
+
+        #SOLID185
+        ('185_8', 'HEXA8'),
+        ('185_6', 'PENTA6'),
+        ('185_4', 'TETRA4'),
+        ('185_5', 'PYRA5'),
+
+        #SOLID186
+        ('186_20', 'HEXA20'),
+        ('186_10', 'TETRA10'),
+        ('186_13', 'PYRA13'),
+        ('186_15', 'PENTA15'),
+
+        #SOLID187
+        ('187_10', 'TETRA10'),
+
+        #CONTACT171
+        ('171_2', 'SEG2'),
+
+        #CONTACT172
+        ('172_3', 'SEG3'),
+
+        #CONTACT173
+        ('173_4', 'QUAD4'),
+        ('173_3', 'TRI3'),
+
+        #CONTACT174
+        ('174_8', 'QUAD8'),
+        ('174_6', 'TRI6'),
+
+        #CONTACT175
+        ('175_1', 'POINT1'),
+
+        #CONTACT176
+        ('176_2', 'SEG2'),
+        ('176_3', 'SEG3'),
+
+        #CONTACT177
+        ('177_2', 'SEG2'),
+        ('177_3', 'SEG3'),
+        
+        #COMBIN14
+        ('14_2', 'SEG2'),
+
     }
 
     _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()
