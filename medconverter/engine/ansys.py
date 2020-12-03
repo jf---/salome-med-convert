@@ -50,11 +50,7 @@ class MedConverterAnsys(MedConverterMesh):
 
         # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
-            next(f)
-
-            # Lecture du nom du maillage
-            line_1 = next(f).strip()
-
+            
             for line in f :
 
                 if flag['NODES'] is 1 : 
@@ -107,7 +103,7 @@ class MedConverterAnsys(MedConverterMesh):
         #Réupération du nom du maillage
         title1 = title[0].split(",")[1]
         title2 = title1.replace(' ', '')
-        self.mesh_name = title2.replace("\n", '' )
+        self.mesh_name = title2.replace("\n", '' ) or osp.splitext(osp.split(filename)[-1])[0]
 
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
@@ -121,20 +117,17 @@ class MedConverterAnsys(MedConverterMesh):
         # Les noeuds du maillage
         ticc = time.perf_counter()
        
-        
-        iter_idx = (int(line.split()[0]) for line in NODES[:-1])
-        corresponding_nodes = { item : i for i, item in enumerate(iter_idx)}
-        idx_coords = tuple(range(-self.space_dim, 0, 1))
-        iter_nodes = ((map(float, self.splitline(line))) for line in NODES[:-1])
-        self.nodes = tuple(coord for node in iter_nodes for coord in node)
-
+        for line in NODES[:-1]:
+            spline = line.split()
+            idx_ansys = int(spline[0])
+            coords = tuple(self.splitline(line))
+            self.add_node(idx_ansys, coords)
+            
         tocc = time.perf_counter()
         logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
 
         # Les elements
         ticc = time.perf_counter() 
-        corresponding_elements = {}
-        max_dim_elements = '0D'
         e_conv = CellsTypeConverter('ANSYS')
         c_renum = ConnectivityRenumberer('ANSYS')
         flag = {'Nb_nodes' : 0}
@@ -180,19 +173,10 @@ class MedConverterAnsys(MedConverterMesh):
                         elements_nodes_ansys = list(map(int, valeursansdoublon))
                         element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
                         element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-                        element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
-            
-                        element_nodes_cdb = tuple(corresponding_nodes[k] for k in elements_nodes_ansys)
-                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_cdb)
-            
-                        key = '%dD'%element_dim
-                        if not key in self.cells :
-                            self.cells[key] = []
-                        if not key in corresponding_elements :
-                            corresponding_elements[key] = {}
-                        self.cells[key].append((element_medcoupling_type, element_nodes_med))
-                        corresponding_elements[key][idx_element_ansys] = len(corresponding_elements[key])
-                        max_dim_elements = max(max_dim_elements, key)
+                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
+                        
+                        self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
+                      
                     else :
                         valeur8=spline[11:]
                         valeursplit=[]
@@ -204,20 +188,11 @@ class MedConverterAnsys(MedConverterMesh):
                                 valeursansdoublon.append(i)    
                         elements_nodes_ansys = list(map(int, valeursansdoublon))
                         element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
-                        element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-                        element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
-            
-                        element_nodes_cdb = tuple(corresponding_nodes[k] for k in elements_nodes_ansys)
-                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_cdb)
-            
-                        key = '%dD'%element_dim
-                        if not key in self.cells :
-                            self.cells[key] = []
-                        if not key in corresponding_elements :
-                            corresponding_elements[key] = {}
-                        self.cells[key].append((element_medcoupling_type, element_nodes_med))
-                        corresponding_elements[key][idx_element_ansys] = len(corresponding_elements[key])
-                        max_dim_elements = max(max_dim_elements, key) 
+                        element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)          
+                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
+
+                        self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
+
                 else :
                     for elem in spline[11:]:
                         valeur.append(int(elem))
@@ -235,19 +210,10 @@ class MedConverterAnsys(MedConverterMesh):
                 elements_nodes_ansys = list(map(int, valeursansdoublon)) 
                 element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))    
                 element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-                element_dim = MEDCouplingUMesh.GetDimensionOfGeometricType(element_medcoupling_type)
-    
-                element_nodes_cdb = tuple(corresponding_nodes[k] for k in elements_nodes_ansys)
-                element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, element_nodes_cdb)
-    
-                key = '%dD'%element_dim
-                if not key in self.cells :
-                    self.cells[key] = []
-                if not key in corresponding_elements :
-                    corresponding_elements[key] = {}
-                self.cells[key].append((element_medcoupling_type, element_nodes_med))
-                corresponding_elements[key][idx_element_ansys] = len(corresponding_elements[key])
-                max_dim_elements = max(max_dim_elements, key)  
+                element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
+
+                self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
+
                 drapeau =0
                 
             if drapeau == 1 :
@@ -286,16 +252,10 @@ class MedConverterAnsys(MedConverterMesh):
                 values =  map(int, valeurgroupe)
 
                 if group_tag_ansys == 'NODE' :
-                    self.groups_n[group_name] = tuple(corresponding_nodes[k] for k in values)
+                    self.add_group_nodes(group_name, values)
                 else :
-                    for element_ansys in values :
-                        for key in self.cells.keys():
-                            if element_ansys in corresponding_elements[key]:
-                                if not key in self.groups_e :
-                                    self.groups_e[key] = {}
-                                if not group_name in self.groups_e[key]:
-                                    self.groups_e[key][group_name] = []
-                                self.groups_e[key][group_name].append(corresponding_elements[key][element_ansys])
+                    self.add_group_cells(group_name, values)
+
             compteur +=1 
         print("fait3")
         tocc = time.perf_counter()

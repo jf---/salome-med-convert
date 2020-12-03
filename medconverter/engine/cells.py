@@ -276,7 +276,7 @@ class CellsTypeConverter:
         'HEXA27' : 'HEXA27',
     }
 
-    _ansys_to_med = {
+    _ansys_to_med =  OrderedDict((
 
         # Mass element - 0D
         ('21_1', 'POINT1'),
@@ -408,7 +408,7 @@ class CellsTypeConverter:
         #COMBIN14
         ('14_2', 'SEG2'),
 
-    }
+    ))
 
     _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()
 
