@@ -301,7 +301,7 @@ class CellsTypeConverter:
         ('63_4', 'QUAD4'),
         ('63_3', 'TRI3'),
 
-        #SHELL143 : n'existe plus mais ce comporte comme un SHELL181
+        #SHELL143 : n'existe plus mais se comporte comme un SHELL181
         ('143_4', 'QUAD4'),
         ('143_3', 'TRI3'),
         ('143_8', 'QUAD8'),
@@ -384,6 +384,7 @@ class CellsTypeConverter:
         ('171_2', 'SEG2'),
 
         #CONTACT172
+        ('172_2', 'SEG2'),
         ('172_3', 'SEG3'),
 
         #CONTACT173
@@ -407,6 +408,20 @@ class CellsTypeConverter:
         
         #COMBIN14
         ('14_2', 'SEG2'),
+
+        #SURF154
+        ('154_4', 'QUAD4'),
+        ('154_8', 'QUAD8'),
+
+        #SURF156
+        ('156_2', 'SEG2'),
+        ('156_3', 'SEG3'),
+        ('156_4', 'QUAD4'),
+
+        #TARGE169
+        ('169_1', 'POINT1'),
+        ('169_2', 'SEG2'),
+        ('169_3', 'SEG3'),
 
     ))
 

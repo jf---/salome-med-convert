@@ -4,7 +4,6 @@
 import time
 import os.path as osp
 from operator import itemgetter
-import medcoupling
 from medcoupling import *
 
 from .logger import logger
@@ -19,10 +18,13 @@ class MedConverterAnsys(MedConverterMesh):
     def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
         if verbose :
             logger.setLevel(logging.DEBUG)
+        tic=time.perf_counter()
         c = MedConverterAnsys()
         c.read_ansys_mesh(filename_ansys)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
+        toc=time.perf_counter()
+        print("Temps de conversion %d :", (toc-tic))
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
@@ -53,12 +55,14 @@ class MedConverterAnsys(MedConverterMesh):
             
             for line in f :
 
+                # Gestion d'ajout des lignes
                 if flag['NODES'] is 1 : 
                     if "(" in line : None 
                     else : NODES.append(line)
                 elif flag['ELEMENTS'] is 1 : 
                     if "(" in line : None 
                     else : ELEMENTS.append(line)
+
                 elif flag['GROUPS'] is 1 : 
                     if "(" in line : None 
                     else : 
@@ -73,10 +77,10 @@ class MedConverterAnsys(MedConverterMesh):
                 elif "ET, " in line :
                     flag['indexElem'] = 1
                 if flag['indexElem'] is 1 :
-                    print(line.split(","))
                     IndexElem.append(line.split(",")[2])
                     ElemAnsys.append(int(line.split(",")[1]))
 
+                # Gestion des drapeaux
                 if "NBLOCK" in line :
                     flag['NODES'] = 1
                     dim = int(line.split(",")[1])
@@ -96,7 +100,8 @@ class MedConverterAnsys(MedConverterMesh):
                 elif "MPTEMP," in line :
                     flag['GROUPS'] = 0
                     flag['ELEMENTS'] = 0
-                
+
+                # Gestion du titre
                 elif "/TITLE" in line :
                     title.append(line)
 
@@ -127,19 +132,26 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
 
         # Les elements
-        ticc = time.perf_counter() 
+        ticc = time.perf_counter()
         e_conv = CellsTypeConverter('ANSYS')
         c_renum = ConnectivityRenumberer('ANSYS')
-        flag = {'Nb_nodes' : 0}
-        drapeau = 0
-        for line in ELEMENTS[:-2] :
-            if flag['Nb_nodes'] is 0:
-                spline=line.split() 
-                idx_element_ansys = int(spline[10])
-                valeur=[]
+        storeline=[]
+        nbligneafaire=1
+        for line in ELEMENTS[:-2]:
+            spline=line.split()
+            storeline.append(spline)
+            if len(spline)>=9 and int(spline[9])==0:
+                if int(spline[8])<=8:
+                    nbligneafaire=1
+                else :
+                    nbligneafaire=2
+            else:
+                nbligneafaire=1
+            if nbligneafaire==1:
+                idx_element_ansys=int(storeline[0][10])
                 i=0
                 indicecorrespondance=None
-                elemvirtuel=int(spline[1])
+                elemvirtuel=int(storeline[0][1])
                 for elem in ElemAnsys:
                     if elemvirtuel==elem:
                         indicecorrespondance=i
@@ -147,86 +159,45 @@ class MedConverterAnsys(MedConverterMesh):
                 if indicecorrespondance==None:
                     print("Element not found")
                 element1=IndexElem[indicecorrespondance].replace("\n","")
-                element=element1.replace(" ","") 
-                element_ansys_type=element   
-                nombre_noeud_elem=int(ELEMENTS[0].split()[8])
-                if nombre_noeud_elem<=8 :
-                    if '184' in element_ansys_type :
-                        None
-                    elif '288' or '289' or '188' or '189' in element_ansys_type :
-                        valeur8=spline[11:]
-                        if '188' in element_ansys_type and len(valeur8)==3 :
-                            valeur8=spline[11:-1]
-                        if '288' in element_ansys_type and len(valeur8)==3 :
-                            valeur8=spline[11:-1]
-                        if '189' in element_ansys_type and len(valeur8)==4 :
-                            valeur8=spline[11:-1]
-                        if '189' in element_ansys_type and len(valeur8)==4 :
-                            valeur8=spline[11:-1]
-                        valeursplit=[]
-                        valeursansdoublon=[]
-                        for elem in valeur8 :
-                            valeursplit.append(int(elem))
-                        for i in valeursplit:
-                            if i not in valeursansdoublon:
-                                valeursansdoublon.append(i)    
-                        elements_nodes_ansys = list(map(int, valeursansdoublon))
-                        element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
-                        element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
-                        
-                        self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
-                      
-                    else :
-                        valeur8=spline[11:]
-                        valeursplit=[]
-                        valeursansdoublon=[]
-                        for elem in valeur8 :
-                            valeursplit.append(int(elem))
-                        for i in valeursplit:
-                            if i not in valeursansdoublon:
-                                valeursansdoublon.append(i)    
-                        elements_nodes_ansys = list(map(int, valeursansdoublon))
-                        element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
-                        element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)          
-                        element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
-
-                        self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
-
-                else :
-                    for elem in spline[11:]:
-                        valeur.append(int(elem))
-                    drapeau = 1    
-            else :
-                spline=line.split()
-                for elem in spline :
-                    valeur.append(int(elem))
-                    
-                element_ansys_type = element
+                element=element1.replace(" ","")
+                element_ansys_type=element
+                valeur=[]
+                if '184' in element_ansys_type : None
+                elif int(element_ansys_type)==188 and len(storeline[0][11:])==3 :
+                    valeur=storeline[0][11:-1]
+                elif int(element_ansys_type)==288 and len(storeline[0][11:])==3 :
+                    valeur=storeline[0][11:-1]
+                elif int(element_ansys_type)==189 and len(storeline[0][11:])==4 :
+                    valeur=storeline[0][11:-1]
+                elif int(element_ansys_type)==289 and len(storeline[0][11:])==4 :
+                    valeur=storeline[0][11:-1]
+                else:
+                    if len(storeline)==1:
+                        for node in storeline[0][11:]:
+                            valeur.append(int(node))
+                    else:
+                        for node in storeline[0][11:]:
+                            valeur.append(int(node))
+                        for node2 in storeline[1][:]:
+                            valeur.append(int(node2))
+                valeursplit=[]
                 valeursansdoublon=[]
-                for i in valeur:
-                        if i not in valeursansdoublon:
-                            valeursansdoublon.append(i)
-                elements_nodes_ansys = list(map(int, valeursansdoublon)) 
-                element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))    
+                for elem in valeur :
+                    valeursplit.append(int(elem))
+                for i in valeursplit:
+                    if i not in valeursansdoublon:
+                        valeursansdoublon.append(i)
+                elements_nodes_ansys = list(map(int, valeursansdoublon))
+                element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
                 element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
                 element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
 
                 self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
+                storeline=[]
 
-                drapeau =0
-                
-            if drapeau == 1 :
-                flag['Nb_nodes']=1 
-            elif drapeau == 0 :
-                flag['Nb_nodes']=0   
-
-            #print("Le type de l'element est : %s" %(element_ansys_type))
-            #print("Les valeurs sont : %s" %(spline[11:]))   
         tocc = time.perf_counter()
         logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
-        print("fait2")
-        
+
         # Les groups
         ticc = time.perf_counter()
         compteur=0
@@ -255,17 +226,9 @@ class MedConverterAnsys(MedConverterMesh):
                     self.add_group_nodes(group_name, values)
                 else :
                     self.add_group_cells(group_name, values)
-
             compteur +=1 
-        print("fait3")
         tocc = time.perf_counter()
         logger.debug("-> Adding internal groups in %0.4f seconds"%(tocc-ticc))
-
-        # Finish by renumbering
-        #ticc = time.perf_counter()
-        #self.mesh.renumbering()
-        #tocc = time.perf_counter()
-        #logger.debug("-> Renumbering in %0.4f seconds"%(tocc-ticc))
 
         toc = time.perf_counter()
         logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
