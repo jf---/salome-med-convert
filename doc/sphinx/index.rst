@@ -26,6 +26,7 @@ Tests
 	      
    tests_systus
    tests_abaqus
+   tests_ansys
 
 Connectivity tables
 -------------------
@@ -34,5 +35,6 @@ Connectivity tables
 - `Aster <_static/aster_connectivity.pdf>`_
 - `Systus <_static/systus_connectivity.pdf>`_
 - `Abaqus <_static/abaqus_connectivity.pdf>`_
+- `Ansys <_static/ansys_connectivity.pdf>`_
 
  

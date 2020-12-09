@@ -29,6 +29,7 @@ class Fmt:
     Attributes:
         Systus
         Abaqus
+        Ansys
         Salome
     """
     Null = 0x000

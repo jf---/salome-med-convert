@@ -24,7 +24,7 @@ class MedConverterAnsys(MedConverterMesh):
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
         toc=time.perf_counter()
-        print("Temps de conversion %d :", (toc-tic))
+        logger.debug("ANSYS mesh conversion done (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
@@ -162,39 +162,40 @@ class MedConverterAnsys(MedConverterMesh):
                 element=element1.replace(" ","")
                 element_ansys_type=element
                 valeur=[]
-                if '184' in element_ansys_type : None
-                elif int(element_ansys_type)==188 and len(storeline[0][11:])==3 :
-                    valeur=storeline[0][11:-1]
-                elif int(element_ansys_type)==288 and len(storeline[0][11:])==3 :
-                    valeur=storeline[0][11:-1]
-                elif int(element_ansys_type)==189 and len(storeline[0][11:])==4 :
-                    valeur=storeline[0][11:-1]
-                elif int(element_ansys_type)==289 and len(storeline[0][11:])==4 :
-                    valeur=storeline[0][11:-1]
-                else:
-                    if len(storeline)==1:
-                        for node in storeline[0][11:]:
-                            valeur.append(int(node))
+                if '184' in element_ansys_type : 
+                    storeline=[]
+                else :
+                    if int(element_ansys_type)==188 and len(storeline[0][11:])==3 :
+                        valeur=storeline[0][11:-1]
+                    elif int(element_ansys_type)==288 and len(storeline[0][11:])==3 :
+                        valeur=storeline[0][11:-1]
+                    elif int(element_ansys_type)==189 and len(storeline[0][11:])==4 :
+                        valeur=storeline[0][11:-1]
+                    elif int(element_ansys_type)==289 and len(storeline[0][11:])==4 :
+                        valeur=storeline[0][11:-1]
                     else:
-                        for node in storeline[0][11:]:
-                            valeur.append(int(node))
-                        for node2 in storeline[1][:]:
-                            valeur.append(int(node2))
-                valeursplit=[]
-                valeursansdoublon=[]
-                for elem in valeur :
-                    valeursplit.append(int(elem))
-                for i in valeursplit:
-                    if i not in valeursansdoublon:
-                        valeursansdoublon.append(i)
-                elements_nodes_ansys = list(map(int, valeursansdoublon))
-                element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
-                element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-                element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
+                        if len(storeline)==1:
+                            for node in storeline[0][11:]:
+                                valeur.append(int(node))
+                        else:
+                            for node in storeline[0][11:]:
+                                valeur.append(int(node))
+                            for node2 in storeline[1][:]:
+                                valeur.append(int(node2))
+                    valeursplit=[]
+                    valeursansdoublon=[]
+                    for elem in valeur :
+                        valeursplit.append(int(elem))
+                    for i in valeursplit:
+                        if i not in valeursansdoublon:
+                            valeursansdoublon.append(i)
+                    elements_nodes_ansys = list(map(int, valeursansdoublon))
+                    element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
+                    element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
+                    element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
 
-                self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
-                storeline=[]
-
+                    self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
+                    storeline=[]
         tocc = time.perf_counter()
         logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
 
@@ -218,8 +219,21 @@ class MedConverterAnsys(MedConverterMesh):
                 for i in range((compteur+1),(compteur+nombre_diteration+1)):
                     splinevalues=GROUPS[i].split()
                     for j in range(0,len(splinevalues)):
-                        valeur=abs(int(splinevalues[j]))
-                        valeurgroupe.append(valeur)
+                        val=int(splinevalues[j])
+                        if val<0:
+                            if j==0:
+                                val1=int(savevalue)+1
+                                val2=abs(int(splinevalues[j]))+1
+                                for elem in range(val1,val2):
+                                    valeurgroupe.append(elem)
+                            else:
+                                val1=int(splinevalues[j-1])+1
+                                val2=abs(int(splinevalues[j]))+1
+                                for elem in range(val1,val2):
+                                    valeurgroupe.append(elem)
+                        else:
+                            valeurgroupe.append(val)
+                    savevalue=int(splinevalues[-1])
                 values =  map(int, valeurgroupe)
 
                 if group_tag_ansys == 'NODE' :
@@ -232,7 +246,7 @@ class MedConverterAnsys(MedConverterMesh):
 
         toc = time.perf_counter()
         logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
-        print("Lecture complete") 
+        logger.debug("End reading ANSYS mesh file") 
 		
     def splitline(self, ligne):
         
