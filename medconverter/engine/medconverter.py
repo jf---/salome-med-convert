@@ -37,6 +37,10 @@ class MedConverterMesh:
         return sorted(self.cells.keys())[::-1]
 
     @property
+    def max_idx_cells_external(self):
+        return max(i for dim in self._corresponding_cells.values() for i in dim)
+
+    @property
     def levels(self):
         max_dim_cells = int(max(self.cells.keys())[0])
         return {'%dD'%i : i-max_dim_cells for i in range(max_dim_cells,-1,-1)}
@@ -151,11 +155,10 @@ class MedConverterMesh:
             self.add_group_nodes(group, ids)
                    
     def write_med_mesh(self, filename):
-        logger.debug("Writing MED mesh file : %s"%filename)
         tic = time.perf_counter()
         self.medmesh.write(filename, 2)
         toc = time.perf_counter()
-        logger.debug("End writing in %0.4f seconds" %(toc-tic))
+        logger.debug("Writing MED mesh file : %s (in %0.4f seconds)"%(filename, toc-tic))
 
     def create_med_mesh(self):
         

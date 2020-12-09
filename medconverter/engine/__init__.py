@@ -22,6 +22,7 @@ This package defines the *engine* of the *medconverter* plugin.
 from .systus import MedConverterSystus
 from .abaqus import MedConverterAbaqus
 from .ansys import MedConverterAnsys
+from .zset import MedConverterZset
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -30,6 +31,7 @@ class Fmt:
         Systus
         Abaqus
         Ansys
+        Zset
         Salome
     """
     Null = 0x000
@@ -38,6 +40,7 @@ class Fmt:
     Systus = 0x004
     Abaqus = 0x005
     Ansys = 0x006
+    Zset = 0x007
 
     @classmethod
     def get(cls, format_name):
@@ -75,6 +78,7 @@ class Fmt:
             Fmt.Systus : "Systus",
             Fmt.Abaqus : "Abaqus",
             Fmt.Ansys : "Ansys",
+            Fmt.Zset : "Zset",
         }.get(format, "Unknown")
 
     @staticmethod
@@ -94,6 +98,7 @@ class Fmt:
             Fmt.Systus: ('.ASC', '.asc'),
             Fmt.Abaqus: ('.inp',),
             Fmt.Ansys : ('.CDB', '.cdb',),
+            Fmt.Zset: ('.geof',),
         }.get(format, "Unknown")
     
 
@@ -129,6 +134,12 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
 
     elif (input_format == Fmt.Salome and output_format == Fmt.Ansys):
         MedConverterAnsys.convert_med_to_ansys(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Zset and output_format == Fmt.Salome):
+        MedConverterZset.convert_zset_to_med(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Salome and output_format == Fmt.Zset):
+        MedConverterZset.convert_med_to_zset(input_file, output_file, verbose)
 
     else :
         raise ValueError("Unsupported format conversion!")

@@ -27,6 +27,7 @@ Tests
    tests_systus
    tests_abaqus
    tests_ansys
+   tests_zset
 
 Connectivity tables
 -------------------
@@ -36,5 +37,6 @@ Connectivity tables
 - `Systus <_static/systus_connectivity.pdf>`_
 - `Abaqus <_static/abaqus_connectivity.pdf>`_
 - `Ansys <_static/ansys_connectivity.pdf>`_
+- `Zset <_static/zset_connectivity.pdf>`_
 
  

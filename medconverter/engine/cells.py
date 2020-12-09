@@ -276,6 +276,53 @@ class CellsTypeConverter:
         'HEXA27' : 'HEXA27',
     }
 
+    _zset_to_med = OrderedDict((
+
+        ('l2d2', 'SEG2'),
+        ('l2d3', 'SEG3'),
+
+        ('c2d3r', 'TRI3'),
+        ('c2d3', 'TRI3'),
+
+        ('c2d6r', 'TRI6'),
+        ('c2d6', 'TRI6'),
+
+        ('c2d4r', 'QUAD4'),
+        ('c2d4', 'QUAD4'),
+
+        ('c2d8r', 'QUAD8'),
+        ('c2d8', 'QUAD8'),
+
+        ('c3d4r', 'TETRA4'),
+        ('c3d4', 'TETRA4'),
+
+        ('c3d10r', 'TETRA10'),
+        ('c3d10_4', 'TETRA10'),
+        ('c3d10', 'TETRA10'),
+
+        ('c3d8r', 'HEXA8'),
+        ('c3d8', 'HEXA8'),
+
+        ('c3d20r', 'HEXA20'),
+        ('c3d20', 'HEXA20'),
+
+        ('c3d6r', 'PENTA6'),
+        ('c3d6', 'PENTA6'),
+
+        ('c3d15_9', 'PENTA15'),
+        ('c3d15r', 'PENTA15'),
+        ('c3d15', 'PENTA15'),
+
+        ('c3d5_6', 'PYRA5'),
+        ('c3d5_27', 'PYRA5'),
+        ('c3d5', 'PYRA5'),
+
+        ('c3d13_27', 'PYRA13'),
+        ('c3d13r', 'PYRA13'),
+        ('c3d13', 'PYRA13'),
+        
+    ))
+
     _ansys_to_med =  OrderedDict((
 
         # Mass element - 0D
@@ -789,4 +836,26 @@ class CellsTypeConverter:
             return self._medcoupling_to_external[medcoupling_type]
         except KeyError:
             raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+
+
+class GroupCellsTypeConverter(CellsTypeConverter):
+
+    _systus_to_med = {}
+    _abaqus_to_med = {}
+    _aster_to_med = {}
+    _ansys_to_med = {}
+    
+    _zset_to_med = OrderedDict((
+        
+        ('line', 'SEG2'),
+        ('quad', 'SEG3'),
+        ('t3', 'TRI3'),
+        ('t6', 'TRI6'),
+        ('q4', 'QUAD4'),
+        ('q8', 'QUAD8'),
+
+    ))
+    
+    def __init__(self, code):
+        super(GroupCellsTypeConverter, self).__init__(code)
 

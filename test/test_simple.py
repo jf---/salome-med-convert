@@ -438,6 +438,13 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  105, 655, ['HEXA8', 'PENTA6'],
                                  0, 1)
+
+        
+    def test_zset_multi(self):
+        filename = osp.join(data_path(), "ZSET_MULTI.geof")
+        standard_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
+                                 14, 61, ['TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
+                                 4, 0)
         
 if __name__ == "__main__":
     unittest.main()
