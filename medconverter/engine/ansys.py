@@ -18,13 +18,10 @@ class MedConverterAnsys(MedConverterMesh):
     def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
         if verbose :
             logger.setLevel(logging.DEBUG)
-        tic=time.perf_counter()
         c = MedConverterAnsys()
         c.read_ansys_mesh(filename_ansys)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
-        toc=time.perf_counter()
-        logger.debug("ANSYS mesh conversion done (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
@@ -40,8 +37,9 @@ class MedConverterAnsys(MedConverterMesh):
         self.ansysmesh = None
 
     def read_ansys_mesh(self, filename):
+        tic=time.perf_counter()
         logger.debug("Reading ANSYS mesh file : %s"%filename)
-        NODES, ELEMENTS, GROUPS, IndexElem, ElemAnsys, title  = [], [], [], [], [], [] 
+        NODES, ELEMENTS, GROUPS, IndexElem, ElemAnsys, title  = [], [], [], [], [], None
 
         flag = {'NODES' : 0,
                 'ELEMENTS' : 0,
@@ -100,15 +98,20 @@ class MedConverterAnsys(MedConverterMesh):
                 elif "MPTEMP," in line :
                     flag['GROUPS'] = 0
                     flag['ELEMENTS'] = 0
+                elif "EXTOPT," in line :
+                    flag['GROUPS'] = 0
+                    flag['ELEMENTS'] = 0 
+                elif "TREF," in line :
+                    flag['GROUPS'] = 0
+                    flag['ELEMENTS'] = 0   
+
 
                 # Gestion du titre
                 elif "/TITLE" in line :
-                    title.append(line)
-
+                    title = line.split(",")[1].strip().replace("\n", '')
+                    
         #Réupération du nom du maillage
-        title1 = title[0].split(",")[1]
-        title2 = title1.replace(' ', '')
-        self.mesh_name = title2.replace("\n", '' ) or osp.splitext(osp.split(filename)[-1])[0]
+        self.mesh_name = title or osp.splitext(osp.split(filename)[-1])[0]
 
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
@@ -139,7 +142,8 @@ class MedConverterAnsys(MedConverterMesh):
         nbligneafaire=1
         for line in ELEMENTS[:-2]:
             spline=line.split()
-            storeline.append(spline)
+            for elem in spline :
+                storeline.append(int(elem))
             if len(spline)>=9 and int(spline[9])==0:
                 if int(spline[8])<=8:
                     nbligneafaire=1
@@ -148,49 +152,56 @@ class MedConverterAnsys(MedConverterMesh):
             else:
                 nbligneafaire=1
             if nbligneafaire==1:
-                idx_element_ansys=int(storeline[0][10])
+                idx_element_ansys=storeline[10]
                 i=0
                 indicecorrespondance=None
-                elemvirtuel=int(storeline[0][1])
+                elemvirtuel=storeline[1]
                 for elem in ElemAnsys:
                     if elemvirtuel==elem:
                         indicecorrespondance=i
                     i +=1
                 if indicecorrespondance==None:
-                    print("Element not found")
+                    msg = "Element not found"
+                    raise MedConverterError(msg)
                 element1=IndexElem[indicecorrespondance].replace("\n","")
                 element=element1.replace(" ","")
-                element_ansys_type=element
+                element_ansys_type=int(element)
                 valeur=[]
-                if '184' in element_ansys_type : 
+                taille=len(storeline[11:])
+                if element_ansys_type==184 : 
+                    storeline=[]
+                elif element_ansys_type==27 : 
+                    storeline=[]
+                elif element_ansys_type==36 : 
+                    storeline=[]
+                elif element_ansys_type==38 : 
+                    storeline=[]
+                elif element_ansys_type==50 : 
                     storeline=[]
                 else :
-                    if int(element_ansys_type)==188 and len(storeline[0][11:])==3 :
-                        valeur=storeline[0][11:-1]
-                    elif int(element_ansys_type)==288 and len(storeline[0][11:])==3 :
-                        valeur=storeline[0][11:-1]
-                    elif int(element_ansys_type)==189 and len(storeline[0][11:])==4 :
-                        valeur=storeline[0][11:-1]
-                    elif int(element_ansys_type)==289 and len(storeline[0][11:])==4 :
-                        valeur=storeline[0][11:-1]
+                    if element_ansys_type==188 and taille==3 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==288 and taille==3 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==189 and taille==4 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==289 and taille==4 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==160 and taille==3 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==161 and taille==3 :
+                        valeur=storeline[11:-1]
+                    elif element_ansys_type==167 and taille==3 :
+                        valeur=storeline[11:-1]
                     else:
-                        if len(storeline)==1:
-                            for node in storeline[0][11:]:
-                                valeur.append(int(node))
-                        else:
-                            for node in storeline[0][11:]:
-                                valeur.append(int(node))
-                            for node2 in storeline[1][:]:
-                                valeur.append(int(node2))
-                    valeursplit=[]
+                        for node in storeline[11:]:
+                            valeur.append(node)
                     valeursansdoublon=[]
-                    for elem in valeur :
-                        valeursplit.append(int(elem))
-                    for i in valeursplit:
+                    for i in valeur:
                         if i not in valeursansdoublon:
                             valeursansdoublon.append(i)
                     elements_nodes_ansys = list(map(int, valeursansdoublon))
-                    element_ansys_type = element_ansys_type + '_' + str(len(elements_nodes_ansys))
+                    element_ansys_type = str(element_ansys_type) + '_' + str(len(elements_nodes_ansys))
                     element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
                     element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
 
@@ -245,9 +256,8 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug("-> Adding internal groups in %0.4f seconds"%(tocc-ticc))
 
         toc = time.perf_counter()
-        logger.debug("End creating internal mesh in %0.4f seconds"%(toc-tic))
-        logger.debug("End reading ANSYS mesh file") 
-		
+        logger.debug("End reading ANSYS mesh file in %0.4f seconds"%(toc-tic))
+
     def splitline(self, ligne):
         
         coord = []

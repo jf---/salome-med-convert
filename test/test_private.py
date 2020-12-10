@@ -91,5 +91,40 @@ class TestPrivate(unittest.TestCase):
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
 
+    def test_ansys_exemple_01(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_01.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_01.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
+    def test_ansys_exemple_02(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_02.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_02.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+                                 
+    def test_ansys_exemple_03(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_03.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_03.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+                                 
+    def test_ansys_exemple_04(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_04.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_04.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+ 
+    def test_ansys_exemple_05(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_05.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_05.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
+    def test_ansys_exemple_06(self):
+        filename = get_datafile_path("ANSYS_EXEMPLE_06.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_06.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
+    def test_ansys_perf(self):
+        filename = get_datafile_path("ANSYS_PERF.cdb")
+        jsonfile = osp.join(data_path(), 'json', "ANSYS_PERF.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
 if __name__ == "__main__":
     unittest.main()

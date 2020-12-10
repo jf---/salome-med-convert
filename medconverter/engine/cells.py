@@ -326,12 +326,22 @@ class CellsTypeConverter:
         #PLANE35
         ('35_6', 'TRI6'),
 
+        #COMBIN39
+        ('39_2', 'SEG2'),
+
+        #COMBIN40
+        ('40_2', 'SEG2'),
+
         #PLANE42
         ('42_4', 'QUAD4'),
 
         #SOLID45
         ('45_8', 'HEXA8'),
         ('45_6', 'PENTA6'),
+
+        #INFIN47
+        ('47_4', 'QUAD4'),
+        ('47_3', 'TRI3'),
 
         #PLANE55
         ('55_4', 'QUAD4'),
@@ -354,7 +364,7 @@ class CellsTypeConverter:
         #LINK68
         ('68_2', 'SEG2'),
 
-        #FLUID70
+        #SOLID70
         ('70_8', 'HEXA8'),
         ('70_4', 'TETRA4'),
         ('70_6', 'PENTA6'),
@@ -404,6 +414,18 @@ class CellsTypeConverter:
         ('96_6', 'PENTA6'),
         ('96_5', 'PYRA5'),
 
+        #SOLID98
+        ('98_10', 'TETRA10'),
+
+        #INFIN111
+        ('111_20', 'HEXA20'),
+        ('111_8',  'HEXA8'),
+        ('111_15', 'PENTA15'),
+        ('111_6',  'PENTA6'),
+
+        #FLUID116
+        ('116_2', 'SEG2'),
+
         #SOLID120
         ('120_20', 'HEXA20'),
         ('120_10', 'TETRA10'),
@@ -414,8 +436,17 @@ class CellsTypeConverter:
         ('121_8', 'QUAD8'),
         ('121_6', 'TRI6'),
 
+        #SOLID122
+        ('122_20', 'HEXA20'),
+        ('122_10', 'TETRA10'),
+        ('122_13', 'PYRA13'),
+        ('122_15', 'PENTA15'),
+
         #SOLID123
         ('123_10', 'TETRA10'),
+
+        #FLUID129
+        ('129_2', 'SEG2'),
 
         #SHELL131
         ('131_4', 'QUAD4'),
@@ -446,18 +477,26 @@ class CellsTypeConverter:
         ('152_4', 'QUAD4'),
         ('152_8', 'QUAD8'),
 
+        #SURF153
+        ('153_2', 'SEG2'),
+        ('153_3', 'SEG3'),
+
+        #SURF156
+        ('156_2', 'SEG2'),
+
         #SURF154
         ('154_4', 'QUAD4'),
         ('154_8', 'QUAD8'),
 
-        #SURF156
-        ('156_2', 'SEG2'),
-        ('156_3', 'SEG3'),
-        ('156_4', 'QUAD4'),
-
         #SHELL157
         ('157_4', 'QUAD4'),
         ('157_3', 'TRI3'),
+
+        #LINK160
+        ('160_2', 'SEG2'),
+
+        #BEAM161
+        ('161_2', 'SEG2'),
 
         #SHELL162
         ('162_4', 'QUAD4'),
@@ -472,6 +511,12 @@ class CellsTypeConverter:
         ('164_6', 'PENTA6'),
         ('164_4', 'TETRA4'),
         ('164_5', 'PYRA5'),
+
+        #COMBIN165
+        ('165_2', 'SEG2'),
+
+        #LINK167
+        ('167_2', 'SEG2'),
 
         #SOLID168
         ('168_10', 'TETRA10'),
@@ -552,6 +597,57 @@ class CellsTypeConverter:
 
         #BEAM189
         ('189_3', 'SEG3'),
+
+        #SOLSH190
+        ('190_8', 'HEXA8'),
+        ('190_6', 'PENTA6'),
+
+        #INTER192
+        ('192_4', 'QUAD4'),
+
+        #INTER195
+        ('195_8', 'HEXA8'),
+
+        #INTER202
+        ('202_4', 'QUAD4'),
+
+        #INTER204
+        ('204_5', 'HEXA8'),
+
+        #CPT212
+        ('212_4', 'QUAD4'),
+        ('212_3', 'TRI3'),
+
+        #CPT213
+        ('213_8', 'QUAD8'),
+        ('213_3', 'TRI6'),
+
+        #CPT215
+        ('215_8', 'HEXA8'),
+        ('215_6', 'PENTA6'),
+        ('215_4', 'TETRA4'),
+
+        #CPT216
+        ('216_20', 'HEXA20'),
+        ('216_10', 'TETRA10'),
+        ('216_13', 'PYRA13'),
+        ('216_15', 'PENTA15'),
+
+        #CPT217
+        ('217_10', 'TETRA10'),
+
+        #FLUID218
+        ('218_4', 'QUAD4'),
+        ('218_3', 'TRI3'),
+
+        #FLUID220
+        ('220_20', 'HEXA20'),
+        ('220_10', 'TETRA10'),
+        ('220_13', 'PYRA13'),
+        ('220_15', 'PENTA15'),
+
+        #FLUID221
+        ('221_10', 'TETRA10'),
 
         #PLANE223
         ('223_8', 'QUAD8'),
@@ -636,6 +732,10 @@ class CellsTypeConverter:
 
         #PIPE289
         ('289_3', 'SEG3'),
+
+        #ELBOW290
+        ('290_3', 'SEG3'),
+
     ))
 
     _med_types = 'POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27'.split()

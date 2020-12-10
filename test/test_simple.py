@@ -263,8 +263,181 @@ class TestSimple(unittest.TestCase):
         filename = osp.join(data_path(), "ABAQUS_PART.inp")
         standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                                  8, 72, ["POINT1", "SEG2", 'HEXA20'],
-                                 4, 5,)
+                                 4, 5)
 
+    def test_ansys_solid186_01_hexa(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID186_01_HEXA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 20, ['HEXA20'],
+                                 0, 0)
 
+    def test_ansys_solid186_02_penta(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID186_02_PENTA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 15, ['PENTA15'],
+                                 0, 0)
+                                 
+    def test_ansys_solid186_03_tetra(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID186_03_TETRA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 10, ['TETRA10'],
+                                 0, 0)
+
+    def test_ansys_solid186_04_pyra(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID186_04_PYRA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 13, ['PYRA13'],
+                                 0, 0)
+                                 
+    def test_ansys_beam188_2n(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM188_2n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 2, ['SEG2'],
+                                 0, 0)
+
+    def test_ansys_beam188_3n(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM188_3n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['SEG2'],
+                                 0, 0)
+
+    def test_ansys_beam189_3n(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_3n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['SEG3'],
+                                 0, 0)
+
+    def test_ansys_beam189_4n(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_4n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 4, ['SEG3'],
+                                 0, 0)
+                              
+    def test_ansys_combin14(self):
+        filename = osp.join(data_path(), "ANSYS_COMBIN14.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 2, ['SEG2'],
+                                 0, 0)
+
+    def test_ansys_link180(self):
+        filename = osp.join(data_path(), "ANSYS_LINK180.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 2, ['SEG2'],
+                                 0, 0)
+                                        
+    def test_ansys_pipe288_2n(self):
+        filename = osp.join(data_path(), "ANSYS_PIPE288_2n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 2, ['SEG2'],
+                                 0, 0)
+
+    def test_ansys_pipe288_3n(self):
+        filename = osp.join(data_path(), "ANSYS_PIPE288_3n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['SEG2'],
+                                 0, 0)
+
+    def test_ansys_pipe289_3n(self):
+        filename = osp.join(data_path(), "ANSYS_PIPE289_3n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['SEG3'],
+                                 0, 0)
+
+    def test_ansys_pipe289_4n(self):
+        filename = osp.join(data_path(), "ANSYS_PIPE289_4n.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 4, ['SEG3'],
+                                 0, 0)
+
+    def test_ansys_plane182_01_quad(self):
+        filename = osp.join(data_path(), "ANSYS_PLANE182_01_QUAD.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 4, ['QUAD4'],
+                                 0, 0)
+
+    def test_ansys_plane182_02_tri(self):
+        filename = osp.join(data_path(), "ANSYS_PLANE182_02_TRI.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['TRI3'],
+                                 0, 0)
+
+    def test_ansys_plane183_01_quad(self):
+        filename = osp.join(data_path(), "ANSYS_PLANE183_01_QUAD.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 8, ['QUAD8'],
+                                 0, 0)
+
+    def test_ansys_plane183_02_tri(self):
+        filename = osp.join(data_path(), "ANSYS_PLANE183_02_TRI.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 6, ['TRI6'],
+                                 0, 0)
+                                 
+    def test_ansys_shell181_01_quad(self):
+        filename = osp.join(data_path(), "ANSYS_SHELL181_01_QUAD.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 4, ['QUAD4'],
+                                 0, 0)
+
+    def test_ansys_shell181_02_tri(self):
+        filename = osp.join(data_path(), "ANSYS_SHELL181_02_TRI.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 3, ['TRI3'],
+                                 0, 0)
+
+    def test_ansys_shell281_01_quad(self):
+        filename = osp.join(data_path(), "ANSYS_SHELL281_01_QUAD.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 8, ['QUAD8'],
+                                 0, 0)
+                          
+    def test_ansys_shell281_02_tri(self):
+        filename = osp.join(data_path(), "ANSYS_SHELL281_02_TRI.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 6, ['TRI6'],
+                                 0, 0)
+
+    def test_ansys_solid185_01_hexa(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID185_01_HEXA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 8, ['HEXA8'],
+                                 0, 0)
+
+    def test_ansys_solid185_02_penta(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID185_02_PENTA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 6, ['PENTA6'],
+                                 0, 0)
+
+    def test_ansys_solid185_03_tetra(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID185_03_TETRA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 4, ['TETRA4'],
+                                 0, 0)
+
+    def test_ansys_solid185_04_pyra(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID185_04_PYRA.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 5, ['PYRA5'],
+                                 0, 0)
+
+    def test_ansys_solid187(self):
+        filename = osp.join(data_path(), "ANSYS_SOLID187.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 1, 10, ['TETRA10'],
+                                 0, 0)
+    
+    def test_ansys_hexbeam(self):
+        filename = osp.join(data_path(), "ANSYS_HexBeam.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 40, 321, ['HEXA20'],
+                                 2, 2)
+                                 
+    def test_ansys_sector(self):
+        filename = osp.join(data_path(), "ANSYS_Sector.cdb")
+        standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                                 105, 655, ['HEXA8', 'PENTA6'],
+                                 0, 1)
+        
 if __name__ == "__main__":
     unittest.main()
