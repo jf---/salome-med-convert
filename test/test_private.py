@@ -33,59 +33,59 @@ class TestPrivate(unittest.TestCase):
         test_name = self.id().split('.')[-1]
         print('%s in %.3f sec' %(test_name, t))   
     
-    def test_cuve(self):
+    def test_systus_cuve(self):
         filename = get_datafile_path("SYSTUS_01_CUVE_900_DONN20.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  79848, 265476, ['QUAD8', 'HEXA20'],
                                  35, 5)
 
-    def test_cuve_revet(self):
+    def test_systus_cuve_revet(self):
         filename = get_datafile_path("SYSTUS_07_CUVE_900_REVET_FISS_DONN20.ASC")
         jsonfile = osp.join(data_path(), 'json', "SYSTUS_07_CUVE_900_REVET_FISS_DONN20.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
                
-    def test_coude(self):
+    def test_systus_coude(self):
         filename = get_datafile_path("SYSTUS_COUDE_A_DONN1000.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  17714, 57817, ['SEG2', 'QUAD8', 'HEXA20'],
                                  68, 1)
         
-    def test_coude_quad(self):
+    def test_systus_coude_quad(self):
         filename = get_datafile_path("SYSTUS_COUDE_A_QUAD_DONN1000.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  14858, 48433, ['SEG2', 'QUAD8', 'HEXA20'],
                                  65, 1)
 
-    def test_piqu_insta(self):
+    def test_systus_piqu_insta(self):
         filename = get_datafile_path("SYSTUS_PIQUAGE_RIS_900_INSTA_DONN1005.ASC")
         jsonfile = osp.join(data_path(), 'json', "SYSTUS_PIQUAGE_RIS_900_INSTA_DONN1005.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
-    def test_piqu(self):
+    def test_systus_piqu(self):
         filename = get_datafile_path("SYSTUS_PIQUAGE_RIS_900_SAIN_DONN1005.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  64492, 249292, ['QUAD8', 'HEXA20'],
                                  27, 3)
         
-    def test_ehp(self):
+    def test_systus_ehp(self):
         filename = get_datafile_path("SYSTUS_DONN408.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  367220, 1396501, ['QUAD8', 'HEXA20'],
                                  4, 0)
 
-    def test_flam(self):
+    def test_abaqus_flam(self):
         filename = get_datafile_path("ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN.inp")
         standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                                  1872, 1976, ['QUAD4'],
                                  9, 8)
 
-    def test_graphite(self):
+    def test_abaqus_graphite(self):
         filename = get_datafile_path("ABAQUS_HNBR3M.inp")
         standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                                  35904, 176092, ['HEXA20'],
                                  1, 0)
 
-    def test_perf(self):
+    def test_abaqus_perf(self):
         filename = get_datafile_path("ABAQUS_PERF.inp")
         jsonfile = osp.join(data_path(), 'json', "ABAQUS_PERF.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
