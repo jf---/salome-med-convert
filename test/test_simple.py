@@ -64,8 +64,8 @@ class TestSimple(unittest.TestCase):
         
         filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
         standard_test_conversion(self, filename, Fmt.Salome, Fmt.Systus,
-                                 14, 61, ['TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8'],
-                                 4, 0)
+                                 17, 61, ['POINT1', 'SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
+                                 7, 2)
 
     def test_abaqus_carre(self):
         filename = osp.join(data_path(), "ABAQUS_CARRE_1.inp")
@@ -443,8 +443,8 @@ class TestSimple(unittest.TestCase):
     def test_zset_multi(self):
         filename = osp.join(data_path(), "ZSET_MULTI.geof")
         standard_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
-                                 14, 61, ['TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
-                                 4, 0)
+                                 16, 61, ['SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
+                                 6, 2)
         
 if __name__ == "__main__":
     unittest.main()
