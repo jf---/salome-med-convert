@@ -34,96 +34,111 @@ class TestPrivate(unittest.TestCase):
         print('%s in %.3f sec' %(test_name, t))   
     
     def test_systus_cuve(self):
-        filename = get_datafile_path("SYSTUS_01_CUVE_900_DONN20.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 79848, 265476, ['QUAD8', 'HEXA20'],
-                                 35, 5)
+        testname = "SYSTUS_01_CUVE_900_DONN20"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
+
+    def test_systus_virole(self):
+        testname = "SYSTUS_DONN9_VIROLE"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_cuve_revet(self):
-        filename = get_datafile_path("SYSTUS_07_CUVE_900_REVET_FISS_DONN20.ASC")
-        jsonfile = osp.join(data_path(), 'json', "SYSTUS_07_CUVE_900_REVET_FISS_DONN20.json")
+        testname = "SYSTUS_07_CUVE_900_REVET_FISS_DONN20"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
                
     def test_systus_coude(self):
-        filename = get_datafile_path("SYSTUS_COUDE_A_DONN1000.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 17714, 57817, ['SEG2', 'QUAD8', 'HEXA20'],
-                                 68, 1)
+        testname = "SYSTUS_COUDE_A_DONN1000"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
         
     def test_systus_coude_quad(self):
-        filename = get_datafile_path("SYSTUS_COUDE_A_QUAD_DONN1000.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 14858, 48433, ['SEG2', 'QUAD8', 'HEXA20'],
-                                 65, 1)
+        testname = "SYSTUS_COUDE_A_QUAD_DONN1000"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_piqu_insta(self):
-        filename = get_datafile_path("SYSTUS_PIQUAGE_RIS_900_INSTA_DONN1005.ASC")
-        jsonfile = osp.join(data_path(), 'json', "SYSTUS_PIQUAGE_RIS_900_INSTA_DONN1005.json")
+        testname = "SYSTUS_PIQUAGE_RIS_900_INSTA_DONN1005"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_piqu(self):
-        filename = get_datafile_path("SYSTUS_PIQUAGE_RIS_900_SAIN_DONN1005.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 64492, 249292, ['QUAD8', 'HEXA20'],
-                                 27, 3)
+        testname = "SYSTUS_PIQUAGE_RIS_900_SAIN_DONN1005"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
         
     def test_systus_ehp(self):
-        filename = get_datafile_path("SYSTUS_DONN408.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 367220, 1396501, ['QUAD8', 'HEXA20'],
-                                 4, 0)
+        testname = "SYSTUS_DONN408"
+        filename = get_datafile_path("%s.ASC"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_abaqus_flam(self):
-        filename = get_datafile_path("ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN.inp")
-        standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                                 1872, 1976, ['QUAD4'],
-                                 9, 8)
-
-    def test_abaqus_graphite(self):
-        filename = get_datafile_path("ABAQUS_HNBR3M.inp")
-        standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                                 35904, 176092, ['HEXA20'],
-                                 1, 0)
-
-    def test_abaqus_perf(self):
-        filename = get_datafile_path("ABAQUS_PERF.inp")
-        jsonfile = osp.join(data_path(), 'json', "ABAQUS_PERF.json")
+        testname = "ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN"
+        filename = get_datafile_path("%s.inp"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
+    def test_abaqus_graphite(self):
+        testname = "ABAQUS_HNBR3M"
+        filename = get_datafile_path("%s.inp"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
+
+    def test_abaqus_perf(self):
+        testname = "ABAQUS_PERF"
+        filename = get_datafile_path("%s.inp"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_ansys_exemple_01(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_01.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_01.json")
+        testname = "ANSYS_EXEMPLE_01"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
     def test_ansys_exemple_02(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_02.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_02.json")
+        testname = "ANSYS_EXEMPLE_02"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
                                  
     def test_ansys_exemple_03(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_03.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_03.json")
+        testname = "ANSYS_EXEMPLE_03"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
                                  
     def test_ansys_exemple_04(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_04.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_04.json")
+        testname = "ANSYS_EXEMPLE_04"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
  
     def test_ansys_exemple_05(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_05.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_05.json")
+        testname = "ANSYS_EXEMPLE_05"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
     def test_ansys_exemple_06(self):
-        filename = get_datafile_path("ANSYS_EXEMPLE_06.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_EXEMPLE_06.json")
+        testname = "ANSYS_EXEMPLE_06"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
     def test_ansys_perf(self):
-        filename = get_datafile_path("ANSYS_PERF.cdb")
-        jsonfile = osp.join(data_path(), 'json', "ANSYS_PERF.json")
+        testname = "ANSYS_PERF"
+        filename = get_datafile_path("%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
 if __name__ == "__main__":
