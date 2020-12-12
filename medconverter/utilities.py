@@ -170,3 +170,10 @@ def create_test_json_file(medfilename, jsonfilename):
 
     with open(jsonfilename, 'w') as fobj:
         json.dump(testvalues, fobj, indent=1, sort_keys=True)
+
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]

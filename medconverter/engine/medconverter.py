@@ -37,13 +37,13 @@ class MedConverterMesh:
         return sorted(self.cells.keys())[::-1]
 
     @property
-    def max_idx_cells_external(self):
-        return max(i for dim in self._corresponding_cells.values() for i in dim)
-
+    def max_dim_cells(self):
+        return max(self.cells.keys())
+    
     @property
     def levels(self):
-        max_dim_cells = int(max(self.cells.keys())[0])
-        return {'%dD'%i : i-max_dim_cells for i in range(max_dim_cells,-1,-1)}
+        mdim = int(self.max_dim_cells[0])
+        return {'%dD'%i : i-mdim for i in range(mdim,-1,-1)}
 
     @property
     def corresponding_cells(self):
