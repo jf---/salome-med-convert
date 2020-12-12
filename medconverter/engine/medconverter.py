@@ -44,8 +44,24 @@ class MedConverterMesh:
     def levels(self):
         max_dim_cells = int(max(self.cells.keys())[0])
         return {'%dD'%i : i-max_dim_cells for i in range(max_dim_cells,-1,-1)}
-                    
-    def __init__(self):
+
+    @property
+    def corresponding_cells(self):
+        return self._corresponding_cells
+
+    @property
+    def corresponding_cells_reversed(self):
+        return {dim : {item : key for key, item in values.items()} for dim, values in self._corresponding_cells.items()}
+
+    @property
+    def corresponding_nodes(self):
+        return self._corresponding_nodes
+
+    @property
+    def corresponding_nodes_reversed(self):
+        return {item : key for key, item in self._corresponding_nodes.items()}
+    
+    def _reset_structures(self):
         self._mesh_name = None
         self.space_dim = None
         self.nodes = []
@@ -61,6 +77,9 @@ class MedConverterMesh:
         
         self._corresponding_nodes = {}
         self._corresponding_cells = {}
+        
+    def __init__(self):
+        self._reset_structures()
         
     def _get_file_encoding(self, filename):
         
@@ -117,6 +136,7 @@ class MedConverterMesh:
                    
     def read_med_mesh(self, filename):
         logger.debug("Reading MED mesh file : %s"%filename)
+        self._reset_structures()
         
         self.medmesh = MEDFileUMesh(filename)
         self.mesh_name = self.medmesh.getName()

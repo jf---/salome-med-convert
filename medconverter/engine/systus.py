@@ -39,7 +39,7 @@ class MedConverterSystus(MedConverterMesh):
         self.systusmesh = None
 
     def read_systus_mesh(self, filename):
-        logger.debug("Reading SYSTUS mesh file : %s"%filename)
+        self._reset_structures()
 
         NODES, ELEMENTS, GROUPS = [], [], []
 
@@ -48,9 +48,10 @@ class MedConverterSystus(MedConverterMesh):
                 'GROUPS' : 0
             }
 
+        tic = time.perf_counter()
         # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
-            next(f)
+            line_0 = next(f)
 
             # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
@@ -81,6 +82,9 @@ class MedConverterSystus(MedConverterMesh):
                 elif "END_GROUPS"   in line :
                     flag['GROUPS'] = 0
 
+        toc = time.perf_counter()
+
+        logger.debug("Reading SYSTUS mesh file : %s (in %0.4f seconds)"%(filename, toc-tic))
         logger.debug("Mesh name : %s"%self.mesh_name)
         logger.debug("Space Dimension : %d"%self.space_dim)
         logger.debug("Number of nodes : %d"%(len(NODES)-1))
@@ -88,16 +92,20 @@ class MedConverterSystus(MedConverterMesh):
         logger.debug("Number of groups : %d"%(len(GROUPS)-1))
 
         # Les noeuds
+        tic = time.perf_counter()
         for line in NODES[:-1]:
             spline = line.split()
             idx_systus = int(spline[0])
             coords = tuple(map(float, spline[-self.space_dim:]))
             self.add_node(idx_systus, coords)
-
+        toc = time.perf_counter()
+        logger.debug("-> Adding nodes (in %0.4f seconds)"%(toc-tic))
+        
         # Les elements
         e_conv = CellsTypeConverter('SYSTUS')
         c_renum = ConnectivityRenumberer('SYSTUS')
 
+        tic = time.perf_counter()
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
@@ -109,6 +117,10 @@ class MedConverterSystus(MedConverterMesh):
 
             self.add_cell(idx_element_systus, element_medcoupling_type, element_nodes_med)
 
+        toc = time.perf_counter()
+        logger.debug("-> Adding cells (in %0.4f seconds)"%(toc-tic))
+
+        tic = time.perf_counter()
         # Les groups
         for line in GROUPS[:-1] :
             spline = line.split()
@@ -120,13 +132,16 @@ class MedConverterSystus(MedConverterMesh):
                 self.add_group_nodes(group_name, values)
             else :
                 self.add_group_cells(group_name, values)
-             
+        toc = time.perf_counter()
+        logger.debug("-> Adding groups (in %0.4f seconds)"%(toc-tic))
+        
     def write_systus_mesh(self, filename):
         logger.debug("Writing SYSTUS mesh file : %s"%filename)
         with open(filename, 'w') as f : f.write(self.systusmesh)
 
     def create_systus_mesh(self):
-       
+        self.systusmesh = None
+
         # Noeuds
         nb_nodes = len(self.nodes)
         nodes_shift = 1 # La numérotation SYSTUS des noeuds démarre à 1

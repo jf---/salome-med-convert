@@ -526,6 +526,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
     def read_abaqus_mesh(self, filename):
         logger.debug("Reading ABAQUS mesh file : %s"%filename)
+        self._reset_structures()
 
         Assembly = AbaqusAssembly()
 

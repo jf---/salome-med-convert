@@ -6,7 +6,7 @@ import logging
 import os.path as osp
 from operator import itemgetter
 import medcoupling
-from medcoupling import *
+# from medcoupling import *
 
 from .logger import logger
 from .medconverter import MedConverterMesh
@@ -34,11 +34,24 @@ class MedConverterZset(MedConverterMesh):
         c.create_zset_mesh()
         c.write_zset_mesh(filename_zset)
 
+    @property
+    def group_level_labels(self):
+        if self.space_dim == 2 :
+            return {'2D' : 'elset',
+                    '1D' : 'liset'}
+        elif self.space_dim == 3 :
+            return {'3D' : 'elset',
+                    '2D' : 'faset',
+                    '1D' : 'liset'}
+        else :
+            return
+        
     def __init__(self):
         super(MedConverterZset, self).__init__()
         self.zsetmesh = None
 
     def read_zset_mesh(self, filename):
+        self._reset_structures()
 
         NODES, ELEMENTS, GROUPS = [], [], []
 

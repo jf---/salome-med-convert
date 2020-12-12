@@ -37,6 +37,8 @@ class MedConverterAnsys(MedConverterMesh):
         self.ansysmesh = None
 
     def read_ansys_mesh(self, filename):
+        self._reset_structures()
+
         tic=time.perf_counter()
         logger.debug("Reading ANSYS mesh file : %s"%filename)
         NODES, ELEMENTS, GROUPS, IndexElem, ElemAnsys, title  = [], [], [], [], [], None
