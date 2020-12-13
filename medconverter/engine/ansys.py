@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import time
+import logging
 import os.path as osp
-from operator import itemgetter
-from medcoupling import *
+import medcoupling
 
 from .logger import logger
 from .medconverter import MedConverterMesh
@@ -18,29 +18,36 @@ class MedConverterAnsys(MedConverterMesh):
     def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
         if verbose :
             logger.setLevel(logging.DEBUG)
+
+        tic = time.perf_counter()
         c = MedConverterAnsys()
         c.read_ansys_mesh(filename_ansys)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
-
+        toc = time.perf_counter()
+        logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
+        
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
         if verbose :
             logger.setLevel(logging.DEBUG)
+
+        tic = time.perf_counter()
         c = MedConverterAnsys()
         c.read_med_mesh(filename_med)
         c.create_ansys_mesh()
         c.write_ansys_mesh(filename_ansys)
-
+        toc = time.perf_counter()
+        logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
+        
     def __init__(self):
         super(MedConverterAnsys, self).__init__()
         self.ansysmesh = None
 
     def read_ansys_mesh(self, filename):
-        self._reset_structures()
+        logger.debug("Read ANSYS mesh.")
 
-        tic=time.perf_counter()
-        logger.debug("Reading ANSYS mesh file : %s"%filename)
+        self._reset_structures()
         NODES, ELEMENTS, GROUPS, IndexElem, ElemAnsys, title  = [], [], [], [], [], None
 
         flag = {'NODES' : 0,
@@ -50,6 +57,7 @@ class MedConverterAnsys(MedConverterMesh):
                 'FirstBLOCK' : 0
             }
 
+        tic = time.perf_counter()
         # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
             
@@ -115,29 +123,24 @@ class MedConverterAnsys(MedConverterMesh):
         #Réupération du nom du maillage
         self.mesh_name = title or osp.splitext(osp.split(filename)[-1])[0]
 
-        logger.debug("Mesh name : %s"%self.mesh_name)
-        logger.debug("Space Dimension : %d"%self.space_dim)
-        logger.debug("Number of nodes : %d"%(len(NODES)-1))
-        logger.debug("Number of elements : %d"%(len(ELEMENTS)-1))
-        logger.debug("Number of groups : %d"%(len(GROUPS)-1))
+        toc = time.perf_counter()
+        logger.debug(" File name : %s (parsed in %0.4f seconds)"%(filename, toc-tic))
+        logger.debug(" Mesh name : %s"%self.mesh_name)
+        logger.debug(" Space Dimension : %d"%self.space_dim)
 
-        # Initialise performances
-        logger.debug("Creating internal mesh: ")
         tic = time.perf_counter()
-        # Les noeuds du maillage
-        ticc = time.perf_counter()
-       
+        
         for line in NODES[:-1]:
             spline = line.split()
             idx_ansys = int(spline[0])
             coords = tuple(self.splitline(line))
             self.add_node(idx_ansys, coords)
             
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal nodes in %0.4f seconds"%(tocc-ticc))
+        toc = time.perf_counter()
+        logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES)-1, toc-tic))
 
         # Les elements
-        ticc = time.perf_counter()
+        tic = time.perf_counter()
         e_conv = CellsTypeConverter('ANSYS')
         c_renum = ConnectivityRenumberer('ANSYS')
         storeline=[]
@@ -209,11 +212,11 @@ class MedConverterAnsys(MedConverterMesh):
 
                     self.add_cell(idx_element_ansys, element_medcoupling_type, element_nodes_med)
                     storeline=[]
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal cells in %0.4f seconds"%(tocc-ticc))
+        toc = time.perf_counter()
+        logger.debug(" Load %d cells (in %0.4f seconds)"%(len(ELEMENTS)-1, toc-tic))
 
         # Les groups
-        ticc = time.perf_counter()
+        tic = time.perf_counter()
         compteur=0
         for line in GROUPS[:-1] :
             if 'CMBLOCK' in line :
@@ -254,11 +257,8 @@ class MedConverterAnsys(MedConverterMesh):
                 else :
                     self.add_group_cells(group_name, values)
             compteur +=1 
-        tocc = time.perf_counter()
-        logger.debug("-> Adding internal groups in %0.4f seconds"%(tocc-ticc))
-
         toc = time.perf_counter()
-        logger.debug("End reading ANSYS mesh file in %0.4f seconds"%(toc-tic))
+        logger.debug(" Load %d groups (in %0.4f seconds)"%(len(GROUPS)-1, toc-tic))
 
     def splitline(self, ligne):
         

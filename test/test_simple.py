@@ -445,6 +445,12 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
                                  16, 61, ['SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
                                  6, 2)
-        
+
+        filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
+
+        standard_test_conversion(self, filename, Fmt.Salome, Fmt.Zset,
+                                 16, 61, ['SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
+                                 6, 2)
+             
 if __name__ == "__main__":
     unittest.main()

@@ -6,7 +6,6 @@ import os.path as osp
 import numpy as np
 from collections import OrderedDict
 import medcoupling
-from medcoupling import *
 
 from .errors import MedConverterError
 
