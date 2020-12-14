@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-import logging
 import os.path as osp
 import medcoupling
 
@@ -21,11 +20,10 @@ class MedConverterZset(MedConverterMesh):
 
     @staticmethod
     def convert_zset_to_med(filename_zset, filename_med, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
 
         tic = time.perf_counter()
         c = MedConverterZset()
+        c.verbose = verbose
         c.read_zset_mesh(filename_zset)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -34,10 +32,10 @@ class MedConverterZset(MedConverterMesh):
         
     @staticmethod
     def convert_med_to_zset(filename_med, filename_zset, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
+
         tic = time.perf_counter()
         c = MedConverterZset()
+        c.verbose = verbose
         c.read_med_mesh(filename_med)
         c.create_zset_mesh()
         c.write_zset_mesh(filename_zset)

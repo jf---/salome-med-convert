@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-import logging
 import os.path as osp
 import numpy as np
 import medcoupling
@@ -501,10 +500,10 @@ class MedConverterAbaqus(MedConverterMesh):
 
     @staticmethod
     def convert_abaqus_to_med(filename_abaqus, filename_med, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
+        
         tic = time.perf_counter()
         c = MedConverterAbaqus()
+        c.verbose = verbose
         c.read_abaqus_mesh(filename_abaqus)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -513,10 +512,10 @@ class MedConverterAbaqus(MedConverterMesh):
         
     @staticmethod
     def convert_med_to_abaqus(filename_med, filename_abaqus, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
+        
         tic = time.perf_counter()
         c = MedConverterAbaqus()
+        c.verbose = verbose
         c.read_med_mesh(filename_med)
         c.create_abaqus_mesh()
         c.write_abaqus_mesh(filename_abaqus)

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-import logging
 import os.path as osp
 import medcoupling
 
@@ -16,11 +15,10 @@ class MedConverterAnsys(MedConverterMesh):
 
     @staticmethod
     def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
-
+       
         tic = time.perf_counter()
         c = MedConverterAnsys()
+        c.verbose = verbose
         c.read_ansys_mesh(filename_ansys)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -29,11 +27,10 @@ class MedConverterAnsys(MedConverterMesh):
         
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
-
+ 
         tic = time.perf_counter()
         c = MedConverterAnsys()
+        c.verbose = verbose
         c.read_med_mesh(filename_med)
         c.create_ansys_mesh()
         c.write_ansys_mesh(filename_ansys)

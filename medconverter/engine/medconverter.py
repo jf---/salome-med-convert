@@ -13,6 +13,33 @@ from .errors import MedConverterError
 
 class MedConverterMesh:
 
+    @classmethod
+    def from_mesh(cls, other):
+        obj = cls()
+        
+        attr_to_import = ('mesh_name', 'space_dim', 'nodes', 'cells',
+                          'groups_e', 'groups_n',
+                          'verbose', 'medmesh',
+                          '_corresponding_nodes', '_corresponding_cells',
+                          'groups_e_continuous', 'cells_continuous')
+
+        for attr in attr_to_import:
+            setattr(obj, attr, getattr(other, attr))
+
+        return obj
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, verbose):
+        self._verbose = verbose
+        if verbose :
+            logger.setLevel(logging.DEBUG)
+        else :
+            logger.setLevel(logging.INFO)       
+
     @property
     def mesh_name(self):
         return self._mesh_name
@@ -71,7 +98,6 @@ class MedConverterMesh:
         self.groups_e_continuous = OrderedDict() # Numérotation globale
         self.cells_continuous = OrderedDict() # Numérotation globale
         
-        self.verbose = False
         self.medmesh = None
         
         self._corresponding_nodes = {}
@@ -79,7 +105,8 @@ class MedConverterMesh:
         
     def __init__(self):
         self._reset_structures()
-        
+        self._verbose = False
+
     def _get_file_encoding(self, filename):
         
         encodings = 'utf8 latin_1 cp437'.split()
@@ -132,7 +159,26 @@ class MedConverterMesh:
                     if not group_name in self.groups_e[dim]:
                         self.groups_e[dim][group_name] = []
                     self.groups_e[dim][group_name].append(self._corresponding_cells[dim][cell])
-                   
+
+    def _make_continuous(self):
+
+        self.groups_e_continuous = OrderedDict()
+        self.cells_continuous = OrderedDict()
+        
+        cells_shift = 0 # Variable pour la creation d'une numérotation globale
+        for dim in sorted(self.cells.keys())[::-1]:
+            for j, (medcoupling_cell_type, element_nodes_med) in enumerate(self.cells[dim]):
+                self.cells_continuous[cells_shift+j] = (medcoupling_cell_type, element_nodes_med)
+
+            for group, values in self.groups_e[dim].items():
+                if group in self.groups_e_continuous :
+                    for v in values():
+                        self.groups_e_continuous[group].append(cells_shift+v)
+                else:
+                    self.groups_e_continuous[group] = [cells_shift+v for v in values]
+
+            cells_shift+=(j+1)
+       
     def read_med_mesh(self, filename):
         logger.debug("Read MED mesh.")
 
@@ -190,6 +236,8 @@ class MedConverterMesh:
 
             logger.debug("  Load %d groups of elements (in %0.4f seconds)"%(len(self.medmesh.getGroupsOnSpecifiedLev(lev)), toc-tic))
 
+        self._make_continuous()
+        
         tic = time.perf_counter()
         for group in self.medmesh.getGroupsOnSpecifiedLev(1):
             ids = self.medmesh.getGroupArr(1, group).getValues()

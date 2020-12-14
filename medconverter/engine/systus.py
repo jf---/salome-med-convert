@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-import logging
 import os.path as osp
 import medcoupling
 
@@ -19,11 +18,10 @@ class MedConverterSystus(MedConverterMesh):
 
     @staticmethod
     def convert_systus_to_med(filename_systus, filename_med, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
 
         tic = time.perf_counter()
         c = MedConverterSystus()
+        c.verbose = verbose
         c.read_systus_mesh(filename_systus)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
@@ -32,11 +30,10 @@ class MedConverterSystus(MedConverterMesh):
         
     @staticmethod
     def convert_med_to_systus(filename_med, filename_systus, verbose = False):
-        if verbose :
-            logger.setLevel(logging.DEBUG)
 
         tic = time.perf_counter()
         c = MedConverterSystus()
+        c.verbose = verbose
         c.read_med_mesh(filename_med)
         c.create_systus_mesh()
         c.write_systus_mesh(filename_systus)
@@ -151,6 +148,13 @@ class MedConverterSystus(MedConverterMesh):
     def create_systus_mesh(self):
         self.systusmesh = None
         logger.debug("Create SYSTUS mesh.")
+
+        if not (bool(self.cells_continuous) or bool(self.groups_e_continuous)):
+            tic = time.perf_counter()
+            self._make_continuous()
+            toc = time.perf_counter()
+            logger.debug("Make continuous (in %0.4f seconds)"%(toc-tic))
+        
         logger.debug(" Mesh name : %s"%self.mesh_name)
         logger.debug(" Space Dimension : %d"%self.space_dim)
 
