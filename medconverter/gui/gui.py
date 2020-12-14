@@ -165,10 +165,8 @@ class MainDialog(BASE, FORM):
             if self.smeshCheckBox.isChecked():
                 publish_meshes(settings.output_file)
                 self.setStatus(translate('medconverter',
-                                         "Open the SMESH module and refresh "
-                                         "(F5) the object browser<br/>"
-                                         "to see the newly created mesh."),
-                            color='#0000ff')
+                                         "Open the SMESH module to see the newly created mesh."),
+                               color='#0000ff')
                 if use_tmp:
                     os.remove(settings.output_file)
 

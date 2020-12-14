@@ -231,7 +231,10 @@ def publish_meshes(medfile):
     Returns:
         list[Mesh]: List of SMESH Mesh objects.
     """
+    import salome
     from salome.smesh import smeshBuilder
     smesh = smeshBuilder.New()
     objs, _ = smesh.CreateMeshesFromMED(medfile)
+    if salome.sg.hasDesktop():
+        salome.sg.updateObjBrowser()
     return objs
