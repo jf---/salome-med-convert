@@ -321,3 +321,5 @@ class MedConverterMesh:
         self.medmesh.rearrangeFamilies()
         toc = time.perf_counter()
         logger.debug(" Sort families (in %0.4f seconds)"%(toc-tic))
+
+        return self.medmesh
