@@ -126,14 +126,8 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
     elif (input_format == Fmt.Abaqus and output_format == Fmt.Salome):
         MedConverterAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
 
-    elif (input_format == Fmt.Salome and output_format == Fmt.Abaqus):
-        MedConverterAbaqus.convert_med_to_abaqus(input_file, output_file, verbose)
-
     elif (input_format == Fmt.Ansys and output_format == Fmt.Salome):
         MedConverterAnsys.convert_ansys_to_med(input_file, output_file, verbose)
-
-    elif (input_format == Fmt.Salome and output_format == Fmt.Ansys):
-        MedConverterAnsys.convert_med_to_ansys(input_file, output_file, verbose)
 
     elif (input_format == Fmt.Zset and output_format == Fmt.Salome):
         MedConverterZset.convert_zset_to_med(input_file, output_file, verbose)

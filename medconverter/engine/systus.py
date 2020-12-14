@@ -58,8 +58,11 @@ class MedConverterSystus(MedConverterMesh):
         tic = time.perf_counter()
         # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
-            line_0 = next(f)
-
+            type_systus, num_systus = next(f).split()[:2]
+            if not (type_systus in ('1VSD',) and num_systus in ('0',)):
+                msg = "Cannot convert SYSTUS mesh tagged '{}' '{}'. Supported SYSTUS mesh must be tagged '1VSD' '0'.".format(type_systus, num_systus)
+                raise MedConverterError(msg)
+                    
             # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
             self.mesh_name = line_1 or osp.splitext(osp.split(filename)[-1])[0]

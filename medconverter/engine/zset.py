@@ -59,7 +59,6 @@ class MedConverterZset(MedConverterMesh):
             }
 
         tic = time.perf_counter()
-        # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
             self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
 
