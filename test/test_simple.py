@@ -59,7 +59,7 @@ class TestSimple(unittest.TestCase):
         
     def test_systus_multi(self):
         filename = osp.join(data_path(), "SYSTUS_MULTI_DONN1.ASC")
-        jsonfile = osp.join(data_path(), 'json', "SYSTUS_MULTI_DONN1.json")
+        jsonfile = osp.join(data_path(), 'json', "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
         
         filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
@@ -451,6 +451,11 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Salome, Fmt.Zset,
                                  16, 61, ['SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
                                  6, 2)
+
+    def test_aster_multi(self):
+        filename = osp.join(data_path(), "ASTER_MULTI.mail")
+        jsonfile = osp.join(data_path(), 'json', "MESH_MULTI_WITH0D.json")
+        deep_test_conversion(self, filename, Fmt.Aster, Fmt.Salome, jsonfile)
              
 if __name__ == "__main__":
     unittest.main()

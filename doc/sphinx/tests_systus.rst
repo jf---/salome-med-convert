@@ -42,11 +42,11 @@ Systus
      - 0
    * - MULTI_DONN1.ASC
      - Public
-     - 14
+     - 17
      - 61
-     - TRI3, QUAD4, HEXA8, PYRA5, TETRA4, PENTA6, PENTA15, TETRA10, HEXA20, PYRA13, QUAD8
-     - 4
-     - 0
+     - POINT1, SEG2, SEG3, TRI3, TRI6, QUAD4, HEXA8, PYRA5, TETRA4, PENTA6, PENTA15, TETRA10, HEXA20, PYRA13, QUAD8
+     - 7
+     - 2
    * - 01_CUVE_900_DONN20.ASC
      - Private
      - 79848

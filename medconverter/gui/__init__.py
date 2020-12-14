@@ -23,7 +23,7 @@ import traceback
 from ..engine import Fmt, convert as convert_engine
 
 def supported_input_formats():
-    return (Fmt.Abaqus, Fmt.Ansys, Fmt.Systus, Fmt.Zset)
+    return (Fmt.Abaqus, Fmt.Ansys, Fmt.Aster, Fmt.Systus, Fmt.Zset)
 
 def supported_output_formats():
     return (Fmt.Salome,)

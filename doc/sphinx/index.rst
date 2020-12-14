@@ -28,6 +28,7 @@ Tests
    tests_abaqus
    tests_ansys
    tests_zset
+   tests_aster
 
 Connectivity tables
 -------------------

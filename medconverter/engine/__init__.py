@@ -23,6 +23,7 @@ from .systus import MedConverterSystus
 from .abaqus import MedConverterAbaqus
 from .ansys import MedConverterAnsys
 from .zset import MedConverterZset
+from .aster import MedConverterAster
 
 class Fmt:
     """Enumerator for mesh formats.
@@ -134,6 +135,9 @@ def convert(input_file, input_format, output_file, output_format, verbose = Fals
 
     elif (input_format == Fmt.Salome and output_format == Fmt.Zset):
         MedConverterZset.convert_med_to_zset(input_file, output_file, verbose)
+
+    elif (input_format == Fmt.Aster and output_format == Fmt.Salome):
+        MedConverterAster.convert_aster_to_med(input_file, output_file, verbose)
 
     else :
         raise ValueError("Unsupported format conversion!")
