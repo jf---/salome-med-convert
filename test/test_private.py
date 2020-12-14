@@ -75,12 +75,6 @@ class TestPrivate(unittest.TestCase):
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
         
-    def test_systus_ehp(self):
-        testname = "SYSTUS_DONN408"
-        filename = get_datafile_path("%s.ASC"%testname)
-        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
-        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
-
     def test_abaqus_flam(self):
         testname = "ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN"
         filename = get_datafile_path("%s.inp"%testname)
@@ -89,12 +83,6 @@ class TestPrivate(unittest.TestCase):
 
     def test_abaqus_graphite(self):
         testname = "ABAQUS_HNBR3M"
-        filename = get_datafile_path("%s.inp"%testname)
-        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
-        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
-
-    def test_abaqus_perf(self):
-        testname = "ABAQUS_PERF"
         filename = get_datafile_path("%s.inp"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
@@ -131,12 +119,6 @@ class TestPrivate(unittest.TestCase):
 
     def test_ansys_exemple_06(self):
         testname = "ANSYS_EXEMPLE_06"
-        filename = get_datafile_path("%s.cdb"%testname)
-        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
-        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
-
-    def test_ansys_perf(self):
-        testname = "ANSYS_PERF"
         filename = get_datafile_path("%s.cdb"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
