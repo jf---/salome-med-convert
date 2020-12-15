@@ -71,17 +71,17 @@ def get_datafile_path(datafile, force=False):
         str: Absolute local path of the datafile or *None* if the destination
         file can not be provided.
     """
-    cachedir = "/tmp/_med_convert_cache"
     force = force or int(os.environ.get("MEDCONVERT_FORCEDOWNLOAD", 0)) == 1
-    sline = datafile.split("/")
-    if len(sline) > 1:
-        cachedir += "/"+ sline[0]
+
+    subdir, filename = osp.split(datafile)
+    cachedir = osp.join('/', 'tmp', '_med_convert_cache', subdir)
     os.makedirs(cachedir, exist_ok=True)
-    filename = osp.join(cachedir, sline[-1])
+
+    filepath = osp.join(cachedir, filename)
     if force or not osp.isfile(filename):
-        if not download_file(datafile, filename, insecure=True):
+        if not download_file(datafile, filepath, insecure=True):
             return None
-    return filename
+    return filepath
 
 def tempdir(func):
     """Decorator that executes a function in a temporary directory.
