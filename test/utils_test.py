@@ -57,7 +57,7 @@ def download_file(datafile, dest, insecure=False):
                 fobj.write(request.read())
             iret = request.getcode()
         return iret == 200
-    
+
     except HTTPError :
         return None
 
@@ -73,8 +73,11 @@ def get_datafile_path(datafile, force=False):
     """
     cachedir = "/tmp/_med_convert_cache"
     force = force or int(os.environ.get("MEDCONVERT_FORCEDOWNLOAD", 0)) == 1
+    sline = datafile.split("/")
+    if len(sline) > 1:
+        cachedir += "/"+ sline[0]
     os.makedirs(cachedir, exist_ok=True)
-    filename = osp.join(cachedir, datafile)
+    filename = osp.join(cachedir, sline[-1])
     if force or not osp.isfile(filename):
         if not download_file(datafile, filename, insecure=True):
             return None
@@ -117,7 +120,7 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     if not filename:
         print("Test skipped", end="\n")
         return
-    
+
     utest.assertTrue(osp.isfile(filename), filename)
 
     outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
@@ -126,7 +129,7 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
         utest.assertFalse(osp.isfile(outfile), outfile)
 
     convert_engine(filename, input_format, outfile, output_format, verbose=(DEBUG == 1))
-  
+
     utest.assertTrue(osp.isfile(outfile))
 
     if output_format is Fmt.Salome :
@@ -157,7 +160,7 @@ def standard_test_conversion(utest, filename, input_format, output_format,
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
 
     total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
-    
+
     utest.assertEqual(total_nb_of_cells, nbcells)
     utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
     utest.assertEqual(set(convertedcellstypes), set(cellstypes))
@@ -169,7 +172,7 @@ def deep_test_conversion(utest, filename, input_format, output_format,
                          jsonfile):
 
     """Function to deep check a mesh conversion.
-       
+
     Arguments:
         utest (*unittest.TestCase*): Test object.
         filename (str): Input mesh file.
@@ -183,7 +186,7 @@ def deep_test_conversion(utest, filename, input_format, output_format,
 
     with open(jsonfile) as f:
         refe = json.load(f)
-        
+
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
     convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i) for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
@@ -203,7 +206,7 @@ def deep_test_conversion(utest, filename, input_format, output_format,
             idx = int(cell.split('_')[0].strip('ID'))
             cell_type = "NORM_%s"%cell.split('_')[1]
             refe_cells_types.append(cell_type)
-            utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)          
+            utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)
             utest.assertEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
 
     utest.assertEqual(set(convertedcellstypes), set(refe_cells_types))

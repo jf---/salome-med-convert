@@ -24,15 +24,15 @@ from medconverter.engine import Fmt
 from medconverter.utilities import data_path
 
 class TestPrivate(unittest.TestCase):
-    
+
     def setUp(self):
         self._start_time = time.perf_counter()
-        
+
     def tearDown(self):
         t = time.perf_counter() - self._start_time
         test_name = self.id().split('.')[-1]
-        print('%s in %.3f sec' %(test_name, t))   
-    
+        print('%s in %.3f sec' %(test_name, t))
+
     def test_systus_cuve(self):
         testname = "SYSTUS_01_CUVE_900_DONN20"
         filename = get_datafile_path("%s.ASC"%testname)
@@ -50,13 +50,13 @@ class TestPrivate(unittest.TestCase):
         filename = get_datafile_path("%s.ASC"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
-               
+
     def test_systus_coude(self):
         testname = "SYSTUS_COUDE_A_DONN1000"
         filename = get_datafile_path("%s.ASC"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
-        
+
     def test_systus_coude_quad(self):
         testname = "SYSTUS_COUDE_A_QUAD_DONN1000"
         filename = get_datafile_path("%s.ASC"%testname)
@@ -74,7 +74,7 @@ class TestPrivate(unittest.TestCase):
         filename = get_datafile_path("%s.ASC"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
-        
+
     def test_abaqus_flam(self):
         testname = "ABAQUS_MAILLE_MF_FLAM-ELAS-CLEAN"
         filename = get_datafile_path("%s.inp"%testname)
@@ -84,6 +84,21 @@ class TestPrivate(unittest.TestCase):
     def test_abaqus_graphite(self):
         testname = "ABAQUS_HNBR3M"
         filename = get_datafile_path("%s.inp"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
+
+    def test_abaqus_hoj(self):
+        testname = "ABAQUS_HOJ"
+        folder   = "ABAQUS_HOJ"
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_Ad_E_Full_ELSE_BE_DAMP.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_ASSEMBLY.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_MASS_Ad_FULL.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_MATERIAL_SEISMIC.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_PART.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_Seismic_Spring_Gen_BE_Full_Emb_assembly.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_Spectra.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_v07_sets.txt"))
+        filename = get_datafile_path("%s/%s"%(folder, "ABAQUS_HOJ_Ad_E_Full_RS_Y_BE.inp"))
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
@@ -98,19 +113,19 @@ class TestPrivate(unittest.TestCase):
         filename = get_datafile_path("%s.cdb"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
-                                 
+
     def test_ansys_exemple_03(self):
         testname = "ANSYS_EXEMPLE_03"
         filename = get_datafile_path("%s.cdb"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
-                                 
+
     def test_ansys_exemple_04(self):
         testname = "ANSYS_EXEMPLE_04"
         filename = get_datafile_path("%s.cdb"%testname)
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
- 
+
     def test_ansys_exemple_05(self):
         testname = "ANSYS_EXEMPLE_05"
         filename = get_datafile_path("%s.cdb"%testname)

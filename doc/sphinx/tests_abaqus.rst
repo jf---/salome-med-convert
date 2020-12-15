@@ -257,3 +257,10 @@ Abaqus
      - HEXA20
      - 1
      - 0
+   * - ABAQUS_HOJ.inp
+     - Private
+     - 149637
+     - 69023
+     - POINT1, TRI3, QUAD4
+     - 64223
+     - 648

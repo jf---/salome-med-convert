@@ -130,7 +130,7 @@ def create_test_json_file(medfilename, jsonfilename):
     """Function to create the json file suitable for the deep test.
 
     """
-    
+
     mm = MEDFileUMesh(medfilename)
     testvalues = {}
     testvalues['NODES'] = {}
