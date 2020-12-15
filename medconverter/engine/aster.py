@@ -44,7 +44,33 @@ class MedConverterAster(MedConverterMesh):
         super(MedConverterAster, self).__init__()
         self.astermesh = None
 
-    def read_aster_mesh(self, filename):
+    def _slow_parser(self, filename):
+        #Pour lire des fichiers .mail assez vieux...
+        skip = 'NBOBJ NBLIGE NBLIGT NUMIN NUMAX AUTEUR DATE'.split()
+        re_dbl_fort = re.compile(r'(\d*\.\d+)[dD]([-+]?\d+)')
+        
+        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+            for line in f:
+                line = line.partition("%")[0].strip()
+                if any(j in line for j in skip):
+                    for k in skip :
+                        line = line.partition(k)[0].strip()
+                line = line.upper()
+                line = re_dbl_fort.sub(r'\1E\2', line)
+                spline = line.split()
+                if len(spline) > 0:
+                    yield line, spline
+
+    def _fast_parser(self, filename):
+        #Pour lire des fichiers .mail exportés par un IMPR_RESU
+        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+            for line in f:
+                line = line.partition("%")[0].strip()
+                spline = line.split()
+                if len(spline) > 0:
+                    yield line, spline
+                    
+    def read_aster_mesh(self, filename, parse_fast=True):
         logger.debug("Read ASTER mesh.")
 
         self._reset_structures()
@@ -60,55 +86,56 @@ class MedConverterAster(MedConverterMesh):
 
         self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
 
-        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+        mail_parser = self._fast_parser(filename) if parse_fast else self._slow_parser(filename)
+        for line, spline in mail_parser:
 
-            for line in f:
-                if '%' in line :
-                    continue
-                
-                spline = line.split()
+            if not "FINSF" in spline[0]:
+                if flag['NODES'] is 1 :
+                    NODES.append(spline)
+                elif flag['ELEMENTS'] is 1 :
+                    for i in spline :
+                        ELEMENTS[etype].append(i)
+                elif flag['GROUPS_N'] is 1 :
+                    for i in spline : 
+                        GROUPS_N[grp_name].append(i)
+                elif flag['GROUPS_M'] is 1 :
+                    for i in spline : 
+                        GROUPS_M[grp_name].append(i)
 
-                if 'FINSF' not in line :
-                    if flag['NODES'] is 1 :
-                        NODES.append(spline)
-                    elif flag['ELEMENTS'] is 1 :
-                        for i in spline : 
-                            ELEMENTS[etype].append(i)
-                    elif flag['GROUPS_N'] is 1 :
-                        for i in spline : 
-                            GROUPS_N[grp_name].append(i)
-                    elif flag['GROUPS_M'] is 1 :
-                        for i in spline : 
-                            GROUPS_M[grp_name].append(i)
+            if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")):
+                flag['NODES'] = 1
+                self.space_dim = int(spline[0].strip('COOR_').strip('D'))
 
-                if "COOR" in line :
-                    flag['NODES'] = 1
-                    self.space_dim = int(spline[0].strip('COOR_').strip('D'))
+            elif any(i in (spline[0],) for i in CellsTypeConverter._aster_to_med.keys()):
+                flag['ELEMENTS'] = 1
+                etype = spline[0]
+                ELEMENTS[etype] = []
 
-                elif any(i in line for i in CellsTypeConverter._aster_to_med.keys()):
-                    flag['ELEMENTS'] = 1
-                    etype = spline[0]
-                    ELEMENTS[etype] = []
+            elif "GROUP_NO" in spline[0]:
+                flag['GROUPS_N'] = 1
+                if any('NOM' in i for i in spline):
+                    grp_name = line.partition('NOM')[-1].partition('=')[-1].strip().split()[0]
+                else:
+                    grp_name = next(mail_parser)[0]
+                GROUPS_N[grp_name] = []
 
-                elif "GROUP_NO" in line :
-                    flag['GROUPS_N'] = 1
-                    grp_name = next(f).split()[0]
-                    GROUPS_N[grp_name] = []
+            elif "GROUP_MA" in spline[0]:
+                flag['GROUPS_M'] = 1
+                if any('NOM' in i for i in spline):
+                    grp_name = line.partition('NOM')[-1].partition('=')[-1].strip().split()[0]
+                else:
+                    grp_name = next(mail_parser)[0]
+                GROUPS_M[grp_name] = []
 
-                elif "GROUP_MA" in line :
-                    flag['GROUPS_M'] = 1
-                    grp_name = next(f).split()[0]
-                    GROUPS_M[grp_name] = []
+            elif "FINSF" in spline[0]:
+                flag['NODES'] = 0
+                flag['ELEMENTS'] = 0
+                flag['GROUPS_N'] = 0
+                flag['GROUPS_M'] = 0
 
-                elif "FINSF"  in line :
-                    flag['NODES'] = 0
-                    flag['ELEMENTS'] = 0
-                    flag['GROUPS_N'] = 0
-                    flag['GROUPS_M'] = 0
-
-            for etype, values in ELEMENTS.items():
-                nb_nodes = int(re.findall(r'\d+', etype)[0])
-                ELEMENTS[etype] = list(chunks(values, 1 + nb_nodes))
+        for etype, values in ELEMENTS.items():
+            nb_nodes = int(re.findall(r'\d+', etype)[0])
+            ELEMENTS[etype] = list(chunks(values, 1 + nb_nodes))
             
         toc = time.perf_counter()
         logger.debug(" File name : %s (parsed in %0.4f seconds)"%(filename, toc-tic))
@@ -122,7 +149,7 @@ class MedConverterAster(MedConverterMesh):
             coords = tuple(map(float, spline[-self.space_dim:]))
             self.add_node(idx_aster, coords)
         toc = time.perf_counter()
-        logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES)-1, toc-tic))
+        logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES), toc-tic))
         
         # Les elements
         e_conv = CellsTypeConverter('ASTER')
