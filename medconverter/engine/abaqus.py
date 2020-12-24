@@ -500,7 +500,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
     @staticmethod
     def convert_abaqus_to_med(filename_abaqus, filename_med, verbose = False):
-        
+
         tic = time.perf_counter()
         c = MedConverterAbaqus()
         c.verbose = verbose
@@ -509,10 +509,10 @@ class MedConverterAbaqus(MedConverterMesh):
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     @staticmethod
     def convert_med_to_abaqus(filename_med, filename_abaqus, verbose = False):
-        
+
         tic = time.perf_counter()
         c = MedConverterAbaqus()
         c.verbose = verbose
@@ -521,7 +521,7 @@ class MedConverterAbaqus(MedConverterMesh):
         c.write_abaqus_mesh(filename_abaqus)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     def __init__(self):
         super(MedConverterAbaqus, self).__init__()
         self.abaqusmesh = None
@@ -579,7 +579,7 @@ class MedConverterAbaqus(MedConverterMesh):
         # nodes of the mesh (collection of double)
         for node in mesh.Nodes:
             self.add_node(int(node.getId()), node.getCoordinates())
- 
+
         # Les elements, triés par dimension
         e_conv = CellsTypeConverter('ABAQUS')
         c_renum = ConnectivityRenumberer('ABAQUS')
@@ -592,7 +592,7 @@ class MedConverterAbaqus(MedConverterMesh):
             element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_abaqus)
 
-            self.add_cell(idx_element_abaqus, element_medcoupling_type, element_nodes_med)            
+            self.add_cell(idx_element_abaqus, element_medcoupling_type, element_nodes_med)
 
         # Les groups
         # Nodes' group
@@ -600,14 +600,14 @@ class MedConverterAbaqus(MedConverterMesh):
             group_name = group.getName()
             group_nodes_abaqus = map(int, group.getGroup())
             self.add_group_nodes(group_name, group_nodes_abaqus)
-           
+
         # Element's group
         for group in mesh.Elset :
             group_name = group.getName()
             group_element_abaqus = map(int, group.getGroup())
             self.add_group_cells(group_name, group_element_abaqus)
 
-          
+
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]
 

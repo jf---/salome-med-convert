@@ -27,12 +27,12 @@ class TestSimple(unittest.TestCase):
 
     def setUp(self):
         self._start_time = time.perf_counter()
-        
+
     def tearDown(self):
         t = time.perf_counter() - self._start_time
         test_name = self.id().split('.')[-1]
         print('%s in %.3f sec' %(test_name, t))
-    
+
     def test_systus_carre(self):
         filename = osp.join(data_path(),"SYSTUS_CARRE_DONN1.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
@@ -50,18 +50,18 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  114, 673, ['QUAD8','HEXA20'],
                                  4, 0)
-        
+
     def test_systus_rectangle(self):
         filename = osp.join(data_path(), "SYSTUS_RECTANGLE_DONN1.ASC")
         standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
                                  60, 213, ['QUAD8'],
                                  1, 0)
-        
+
     def test_systus_multi(self):
         filename = osp.join(data_path(), "SYSTUS_MULTI_DONN1.ASC")
         jsonfile = osp.join(data_path(), 'json', "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
-        
+
         filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
         standard_test_conversion(self, filename, Fmt.Salome, Fmt.Systus,
                                  17, 61, ['POINT1', 'SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
@@ -72,7 +72,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                                  1, 4, ['QUAD4'],
                                  3, 3)
-        
+
     def test_abaqus_2cubesh20(self):
         filename = osp.join(data_path(), "ABAQUS_2CUBEH20.inp")
         standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
@@ -276,7 +276,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 15, ['PENTA15'],
                                  0, 0)
-                                 
+
     def test_ansys_solid186_03_tetra(self):
         filename = osp.join(data_path(), "ANSYS_SOLID186_03_TETRA.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -288,7 +288,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 13, ['PYRA13'],
                                  0, 0)
-                                 
+
     def test_ansys_beam188_2n(self):
         filename = osp.join(data_path(), "ANSYS_BEAM188_2n.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -312,7 +312,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 4, ['SEG3'],
                                  0, 0)
-                              
+
     def test_ansys_combin14(self):
         filename = osp.join(data_path(), "ANSYS_COMBIN14.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -324,7 +324,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 2, ['SEG2'],
                                  0, 0)
-                                        
+
     def test_ansys_pipe288_2n(self):
         filename = osp.join(data_path(), "ANSYS_PIPE288_2n.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -372,7 +372,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 6, ['TRI6'],
                                  0, 0)
-                                 
+
     def test_ansys_shell181_01_quad(self):
         filename = osp.join(data_path(), "ANSYS_SHELL181_01_QUAD.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -390,7 +390,7 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 8, ['QUAD8'],
                                  0, 0)
-                          
+
     def test_ansys_shell281_02_tri(self):
         filename = osp.join(data_path(), "ANSYS_SHELL281_02_TRI.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
@@ -426,20 +426,20 @@ class TestSimple(unittest.TestCase):
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  1, 10, ['TETRA10'],
                                  0, 0)
-    
+
     def test_ansys_hexbeam(self):
         filename = osp.join(data_path(), "ANSYS_HexBeam.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  40, 321, ['HEXA20'],
                                  2, 2)
-                                 
+
     def test_ansys_sector(self):
         filename = osp.join(data_path(), "ANSYS_Sector.cdb")
         standard_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                                  105, 655, ['HEXA8', 'PENTA6'],
                                  0, 1)
 
-        
+
     def test_zset_multi(self):
         filename = osp.join(data_path(), "ZSET_MULTI.geof")
         standard_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
@@ -456,6 +456,6 @@ class TestSimple(unittest.TestCase):
         filename = osp.join(data_path(), "ASTER_MULTI.mail")
         jsonfile = osp.join(data_path(), 'json', "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Aster, Fmt.Salome, jsonfile)
-             
+
 if __name__ == "__main__":
     unittest.main()

@@ -318,14 +318,14 @@ class CellsTypeConverter:
         ('c3d13_27', 'PYRA13'),
         ('c3d13r', 'PYRA13'),
         ('c3d13', 'PYRA13'),
-        
+
     ))
 
     _ansys_to_med =  OrderedDict((
 
         # Mass element - 0D
         ('21_1', 'POINT1'),
-        ('71_1', 'POINT1'),        
+        ('71_1', 'POINT1'),
         ('166_1', 'POINT1'),
 
         #SOLID5
@@ -636,7 +636,7 @@ class CellsTypeConverter:
 
         #SOLID187
         ('187_10', 'TETRA10'),
-        
+
         #BEAM188
         ('188_2', 'SEG2'),
 
@@ -842,9 +842,9 @@ class GroupCellsTypeConverter(CellsTypeConverter):
     _abaqus_to_med = {}
     _aster_to_med = {}
     _ansys_to_med = {}
-    
+
     _zset_to_med = OrderedDict((
-        
+
         ('line', 'SEG2'),
         ('quad', 'SEG3'),
         ('t3', 'TRI3'),
@@ -853,7 +853,6 @@ class GroupCellsTypeConverter(CellsTypeConverter):
         ('q8', 'QUAD8'),
 
     ))
-    
+
     def __init__(self, code):
         super(GroupCellsTypeConverter, self).__init__(code)
-
