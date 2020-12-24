@@ -183,20 +183,26 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug(" Load %d groups (in %0.4f seconds)"%(len(Groups), toc-tic))
 
 
-    def getCoor(self, line):
-        # le premier decimal commence a la colonne 27 et termine a 48
+    def getCoor(self, line, firstStr, long):
+        # le premier decimal commence a la colonne firstStrg
+        start = firstStr
+        end = start + long
         try:
-            X = float(line[27:48])
+            X = float(line[start:end])
         except (ValueError, TypeError):
             X = 0.0
 
+        start += long
+        end = start + long
         try:
-            Y = float(line[48:69])
+            Y = float(line[start:end])
         except (ValueError, TypeError):
             Y = 0.0
 
+        start += long
+        end = start + long
         try:
-            Z = float(line[69:91])
+            Z = float(line[start:end])
         except (ValueError, TypeError):
             Z = 0.0
 
@@ -206,12 +212,15 @@ class MedConverterAnsys(MedConverterMesh):
         while True:
             line = file.readline()
             strip_line = line.strip()
-            if line.strip().startswith("(") : None
+            if strip_line.startswith("(") :
+                [firstStr, LongFloat] = self.node_format(strip_line)
             elif strip_line.startswith("N,") :
                 break
             else :
                 spline = strip_line.split()
-                self.add_node(int(spline[0]), self.getCoor(line))
+                # print(line)
+                # print((int(spline[0]), self.getCoor(line, firstStr, LongFloat)))
+                self.add_node(int(spline[0]), self.getCoor(line, firstStr, LongFloat))
 
     def __read_cells(self, file, Cells):
         l_new_cell = True
@@ -234,7 +243,8 @@ class MedConverterAnsys(MedConverterMesh):
                         l_new_cell = False
                 else:
                     cnodes += enum
-                    l_new_cell = True
+                    if len(cnodes) == nb_nodes:
+                        l_new_cell = True
 
                 if l_new_cell:
                     assert len(cnodes) == nb_nodes
@@ -261,6 +271,16 @@ class MedConverterAnsys(MedConverterMesh):
                 elif len(elems) > nb_elem:
                     raise RuntimeError("Wrong reading of groups")
 
+    def decode_format(self, line):
+        return line.strip().lstrip("(").rstrip(")").split(",")
+
+    def node_format(self, line):
+        format = self.decode_format(line)
+        s0 = format[0].split("i")
+        firstStr = int(s0[0]) * int(s0[1])
+        long = int(format[1].split('e')[1].split(".")[0])
+
+        return [firstStr, long]
 
     def write_ansys_mesh(self, filename):
         raise NotImplementedError()

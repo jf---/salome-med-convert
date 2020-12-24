@@ -622,6 +622,9 @@ class CellsTypeConverter:
         ('183_8', 'QUAD8'),
         ('183_6', 'TRI6'),
 
+        #MPC184
+        ('184_2', 'SEG2'),
+
         #SOLID185
         ('185_8', 'HEXA8'),
         ('185_6', 'PENTA6'),
