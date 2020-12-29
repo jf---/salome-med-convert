@@ -177,36 +177,24 @@ class MedConverterAnsys(MedConverterMesh):
             elif group.type == 'ELEM':
                 self.add_group_cells(group.name, values)
             else:
-                raise RuntimeError("Unknown group's type")
+                raise MedConverterError("Unknown group's type")
 
         toc = time.perf_counter()
         logger.debug(" Load %d groups (in %0.4f seconds)"%(len(Groups), toc-tic))
 
 
-    def getCoor(self, line, firstStr, long):
+    def getCoor(self, line, firstStr, longFloat):
         # le premier decimal commence a la colonne firstStrg
-        start = firstStr
-        end = start + long
-        try:
-            X = float(line[start:end])
-        except (ValueError, TypeError):
-            X = 0.0
+        rline = line.rstrip()[firstStr:]
+        elems = [float(rline[i:i+longFloat]) for i in range(0, len(rline), longFloat)]
 
-        start += long
-        end = start + long
-        try:
-            Y = float(line[start:end])
-        except (ValueError, TypeError):
-            Y = 0.0
+        nbElem = len(elems)
+        assert nbElem <= 3
 
-        start += long
-        end = start + long
-        try:
-            Z = float(line[start:end])
-        except (ValueError, TypeError):
-            Z = 0.0
-
-        return [X, Y, Z]
+        if nbElem == 3:
+            return elems
+        else:
+            return elems + [0.0]*(3-nbElem)
 
     def __read_nodes(self, file):
         while True:
@@ -218,22 +206,22 @@ class MedConverterAnsys(MedConverterMesh):
                 break
             else :
                 spline = strip_line.split()
-                # print(line)
-                # print((int(spline[0]), self.getCoor(line, firstStr, LongFloat)))
                 self.add_node(int(spline[0]), self.getCoor(line, firstStr, LongFloat))
 
     def __read_cells(self, file, Cells):
         l_new_cell = True
         while True:
             line = file.readline()
-            strip_line = line.strip()
-            if strip_line.startswith("(") : None
+            rline = line.rstrip()
+            strip_line = rline.lstrip()
+            if strip_line.startswith("(") :
+                nbElem, LongInt = self.cell_format(strip_line)
             elif strip_line.startswith("-1") :
                 break
             else :
-                sline = strip_line.split()
-                enum = [int(i) for i in sline]
-                #print("clines: ", enum)
+                enum = [int(rline[i:i+LongInt]) for i in range(0, len(rline), LongInt)]
+                assert len(enum) <= nbElem
+
                 if l_new_cell:
                     cnodes = enum[11:]
                     nb_nodes = enum[8]
@@ -249,7 +237,6 @@ class MedConverterAnsys(MedConverterMesh):
                 if l_new_cell:
                     assert len(cnodes) == nb_nodes
                     Cells.append(AnsysCell(ctype, cid, cnodes))
-                    #print("cnodes: ", nodes)
 
     def __read_groups(self, file, line, Groups):
         spline = line.split(",")
@@ -259,17 +246,18 @@ class MedConverterAnsys(MedConverterMesh):
         elems = []
         while True:
             line = file.readline()
-            strip_line = line.strip()
-            if strip_line.startswith("(") : None
+            rline = line.rstrip()
+            strip_line = rline.lstrip()
+            if strip_line.startswith("(") :
+                nbElem, LongInt = self.cell_format(strip_line)
             else :
-                spline = strip_line.split()
-                elems += [int(i) for i in spline]
+                elems += [int(rline[i:i+LongInt]) for i in range(0, len(rline), LongInt)]
 
                 if len(elems) == nb_elem:
                     Groups.append(AnsysGroup(gname, gtype, elems))
                     break
                 elif len(elems) > nb_elem:
-                    raise RuntimeError("Wrong reading of groups")
+                    raise MedConverterError("Wrong reading of groups")
 
     def decode_format(self, line):
         return line.strip().lstrip("(").rstrip(")").split(",")
@@ -281,6 +269,14 @@ class MedConverterAnsys(MedConverterMesh):
         long = int(format[1].split('e')[1].split(".")[0])
 
         return [firstStr, long]
+
+    def cell_format(self, line):
+        format = self.decode_format(line)
+        s0 = format[0].split("i")
+        nbElem = int(s0[0])
+        long = int(s0[1])
+
+        return [nbElem, long]
 
     def write_ansys_mesh(self, filename):
         raise NotImplementedError()
