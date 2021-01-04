@@ -35,27 +35,23 @@ class TestSimple(unittest.TestCase):
 
     def test_systus_carre(self):
         filename = osp.join(data_path(),"SYSTUS_CARRE_DONN1.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 25, 96, ['QUAD8'],
-                                 1, 0)
+        jsonfile = osp.join(data_path(), 'json', "SYSTUS_CARRE_DONN1.json")
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_couronne(self):
         filename = osp.join(data_path(), "SYSTUS_COURONNE_DONN1.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 216, 720, ['QUAD8'],
-                                 1, 0)
+        jsonfile = osp.join(data_path(), 'json', "SYSTUS_COURONNE_DONN1.json")
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_motif(self):
         filename = osp.join(data_path(), "SYSTUS_MOTIF_DONN1.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 114, 673, ['QUAD8','HEXA20'],
-                                 4, 0)
+        jsonfile = osp.join(data_path(), 'json', "SYSTUS_MOTIF_DONN1.json")
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_rectangle(self):
         filename = osp.join(data_path(), "SYSTUS_RECTANGLE_DONN1.ASC")
-        standard_test_conversion(self, filename, Fmt.Systus, Fmt.Salome,
-                                 60, 213, ['QUAD8'],
-                                 1, 0)
+        jsonfile = osp.join(data_path(), 'json', "SYSTUS_RECTANGLE_DONN1.json")
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_systus_multi(self):
         filename = osp.join(data_path(), "SYSTUS_MULTI_DONN1.ASC")
@@ -441,9 +437,9 @@ class TestSimple(unittest.TestCase):
 
     def test_zset_multi(self):
         filename = osp.join(data_path(), "ZSET_MULTI.geof")
-        standard_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
-                                 16, 61, ['SEG2', 'SEG3', 'TETRA4', 'PYRA5', 'PENTA6', 'HEXA8', 'TETRA10', 'PYRA13', 'PENTA15', 'HEXA20', 'TRI3', 'QUAD4', 'QUAD8', 'TRI6'],
-                                 6, 2)
+        jsonfile = osp.join(data_path(), "json", "ZSET_MULTI.json")
+        deep_test_conversion(self, filename, Fmt.Zset, Fmt.Salome,
+                             jsonfile)
 
         filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
 
