@@ -123,5 +123,26 @@ class TestPrivate(unittest.TestCase):
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
+    def test_ansys_dynamic(self):
+        testname = "ANSYS_Dynamic_Max"
+        filename = get_datafile_path("%s.cdb"%testname)
+        #filename = osp.join(data_path(), "%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
+    def test_ansys_hw_b02(self):
+        testname = "ANSYS_HW_B02-B03-Geo"
+        filename = get_datafile_path("%s.cdb"%testname)
+        #filename = osp.join(data_path(), "%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
+    def test_ansys_hd_d2(self):
+        testname = "ANSYS_HD_D2_Geo_B9"
+        filename = get_datafile_path("%s.cdb"%testname)
+        #filename = osp.join(data_path(), "%s.cdb"%testname)
+        jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
 if __name__ == "__main__":
     unittest.main()
