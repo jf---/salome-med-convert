@@ -122,7 +122,7 @@ class MedConverterAnsys(MedConverterMesh):
                     title = line.split(",")[1].strip().replace("\n", '')
 
 
-        assert nb_total_nodes == len(self.nodes)
+        #assert nb_total_nodes == len(self.nodes)
         assert nb_total_cells == len(Cells)
 
 
@@ -131,7 +131,7 @@ class MedConverterAnsys(MedConverterMesh):
 
         toc = time.perf_counter()
         logger.debug(" File name : %s (parsed in %0.4f seconds)"%(filename, toc-tic))
-        logger.debug(" -> nodes: %d (parsed in %0.4f seconds)"%(nb_total_nodes, time_nodes))
+        logger.debug(" -> nodes: %d (parsed in %0.4f seconds)"%(len(self.nodes), time_nodes))
         logger.debug(" -> cells: %d (parsed in %0.4f seconds)"%(nb_total_cells, time_cell))
         logger.debug(" -> groups: %d (parsed in %0.4f seconds)"%(len(Groups), time_groups))
 
