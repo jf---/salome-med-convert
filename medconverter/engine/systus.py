@@ -27,7 +27,7 @@ class MedConverterSystus(MedConverterMesh):
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     @staticmethod
     def convert_med_to_systus(filename_med, filename_systus, verbose = False):
 
@@ -50,11 +50,11 @@ class MedConverterSystus(MedConverterMesh):
 
         self._reset_structures()
         NODES, ELEMENTS, GROUPS = [], [], []
-        
+
         flag = {'NODES' : 0,
                 'ELEMENTS' : 0,
                 'GROUPS' : 0}
-        
+
         tic = time.perf_counter()
         # Lecture du fichier .ASC où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
@@ -62,7 +62,7 @@ class MedConverterSystus(MedConverterMesh):
             if not (type_systus in ('1VSD',) and num_systus in ('0',)):
                 msg = "Cannot convert SYSTUS mesh tagged '{}' '{}'. Supported SYSTUS mesh must be tagged '1VSD' '0'.".format(type_systus, num_systus)
                 raise MedConverterError(msg)
-                    
+
             # Lecture du nom du maillage si disponible
             line_1 = next(f).strip()
             self.mesh_name = line_1 or osp.splitext(osp.split(filename)[-1])[0]
@@ -106,7 +106,7 @@ class MedConverterSystus(MedConverterMesh):
             self.add_node(idx_systus, coords)
         toc = time.perf_counter()
         logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES)-1, toc-tic))
-        
+
         # Les elements
         e_conv = CellsTypeConverter('SYSTUS')
         c_renum = ConnectivityRenumberer('SYSTUS')
@@ -140,7 +140,7 @@ class MedConverterSystus(MedConverterMesh):
                 self.add_group_cells(group_name, values)
         toc = time.perf_counter()
         logger.debug(" Load %d groups (in %0.4f seconds)"%(len(GROUPS)-1, toc-tic))
-        
+
     def write_systus_mesh(self, filename):
         tic = time.perf_counter()
         with open(filename, 'w') as f :
@@ -157,7 +157,7 @@ class MedConverterSystus(MedConverterMesh):
             self._make_continuous()
             toc = time.perf_counter()
             logger.debug("Make continuous (in %0.4f seconds)"%(toc-tic))
-        
+
         logger.debug(" Mesh name : %s"%self.mesh_name)
         logger.debug(" Space Dimension : %d"%self.space_dim)
 
@@ -192,11 +192,11 @@ class MedConverterSystus(MedConverterMesh):
         for group, values in self.groups_e_continuous.items():
             ids = SYSTUS_CELLS_SHIFT + medcoupling.DataArrayInt(values)
             groups_e_ids[group] = ids.getValues()
-            
+
         for group, values in self.groups_n.items():
             ids = SYSTUS_NODES_SHIFT + medcoupling.DataArrayInt(values)
             groups_n_ids[group] = ids.getValues()
-            
+
         id_groups = 1 # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()) :
             group_e = groups_e_ids[name]

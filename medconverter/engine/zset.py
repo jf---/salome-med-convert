@@ -29,7 +29,7 @@ class MedConverterZset(MedConverterMesh):
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     @staticmethod
     def convert_med_to_zset(filename_med, filename_zset, verbose = False):
 
@@ -41,7 +41,7 @@ class MedConverterZset(MedConverterMesh):
         c.write_zset_mesh(filename_zset)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     def __init__(self):
         super(MedConverterZset, self).__init__()
         self.zsetmesh = None
@@ -69,14 +69,14 @@ class MedConverterZset(MedConverterMesh):
                     ELEMENTS.append(line)
                 elif flag['GROUPS'] is 1 :
                     GROUPS.append(line)
-            
+
                 if "**node" in line :
                     flag['NODES'] = 1
-            
+
                 elif "**element" in line :
                     flag['ELEMENTS'] = 1
                     flag['NODES'] =  0
-                    
+
                 elif "***group" in line :
                     flag['ELEMENTS'] = 0
                     flag['GROUPS'] = 1
@@ -137,7 +137,7 @@ class MedConverterZset(MedConverterMesh):
 
         toc = time.perf_counter()
         logger.debug(" Parse groups (in %0.4f seconds)"%(toc-tic))
-        
+
         tic = time.perf_counter()
         nodes_groups = groups.get('nset', {})
         for group_name, items in sorted(nodes_groups.items()):
@@ -182,7 +182,7 @@ class MedConverterZset(MedConverterMesh):
             self.add_cell(idx_element_zset, element_medcoupling_type, element_nodes_med)
             values.append(idx_element_zset)
         self.add_group_cells(bset_name, values)
-        
+
     def write_zset_mesh(self, filename):
         tic = time.perf_counter()
         with open(filename, 'w') as f :
@@ -202,11 +202,11 @@ class MedConverterZset(MedConverterMesh):
         nodes_lines = ('%d '%(i+ZSET_NODES_SHIFT) + frmt.format(*node) for i, node in enumerate(self.nodes))
         toc = time.perf_counter()
         logger.debug(" Add %d nodes (in %0.4f seconds)"%(nb_nodes, toc-tic))
-        
+
         c_renum = ConnectivityRenumberer('ZSET')
         e_conv = CellsTypeConverter('ZSET')
         g_conv = GroupCellsTypeConverter('ZSET')
-        
+
         elements_lines = []
         tic = time.perf_counter()
         for j, (medcoupling_type, element_nodes_med) in enumerate(self.cells[self.max_dim_cells]):
@@ -238,7 +238,7 @@ class MedConverterZset(MedConverterMesh):
                 groups_lines.append(' %s'%(' '.join(map(str, chunck))))
         toc = time.perf_counter()
         logger.debug(" Add %d elset (in %0.4f seconds)"%(len(elset), toc-tic))
-                
+
         tic = time.perf_counter()
         dim_liset = '1D'
         liset = self.groups_e.get(dim_liset, {})
@@ -256,7 +256,7 @@ class MedConverterZset(MedConverterMesh):
 
         tic = time.perf_counter()
         dim_faset = '2D' if self.space_dim == 3 else None
-        faset = self.groups_e.get(dim_faset, {})      
+        faset = self.groups_e.get(dim_faset, {})
         for group, values in faset.items():
             groups_lines.append('**faset {}'.format(group))
             for cell in values:

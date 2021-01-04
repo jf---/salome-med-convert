@@ -60,18 +60,18 @@ class MainDialog(BASE, FORM):
         self.setWindowTitle(title)
         self.setStatus("")
 
-        self.applyButton.setText(translate("medconverter", "Apply"))      
-        self.closeButton.setText(translate("medconverter", "Close"))      
-        self.helpButton.setText(translate("medconverter", "Help"))      
-        self.inFileLineEditLabel.setText(translate("medconverter", "Input mesh file"))      
-        self.inFormatBoxLabel.setText(translate("medconverter", "Input mesh format"))      
-        self.outFileCheckBox.setText(translate("medconverter", "Output MED file"))      
-        self.smeshCheckBox.setText(translate("medconverter", "Import mesh in SMESH"))           
+        self.applyButton.setText(translate("medconverter", "Apply"))
+        self.closeButton.setText(translate("medconverter", "Close"))
+        self.helpButton.setText(translate("medconverter", "Help"))
+        self.inFileLineEditLabel.setText(translate("medconverter", "Input mesh file"))
+        self.inFormatBoxLabel.setText(translate("medconverter", "Input mesh format"))
+        self.outFileCheckBox.setText(translate("medconverter", "Output MED file"))
+        self.smeshCheckBox.setText(translate("medconverter", "Import mesh in SMESH"))
 
         self.smeshCheckBox.setEnabled(HAS_SALOME)
         if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
-            
+
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
         connect(self.inFormatBox.currentIndexChanged, self.update_controls)
@@ -124,7 +124,7 @@ class MainDialog(BASE, FORM):
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
         settings.input_format = Fmt.get(self.inFormatBox.currentText())
-        
+
         return settings
 
     @Q.pyqtSlot()
@@ -187,7 +187,7 @@ class MainDialog(BASE, FORM):
 
     def update_controls(self):
         """Update dialog's widgets."""
-        
+
         self.applyButton.setEnabled(self.is_valid())
         self.inFileLineEdit.setEnabled(self.inFormatBox.currentIndex())
         self.inFileButton.setEnabled(self.inFormatBox.currentIndex())
@@ -206,7 +206,7 @@ class MainDialog(BASE, FORM):
             self.setStatus(translate('medconverter',
                                      'Please select the input mesh format.'))
             return False
-            
+
         if not settings.input_file:
             self.setStatus(translate('medconverter',
                                      'Please select the input mesh file.'))

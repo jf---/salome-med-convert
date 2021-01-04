@@ -86,10 +86,10 @@ class Fmt:
     def extensions(format):
         """
         Get format file extensions.
-        
+
         Arguments:
             format (Fmt) : Format value.
-        
+
         Returns:
             tuple: List of format's extensions
         """
@@ -101,7 +101,7 @@ class Fmt:
             Fmt.Ansys : ('.CDB', '.cdb',),
             Fmt.Zset: ('.geof',),
         }.get(format, "Unknown")
-    
+
 
 def convert(input_file, input_format, output_file, output_format, verbose = False):
     """Main entry point of the converter.

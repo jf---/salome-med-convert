@@ -24,15 +24,15 @@ from medconverter.engine import Fmt
 from medconverter.utilities import data_path
 
 class TestPerf(unittest.TestCase):
-    
+
     def setUp(self):
         self._start_time = time.perf_counter()
-        
+
     def tearDown(self):
         t = time.perf_counter() - self._start_time
         test_name = self.id().split('.')[-1]
-        print('%s in %.3f sec' %(test_name, t))   
-         
+        print('%s in %.3f sec' %(test_name, t))
+
     def test_systus_perf(self):
         testname = "SYSTUS_DONN408"
         filename = get_datafile_path("%s.ASC"%testname)

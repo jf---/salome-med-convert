@@ -26,7 +26,7 @@ class MedConverterAster(MedConverterMesh):
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-        
+
     @staticmethod
     def convert_med_to_aster(filename_med, filename_aster, verbose = False):
 
@@ -48,7 +48,7 @@ class MedConverterAster(MedConverterMesh):
         #Pour lire des fichiers .mail assez vieux...
         skip = 'NBOBJ NBLIGE NBLIGT NUMIN NUMAX AUTEUR DATE'.split()
         re_dbl_fort = re.compile(r'(\d*\.\d+)[dD]([-+]?\d+)')
-        
+
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
             for line in f:
                 line = line.partition("%")[0].strip()
@@ -69,19 +69,19 @@ class MedConverterAster(MedConverterMesh):
                 spline = line.split()
                 if len(spline) > 0:
                     yield line, spline
-                    
+
     def read_aster_mesh(self, filename, parse_fast=True):
         logger.debug("Read ASTER mesh.")
 
         self._reset_structures()
 
         NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
-        
+
         flag = {'NODES' : 0,
                 'ELEMENTS' : 0,
                 'GROUPS_N' : 0,
                 'GROUPS_M' : 0}
-        
+
         tic = time.perf_counter()
 
         self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
@@ -96,10 +96,10 @@ class MedConverterAster(MedConverterMesh):
                     for i in spline :
                         ELEMENTS[etype].append(i)
                 elif flag['GROUPS_N'] is 1 :
-                    for i in spline : 
+                    for i in spline :
                         GROUPS_N[grp_name].append(i)
                 elif flag['GROUPS_M'] is 1 :
-                    for i in spline : 
+                    for i in spline :
                         GROUPS_M[grp_name].append(i)
 
             if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")):
@@ -136,7 +136,7 @@ class MedConverterAster(MedConverterMesh):
         for etype, values in ELEMENTS.items():
             nb_nodes = int(re.findall(r'\d+', etype)[0])
             ELEMENTS[etype] = list(chunks(values, 1 + nb_nodes))
-            
+
         toc = time.perf_counter()
         logger.debug(" File name : %s (parsed in %0.4f seconds)"%(filename, toc-tic))
         logger.debug(" Mesh name : %s"%self.mesh_name)
@@ -150,7 +150,7 @@ class MedConverterAster(MedConverterMesh):
             self.add_node(idx_aster, coords)
         toc = time.perf_counter()
         logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES), toc-tic))
-        
+
         # Les elements
         e_conv = CellsTypeConverter('ASTER')
         c_renum = ConnectivityRenumberer('ASTER')
@@ -164,10 +164,10 @@ class MedConverterAster(MedConverterMesh):
 
                 element_medcoupling_type = e_conv.external_to_medcoupling(element_aster_type)
                 element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_aster)
-                
+
                 self.add_cell(idx_element_aster, element_medcoupling_type, element_nodes_med)
                 nb_elements+=1
-                
+
         toc = time.perf_counter()
         logger.debug(" Load %d cells (in %0.4f seconds)"%(nb_elements, toc-tic))
 
@@ -183,7 +183,7 @@ class MedConverterAster(MedConverterMesh):
 
         toc = time.perf_counter()
         logger.debug(" Load %d groups (in %0.4f seconds)"%(nb_groups, toc-tic))
-        
+
     def write_aster_mesh(self, filename):
         raise NotImplementedError()
 
