@@ -1,11 +1,11 @@
 /COM,ANSYS RELEASE 2019 R2           BUILD 19.4      UP20190416       13:35:55
 /PREP7
 /NOPR
-/TITLE,HexBeam                                                                        
+/TITLE,HexBeam
 ANTYPE, 2
 MODOPT,LANB,    10,  0.00000000    ,  0.00000000    ,     0, 0,  0.00000000    , 0
 MODCONTROL,ON
-QRDOPT,OFF ,YES ,NO  ,LANB,OFF 
+QRDOPT,OFF ,YES ,NO  ,LANB,OFF
 *IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
 _CDRDOFF=             !reset flag, numoffs already performed
 *ELSE              !offset database for the following FE model
@@ -14,8 +14,8 @@ NUMOFF,ELEM,       40
 NUMOFF,MAT ,        1
 NUMOFF,TYPE,        1
 *ENDIF
-*SET,_BUTTON ,  1.000000000000    
-*SET,_ET_NEXT,  1.000000000000    
+*SET,_BUTTON ,  1.000000000000
+*SET,_ET_NEXT,  1.000000000000
 *SET,_GUI_CLR_BG,' systemButtonFace               '
 *SET,_GUI_CLR_FG,' systemButtonText               '
 *SET,_GUI_CLR_INFOBG,' systemInfoBackground           '
@@ -24,12 +24,12 @@ NUMOFF,TYPE,        1
 *SET,_GUI_CLR_SELFG,' systemHighlightText            '
 *SET,_GUI_CLR_WIN,' systemWindow                   '
 *SET,_GUI_FNT_FMLY,'Arial                           '
-*SET,_GUI_FNT_PXLS,  16.00000000000    
+*SET,_GUI_FNT_PXLS,  16.00000000000
 *SET,_GUI_FNT_SLNT,'r                               '
 *SET,_GUI_FNT_WEGT,'medium                          '
-*SET,_RETURN ,  0.000000000000    
-*SET,_STATUS ,  2.000000000000    
-*SET,_UIQR   ,  0.000000000000    
+*SET,_RETURN ,  0.000000000000
+*SET,_STATUS ,  2.000000000000
+*SET,_UIQR   ,  0.000000000000
 DOF,DELETE
 ET,        1,186
 NBLOCK,6,SOLID,       321,       321
@@ -55,8 +55,8 @@ NBLOCK,6,SOLID,       321,       321
        19        0        0 5.0000000000000E-001 5.0000000000000E-001
        20        0        0 5.0000000000000E-001 7.5000000000000E-001
        21        0        0 7.5000000000000E-001 5.0000000000000E-001
-       22        0        0 0.0000000000000E+000 0.0000000000000E+000 5.0000000000000E+000
-       23        0        0 1.0000000000000E+000 0.0000000000000E+000 5.0000000000000E+000
+       22        0        0 0.0000000000000E+000 0.0000000000000E+000 5.0000000000000E+000 0.0000000000000E+000
+       23        0        0 1.0000000000000E+000 0.0000000000000E+000 5.0000000000000E+000 0.0000000000000E+000 0.0000000000000E+000 0.0000000000000E+000
        24        0        0 2.5000000000000E-001 0.0000000000000E+000 5.0000000000000E+000
        25        0        0 5.0000000000000E-001 0.0000000000000E+000 5.0000000000000E+000
        26        0        0 7.5000000000000E-001 0.0000000000000E+000 5.0000000000000E+000
@@ -468,7 +468,7 @@ MPDATA,R5.0, 1,NUXY,       1, 1, 0.350000000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,DENS,       1, 1,  2700.00000    ,
 EXTOPT,ATTR,      0,      0,      0
-EXTOPT,ESIZE,  0,  0.0000    
+EXTOPT,ESIZE,  0,  0.0000
 EXTOPT,ACLEAR,      0
 TREF,  0.00000000
 BFUNIF,TEMP,_TINY

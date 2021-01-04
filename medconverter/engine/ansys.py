@@ -189,10 +189,9 @@ class MedConverterAnsys(MedConverterMesh):
         elems = [float(rline[i:i+longFloat]) for i in range(0, len(rline), longFloat)]
 
         nbElem = len(elems)
-        assert nbElem <= 3
 
-        if nbElem == 3:
-            return elems
+        if nbElem >= 3:
+            return elems[0:3]
         else:
             return elems + [0.0]*(3-nbElem)
 
