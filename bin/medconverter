@@ -26,6 +26,8 @@ if __name__ == "__main__":
                         help="Input format")
     parser.add_argument('-fo', '--output-format', action='store', dest='foutput',
                         help="Output format")
+    parser.add_argument('-co', '--output-command', action='store', dest='output_comm',
+                        help="Path to write the COMM file to", default=None)
     
 
     args = parser.parse_args()
@@ -43,6 +45,6 @@ if __name__ == "__main__":
         if args.foutput and not args.finput :
             parser.error("Missing input format: use '--input-format'")
 
-        convert_engine(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), verbose=args.verbose)
+        convert_engine(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), args.output_comm, verbose=args.verbose)
 
     sys.exit(0)

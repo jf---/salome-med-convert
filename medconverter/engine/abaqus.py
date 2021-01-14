@@ -613,7 +613,7 @@ class AbaqusMesh:
 class MedConverterAbaqus(MedConverterMesh):
 
     @staticmethod
-    def convert_abaqus_to_med(filename_abaqus, filename_med, verbose = False):
+    def convert_abaqus_to_med(filename_abaqus, filename_med, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAbaqus()
@@ -625,7 +625,7 @@ class MedConverterAbaqus(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
-    def convert_med_to_abaqus(filename_med, filename_abaqus, verbose = False):
+    def convert_med_to_abaqus(filename_med, filename_abaqus, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAbaqus()

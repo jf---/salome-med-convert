@@ -16,7 +16,7 @@ from .connectivity import ConnectivityRenumberer
 class MedConverterAster(MedConverterMesh):
 
     @staticmethod
-    def convert_aster_to_med(filename_aster, filename_med, verbose = False):
+    def convert_aster_to_med(filename_aster, filename_med, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAster()
@@ -28,7 +28,7 @@ class MedConverterAster(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
-    def convert_med_to_aster(filename_med, filename_aster, verbose = False):
+    def convert_med_to_aster(filename_med, filename_aster, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAster()

@@ -3,37 +3,37 @@
 <context>
     <name>medconverter</name>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="58"/>
+        <location filename="MainDialog.ui" line="14"/>
         <source>Mesh Converter</source>
         <translation>Convertisseur de maillage</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="64"/>
+        <location filename="MainDialog.ui" line="337"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="65"/>
+        <location filename="MainDialog.ui" line="344"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
         <location filename="../../medconverter/gui/gui.py" line="66"/>
         <source>Input mesh file</source>
-        <translation>Maillage d&apos;entrée</translation>
+        <translation type="obsolete">Maillage d&apos;entrée</translation>
     </message>
     <message>
         <location filename="../../medconverter/gui/gui.py" line="67"/>
         <source>Input mesh format</source>
-        <translation>Format du maillage d&apos;entrée</translation>
+        <translation type="obsolete">Format du maillage d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="68"/>
+        <location filename="MainDialog.ui" line="167"/>
         <source>Output MED file</source>
         <translation>Fichier MED de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="69"/>
+        <location filename="MainDialog.ui" line="150"/>
         <source>Import mesh in SMESH</source>
         <translation>Importer le maillage dans SMESH</translation>
     </message>
@@ -43,96 +43,146 @@
         <translation type="obsolete">Suivez le wizard.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="145"/>
+        <location filename="../../medconverter/gui/gui.py" line="138"/>
         <source>Converting mesh, please wait...</source>
         <translation>Conversion du maillage, veuillez patienter...</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="167"/>
+        <location filename="../../medconverter/gui/gui.py" line="164"/>
         <source>Open the SMESH module to see the newly created mesh.</source>
         <translation>Ouvrez le module SMESH pour voir le maillage nouvellement créé.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="173"/>
+        <location filename="../../medconverter/gui/gui.py" line="170"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="174"/>
+        <location filename="../../medconverter/gui/gui.py" line="171"/>
         <source>Conversion Done.</source>
         <translation>Conversion Terminée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="180"/>
+        <location filename="../../medconverter/gui/gui.py" line="177"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="182"/>
+        <location filename="../../medconverter/gui/gui.py" line="179"/>
         <source>Conversion Failed.
 {0}</source>
         <translation>La conversion a échoué.
 {0}</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="206"/>
+        <location filename="../../medconverter/gui/gui.py" line="209"/>
         <source>Please select the input mesh format.</source>
         <translation>Veuillez sélectionner le format du maillage d&apos;entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="211"/>
+        <location filename="../../medconverter/gui/gui.py" line="214"/>
         <source>Please select the input mesh file.</source>
         <translation>Veuillez sélectionner le maillage en entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="216"/>
+        <location filename="../../medconverter/gui/gui.py" line="219"/>
         <source>Please select at least one output type.</source>
         <translation>Veuillez sélectionner au moins un type de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="220"/>
+        <location filename="../../medconverter/gui/gui.py" line="223"/>
         <source>Please select the output file.</source>
         <translation>Veuillez sélectionner le fichier de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="246"/>
+        <location filename="../../medconverter/gui/gui.py" line="270"/>
         <source>Select a file</source>
         <translation>Choisir un fichier</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="106"/>
+        <location filename="../../medconverter/gui/settings.py" line="119"/>
         <source>Input File</source>
         <translation>Fichier Entrée</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="108"/>
+        <location filename="../../medconverter/gui/settings.py" line="121"/>
         <source>Input Format</source>
         <translation>Format d&apos; Entrée</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="110"/>
+        <location filename="../../medconverter/gui/settings.py" line="123"/>
         <source>Output File</source>
         <translation>Fichier de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="112"/>
+        <location filename="../../medconverter/gui/settings.py" line="125"/>
         <source>Output Format</source>
         <translation>Format de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="134"/>
+        <location filename="../../medconverter/gui/gui.py" line="127"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="135"/>
+        <location filename="../../medconverter/gui/gui.py" line="128"/>
         <source>Help is not available.</source>
         <translation>L&apos;aide n&apos;est pas disponible.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="63"/>
+        <location filename="MainDialog.ui" line="330"/>
         <source>Apply</source>
         <translation>Exécuter</translation>
+    </message>
+    <message>
+        <location filename="../../medconverter/gui/settings.py" line="127"/>
+        <source>Output Comm</source>
+        <translation>Fichier comm de sortie</translation>
+    </message>
+    <message>
+        <location filename="../../medconverter/gui/gui.py" line="227"/>
+        <source>Please select the output comm.</source>
+        <translation>Veuillez sélectionner le fichier comm de sortie.</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="57"/>
+        <source>Input format</source>
+        <translation>Format d&apos;entrée</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="71"/>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="85"/>
+        <source>Input file</source>
+        <translation>Fichier d&apos;entrée</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="254"/>
+        <source>...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="142"/>
+        <source>Mesh</source>
+        <translation>Maillage</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="208"/>
+        <source>Command</source>
+        <translation>Mise en données</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="225"/>
+        <source>Output COMM file</source>
+        <translation>Fichier COMM de sortie</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="289"/>
+        <source>TextLabel</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

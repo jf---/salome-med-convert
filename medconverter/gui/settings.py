@@ -47,6 +47,17 @@ class Settings(object):
         self._data['Output File'] = output_file
 
     @property
+    def output_comm(self):
+        """
+        str: Attribute that holds output comm.
+        """
+        return self._data.get('Output Comm')
+
+    @output_comm.setter
+    def output_comm(self, output_comm):
+        self._data['Output Comm'] = output_comm
+
+    @property
     def input_file(self):
         """
         str: Attribute that holds input file.
@@ -90,6 +101,7 @@ class Settings(object):
         self.input_format = Fmt.Null
         self.output_file = ''
         self.output_format = Fmt.Salome
+        self.output_comm = ''
 
     def dump(self, stream):
         """
@@ -109,3 +121,5 @@ class Settings(object):
         stream.write('{:<35}: {}\n'.format(title, self.output_file))
         title = translate("medconverter", "Output Format")
         stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.output_format)))
+        title = translate("medconverter", "Output Comm")
+        stream.write('{:<35}: {}\n'.format(title, self.output_comm))

@@ -17,7 +17,7 @@ SYSTUS_CELLS_SHIFT = 1 # La numérotation SYSTUS des élements démarre à 1
 class MedConverterSystus(MedConverterMesh):
 
     @staticmethod
-    def convert_systus_to_med(filename_systus, filename_med, verbose = False):
+    def convert_systus_to_med(filename_systus, filename_med, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterSystus()
@@ -29,7 +29,7 @@ class MedConverterSystus(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
-    def convert_med_to_systus(filename_med, filename_systus, verbose = False):
+    def convert_med_to_systus(filename_med, filename_systus, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterSystus()

@@ -51,7 +51,7 @@ class AnsysGroup:
 class MedConverterAnsys(MedConverterMesh):
 
     @staticmethod
-    def convert_ansys_to_med(filename_ansys, filename_med, verbose = False):
+    def convert_ansys_to_med(filename_ansys, filename_med, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAnsys()
@@ -63,7 +63,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
     @staticmethod
-    def convert_med_to_ansys(filename_med, filename_ansys, verbose = False):
+    def convert_med_to_ansys(filename_med, filename_ansys, output_comm, verbose = False):
 
         tic = time.perf_counter()
         c = MedConverterAnsys()

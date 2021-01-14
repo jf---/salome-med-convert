@@ -54,20 +54,8 @@ class MainDialog(BASE, FORM):
         """
         super().__init__(parent)
         self.setupUi(self)
-
-        title = translate("medconverter",
-                          "Mesh Converter")
-        self.setWindowTitle(title)
         self.setStatus("")
-
-        self.applyButton.setText(translate("medconverter", "Apply"))
-        self.closeButton.setText(translate("medconverter", "Close"))
-        self.helpButton.setText(translate("medconverter", "Help"))
-        self.inFileLineEditLabel.setText(translate("medconverter", "Input mesh file"))
-        self.inFormatBoxLabel.setText(translate("medconverter", "Input mesh format"))
-        self.outFileCheckBox.setText(translate("medconverter", "Output MED file"))
-        self.smeshCheckBox.setText(translate("medconverter", "Import mesh in SMESH"))
-
+        
         self.smeshCheckBox.setEnabled(HAS_SALOME)
         if not HAS_SALOME:
             self.outFileCheckBox.setChecked(True)
@@ -78,6 +66,9 @@ class MainDialog(BASE, FORM):
         connect(self.outFileCheckBox.stateChanged, self.update_controls)
         connect(self.outFileLineEdit.textChanged, self.update_controls)
         connect(self.outFileButton.clicked, self.browse_file_out)
+        connect(self.outCommCheckBox.stateChanged, self.update_controls)
+        connect(self.outCommLineEdit.textChanged, self.update_controls)
+        connect(self.outCommButton.clicked, self.browse_comm_out)
         connect(self.smeshCheckBox.stateChanged, self.update_controls)
         connect(self.applyButton.clicked, self.launch)
         connect(self.closeButton.clicked, self.close)
@@ -107,6 +98,7 @@ class MainDialog(BASE, FORM):
         Arguments:
             settings (Settings): Settings object.
         """
+        self.outCommLineEdit.setText(settings.output_comm)
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
         self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
@@ -121,6 +113,7 @@ class MainDialog(BASE, FORM):
         """
         settings = Settings()
 
+        settings.output_comm = self.outCommLineEdit.text()
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
         settings.input_format = Fmt.get(self.inFormatBox.currentText())
@@ -157,8 +150,11 @@ class MainDialog(BASE, FORM):
         settings.dump(sys.stdout)
 
         verbose = int(os.getenv("DEBUG", 0))
+        output_comm = settings.output_comm if(self.commands_groupbox.isEnabled() and self.outCommCheckBox.isChecked()) else None
+
         is_ok, err = convert(settings.input_file, settings.input_format,
-                             settings.output_file, settings.output_format, verbose)
+                             settings.output_file, settings.output_format,
+                             output_comm, verbose)
         self.setStatus("")
 
         if is_ok:
@@ -193,6 +189,12 @@ class MainDialog(BASE, FORM):
         self.inFileButton.setEnabled(self.inFormatBox.currentIndex())
         self.outFileLineEdit.setEnabled(self.outFileCheckBox.isChecked())
         self.outFileButton.setEnabled(self.outFileCheckBox.isChecked())
+        self.outCommLineEdit.setEnabled(self.outCommCheckBox.isChecked())
+        self.outCommButton.setEnabled(self.outCommCheckBox.isChecked())
+        
+        # Command file output only for ansys
+        settings = self.to_settings()
+        self.commands_groupbox.setEnabled(settings.input_format in (Fmt.Ansys,))
 
     def is_valid(self):
         """Tell if the settings are valid, the conversion can be launched.
@@ -219,6 +221,10 @@ class MainDialog(BASE, FORM):
         if self.outFileCheckBox.isChecked() and not settings.output_file:
             self.setStatus(translate('medconverter',
                                      'Please select the output file.'))
+            return False
+        if self.outCommCheckBox.isChecked() and not settings.output_comm:
+            self.setStatus(translate('medconverter',
+                                     'Please select the output comm.'))
             return False
         self.setStatus("")
         return True
@@ -254,6 +260,22 @@ class MainDialog(BASE, FORM):
         file_name = get_file_name(self, 0, title, '', filters, suffix)
         if file_name:
             self.outFileLineEdit.setText(file_name)
+
+    def browse_comm_out(self):
+        """Called when user presses *Browse* button to select a output file."""
+
+        title = translate("medconverter", "Select a file")
+        filters = []
+
+        settings = self.to_settings()
+        ext = Fmt.extensions(settings.output_format)
+        filters.append('Aster Commands (*.comm)')
+        filters.append("All files (*)")
+
+        suffix = ""
+        file_name = get_file_name(self, 0, title, '', filters, suffix)
+        if file_name:
+            self.outCommLineEdit.setText(file_name)
 
 
 def load_language(language='en'):

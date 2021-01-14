@@ -13,6 +13,7 @@ TRANSLATIONS += medconverter_msg_fr.ts
 
 CODECFORTR = utf-8
 
+FORMS += MainDialog.ui
 SOURCES += ../../medconverter/utilities.py
 SOURCES += ../../medconverter/gui/gui.py
 SOURCES += ../../medconverter/gui/__init__.py
