@@ -264,21 +264,21 @@ Ansys
      - HEXA8
      - 5
      - 8
-    * - ANSYS_Dynamic_Max.cdb
+   * - ANSYS_Dynamic_Max.cdb
      - Private
      - 425009
      - 334918
      - POIN1, SEG2, QUAD4
      - 834
      - 206
-    * - ANSYS_HW_B02-B03-Geo.cdb
+   * - ANSYS_HW_B02-B03-Geo.cdb
      - Private
      - 64688
      - 52979
      - POINT1, SEG2, TRI3, QUAD4
      - 47
      - 14
-    * - ANSYS_HD_D2_Geo_B9.cdb
+   * - ANSYS_HD_D2_Geo_B9.cdb
      - Private
      - 66434
      - 63049
