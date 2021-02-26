@@ -197,6 +197,7 @@ class AbaqusPart:
         self.Nset = []
         self.ElsetName = {}
         self.NsetName = {}
+        self.Surfaces = []
 
     def setName(self, name):
         self.name = name
@@ -216,6 +217,7 @@ class AbaqusInstance:
         self.Nset = []
         self.ElsetName = {}
         self.NsetName = {}
+        self.Surfaces = []
         self.translation = None
         self.rotation = None
 
@@ -421,26 +423,28 @@ class AbaqusMesh:
     def addSurface(self, Surfaces, corresponding_elems):
         for surfs in Surfaces:
             elemSurf = []
-            assert surfs.getType() == "ELEMENT"
-            for surf in surfs.getSurface():
-                self.surfOffset += 1
-                self.elemsOffset += 1
-                cell_id = corresponding_elems[int(surf[0])]
-                cell = self.Elements[cell_id-1]
-                surf_id = int(surf[1][1:])
+            if surfs.getType() == "ELEMENT":
+                for surf in surfs.getSurface():
+                    self.surfOffset += 1
+                    self.elemsOffset += 1
+                    cell_id = corresponding_elems[int(surf[0])]
+                    cell = self.Elements[cell_id-1]
+                    surf_id = int(surf[1][1:])
 
-                self.Elements.append(surfs.createElement(cell, surf_id, self.surfOffset))
+                    self.Elements.append(surfs.createElement(cell, surf_id, self.surfOffset))
 
-                if self.surfOffset in corresponding_elems:
-                    raise KeyError("Two elements with identical id: {0}".format(self.surfOffset))
-                else:
-                    corresponding_elems[self.surfOffset] = self.elemsOffset
+                    if self.surfOffset in corresponding_elems:
+                        raise KeyError("Two elements with identical id: {0}".format(self.surfOffset))
+                    else:
+                        corresponding_elems[self.surfOffset] = self.elemsOffset
 
-                elemSurf.append(self.elemsOffset)
+                    elemSurf.append(self.elemsOffset)
 
-            if surfs.getName() in self.ElsetName:
-                    raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
-            self.Elset.append(AbaqusGroup(surfs.getName(), "xxx", False, elemSurf))
+                if surfs.getName() in self.ElsetName:
+                        raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
+                self.Elset.append(AbaqusGroup(surfs.getName(), "xxx", False, elemSurf))
+            else:
+                logger.debug("Ignore SURFACE keyword")
 
     def fuseCommonGroup(self, Groups, GroupsName, Group):
         name = Group.getName()
@@ -940,7 +944,8 @@ class MedConverterAbaqus(MedConverterMesh):
 
         # this is not a list of element
         if("TYPE" not in params_map):
-            raise RuntimeError("TYPE is mandatory")
+            logger.debug("TYPE is not present for SURFACE: Ignore keyword")
+            return
 
         logger.debug("-> Reading Surface : " + params_map["TYPE"])
 
