@@ -260,6 +260,12 @@ class TestSimple(unittest.TestCase):
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
                              jsonfile)
 
+    def test_abaqus_surface(self):
+        filename = osp.join(data_path(), "ABAQUS_SURFACE.inp")
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_SURFACE.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                             jsonfile)
+
     def test_ansys_solid186_01_hexa(self):
         filename = osp.join(data_path(), "ANSYS_SOLID186_01_HEXA.cdb")
         jsonfile = osp.join(data_path(), "json", "ANSYS_SOLID186_01_HEXA.json")

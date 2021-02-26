@@ -12,6 +12,7 @@ from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
+
 class AbaqusNode:
 
     def __init__(self, node_id=-1, node_coordinates = []):
@@ -115,6 +116,77 @@ class AbaqusGroup:
         return self.group
 
 
+class AbaqusSurface:
+
+    def __init__(self, name, type, elem):
+        # Create connectivity for faces - the abaqus's element used is just
+        # for the med conversion after and has no sense
+        self.faces = {
+            "TRI3" : [ 3, ["B21", 2, [1, 2]], ["B21", 2, [2, 3]], ["B21", 2, [3, 1]] ],
+            "TRI6" : [ 3, ["B22", 3, [1, 2, 4]], ["B22", 3, [2, 3, 5]], ["B22", 3, [3, 1, 6]] ],
+            "QUAD4" : [ 4, ["B21", 2, [1, 2]], ["B21", 2, [2, 3]], ["B21", 2, [3, 4]], \
+                 ["B21", 2, [4, 1]] ],
+            "QUAD8" : [ 4, ["B22", 2, [1, 2, 5]], ["B22", 2, [2, 3, 6]], ["B22", 2, [3, 4, 7]], \
+                 ["B22", 2, [4, 1, 8]] ],
+            "QUAD9" : [ 4, ["B22", 2, [1, 2, 5]], ["B22", 2, [2, 3, 6]], ["B22", 2, [3, 4, 7]], \
+                 ["B22", 2, [4, 1, 8]] ],
+            "TETRA4" : [4, ["CPE3", 3, [1, 2, 3]], ["CPE3", 3, [1, 4, 2]], ["CPE3", 3, [2, 4, 3]], \
+                 ["CPE3", 3, [3, 4, 1]]],
+            "TETRA10" : [4, ["CPE6", 6, [1, 2, 3, 5, 6, 7]], ["CPE6", 6, [1, 4, 2, 8, 9, 5]], \
+                 ["CPE6", 6, [2, 4, 3, 9, 10, 6]], ["CPE6", 6, [3, 4, 1, 10, 8, 7]]],
+            "HEXA8" : [6, ["CPE4", 4, [1, 2, 3, 4]], ["CPE4", 4, [5, 8, 7, 6]], \
+                 ["CPE4", 4, [1, 5, 6, 2]], ["CPE4", 4, [2, 6, 7, 3]], \
+                 ["CPE4", 4, [3, 7, 8, 4]], ["CPE4", 4, [4, 8,5, 1]] ],
+            "HEXA20" : [6, ["CPE8", 8, [1, 2, 3, 4, 9, 10, 11, 12]], \
+                 ["CPE8", 8, [5, 8, 7, 6, 16, 15, 14, 13]], \
+                 ["CPE8", 8, [1, 5, 6, 2, 17, 13, 18, 9]], \
+                 ["CPE8", 8, [2, 6, 7, 3, 18, 14, 19, 10]], \
+                 ["CPE8", 8, [3, 7, 8, 4, 19, 15, 20, 11]], \
+                 ["CPE8", 8, [4, 8, 5, 1, 20, 16, 17, 12]] ],
+            "HEXA27" : [6, ["CPE9", 9, [1, 2, 3, 4, 9, 10, 11, 12, 22]], \
+                 ["CPE9", 9, [5, 8, 7, 6, 16, 15, 14, 13, 23]], \
+                 ["CPE9", 9, [1, 5, 6, 2, 17, 13, 18, 9, 24]], \
+                 ["CPE9", 9, [2, 6, 7, 3, 18, 14, 19, 10, 25]], \
+                 ["CPE9", 9, [3, 7, 8, 4, 19, 15, 20, 11, 26]], \
+                 ["CPE9", 9, [4, 8, 5, 1, 20, 16, 17, 12, 27]] ],
+            "PYRA5" : [5, ["CPE4", 4, [1, 2, 3, 4]], ["CPE3", 3, [1, 5, 2]], \
+                 ["CPE3", 3, [2, 5, 3]], ["CPE3", 3, [3, 5, 4]], ["CPE3", 3, [4, 5, 1]]],
+            "PENTA6" : [5, ["CPE3", 3, [1, 2, 3]], ["CPE3", 3, [4, 6, 5]], \
+                 ["CPE4", 4, [1, 4, 5, 2]], ["CPE4", 4, [2, 5, 6, 3]], ["CPE4", 4, [3, 6, 4, 1]]],
+            "PENTA15" : [5, ["CPE6", 6, [1, 2, 3, 7, 8, 9]], ["CPE6", 6, [4, 6, 5, 12, 11, 10]], \
+                 ["CPE8", 8, [1, 4, 5, 2, 13, 10, 14, 7]], \
+                 ["CPE8", 8, [2, 5, 6, 3, 14, 11, 15, 8]], \
+                 ["CPE8", 8, [3, 6, 4, 1, 15, 12, 13, 9]]],
+            "PENTA18" : [5, ["CPE6", 6, [1, 2, 3, 7, 8, 9]], ["CPE6", 6, [4, 6, 5, 12, 11, 10]], \
+                 ["CPE9", 9, [1, 4, 5, 2, 13, 10, 14, 7, 16]], \
+                 ["CPE9", 9, [2, 5, 6, 3, 14, 11, 15, 8, 17]], \
+                 ["CPE9", 9, [3, 6, 4, 1, 15, 12, 13, 9, 18]]],
+        }
+
+        self.conv = CellsTypeConverter._abaqus_to_med
+        self.name = name
+        self.elem = elem
+        self.type = type
+
+    def getName(self):
+        return self.name
+
+    def getType(self):
+        return self.type
+
+    def getSurface(self):
+        return self.elem
+
+    def createElement(self, cell, faceId, newID):
+        """Create AbaqusElement as a surface of a given cell"""
+
+        med_type = self.conv[cell.getType()]
+        face = self.faces[med_type][faceId]
+        cell_nodes = cell.getNodes()
+        index_nodes = [cell_nodes[node-1] for node in face[2]]
+
+        return AbaqusElement(face[0], newID, index_nodes, False)
+
 class AbaqusPart:
 
     def __init__(self):
@@ -180,6 +252,7 @@ class AbaqusAssembly:
         self.ElsetName = {}
         self.NsetName = {}
         self.Parts = []
+        self.Surfaces = []
 
     def setName(self, name):
         self.name = name
@@ -223,7 +296,8 @@ class AbaqusMesh:
         self.ElsetName = {}
         self.NsetName = {}
         self.nodesOffset = 0
-        self.elemsOffset  = 0
+        self.elemsOffset = 0
+        self.surfOffset  = 0
         self.Numbering = []
 
     def setName(self, name):
@@ -300,11 +374,12 @@ class AbaqusMesh:
 
     def addElements(self, Elements, corresponding_nodes):
         corresponding_elems = {}
-        for idx, elem in enumerate(Elements):
+        for elem in Elements:
+            self.elemsOffset += 1
             if int(elem.getId()) in corresponding_elems:
                 raise KeyError("Two elements with identical id: {0}".format(elem.getId()))
             else:
-                corresponding_elems[int(elem.getId())] = self.elemsOffset + idx
+                corresponding_elems[int(elem.getId())] = self.elemsOffset
 
             if elem.multilevel:
                 list_nodes = []
@@ -341,9 +416,31 @@ class AbaqusMesh:
             elem_id = corresponding_elems[int(elem.getId())]
             self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
 
-        self.elemsOffset += len(Elements)
-
         return corresponding_elems
+
+    def addSurface(self, Surfaces, corresponding_elems):
+        for surfs in Surfaces:
+            elemSurf = []
+            assert surfs.getType() == "ELEMENT"
+            for surf in surfs.getSurface():
+                self.surfOffset += 1
+                self.elemsOffset += 1
+                cell_id = corresponding_elems[int(surf[0])]
+                cell = self.Elements[cell_id-1]
+                surf_id = int(surf[1][1:])
+
+                self.Elements.append(surfs.createElement(cell, surf_id, self.surfOffset))
+
+                if self.surfOffset in corresponding_elems:
+                    raise KeyError("Two elements with identical id: {0}".format(self.surfOffset))
+                else:
+                    corresponding_elems[self.surfOffset] = self.elemsOffset
+
+                elemSurf.append(self.elemsOffset)
+
+            if surfs.getName() in self.ElsetName:
+                    raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
+            self.Elset.append(AbaqusGroup(surfs.getName(), "xxx", False, elemSurf))
 
     def fuseCommonGroup(self, Groups, GroupsName, Group):
         name = Group.getName()
@@ -433,6 +530,7 @@ class AbaqusMesh:
 
         tic = time.perf_counter()
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
+        self.addSurface(Entities.Surfaces, corresponding_elems)
         toc = time.perf_counter()
         logger.debug("-> Number of elements : %d (in %0.4f seconds)"\
             %(len(Entities.Elements), toc-tic))
@@ -484,6 +582,7 @@ class AbaqusMesh:
 
     def assemble(self, Assembly):
 
+        self.surfOffset = self._estimateNbElem(Assembly)
         self.addGroupsInRightPlace(Assembly)
 
         # loop on instance of Assembly
@@ -494,6 +593,17 @@ class AbaqusMesh:
         # add others objects in assembly
         logger.debug("Processing rest of the mesh: ")
         self.addFromEntities(Assembly)
+
+    def _estimateNbElem(self, Assembly):
+        nb_elem = 0
+
+        # loop on instance of Assembly
+        for Instance in Assembly.Instance:
+            nb_elem += len(Instance.Elements)
+
+        nb_elem += len(Assembly.Elements)
+
+        return nb_elem
 
 
 class MedConverterAbaqus(MedConverterMesh):
@@ -646,6 +756,8 @@ class MedConverterAbaqus(MedConverterMesh):
 
             if(self.nbAssembly > 1):
                 raise RuntimeError("Only one Assembly allowed")
+        elif self.line.upper().startswith('*SURFACE'):
+            self._read_surfaces(file, Entities.Surfaces)
         elif self.line.upper().startswith('*NGEN'):
             raise RuntimeError("Keyword not supported: NGEN")
         elif self.line.upper().startswith('*NFILL',):
@@ -653,7 +765,8 @@ class MedConverterAbaqus(MedConverterMesh):
         elif self.line.upper().startswith('*NMAP'):
             raise RuntimeError("Keyword not supported: NMAP")
         elif self.line.upper().startswith('*NCOPY'):
-            raise RuntimeError("Keyword not supported: NMAP")
+            raise RuntimeError("Keyword not supported: NCOPY")
+
 
     def _read_nodes(self, file, Nodes, Nset, NsetName):
         # get informations about nodes
@@ -819,6 +932,29 @@ class MedConverterAbaqus(MedConverterMesh):
         if(l_extern_file):
             file_to_read.close()
             self.line = file.readline()
+
+    # Read a list of element
+    def _read_surfaces(self, file, Surfaces):
+        # get informations about elements
+        params_map = self._get_param_map(self.line)
+
+        # this is not a list of element
+        if("TYPE" not in params_map):
+            raise RuntimeError("TYPE is mandatory")
+
+        logger.debug("-> Reading Surface : " + params_map["TYPE"])
+
+        elem = []
+        # loop on list of elements
+        while True:
+            self.line = file.readline()
+
+            if self.line.lstrip().startswith("*"):
+                break
+
+            elem.append(self._read_continuous_line(file, ","))
+
+        Surfaces.append(AbaqusSurface(params_map["NAME"], params_map["TYPE"].upper(), elem))
 
 
     def _read_group(self, file, typyeGroup, Group, GroupName):

@@ -60,7 +60,7 @@ salome shell -- python test/run_unittest.py
 or to run a specific test:
 
 ``` bash
-salome shell -- python test/run_unittest.py -v test_simple.TestSimple.test_carre
+salome shell -- python test/run_unittest.py -v test_simple.TestSimple.test_abaqus_carre
 ```
 
 Within a SALOME installation:
