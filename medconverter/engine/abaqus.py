@@ -762,6 +762,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 raise RuntimeError("Only one Assembly allowed")
         elif self.line.upper().startswith('*SURFACE'):
             self._read_surfaces(file, Entities.Surfaces)
+            self._read_data(file, Entities)
         elif self.line.upper().startswith('*NGEN'):
             raise RuntimeError("Keyword not supported: NGEN")
         elif self.line.upper().startswith('*NFILL',):
