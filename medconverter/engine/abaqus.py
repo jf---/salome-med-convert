@@ -946,6 +946,7 @@ class MedConverterAbaqus(MedConverterMesh):
         # this is not a list of element
         if("TYPE" not in params_map):
             logger.debug("TYPE is not present for SURFACE: Ignore keyword")
+            self.line = file.readline()
             return
 
         logger.debug("-> Reading Surface : " + params_map["TYPE"])
