@@ -45,6 +45,11 @@ class TestPerf(unittest.TestCase):
         jsonfile = osp.join(data_path(), 'json', "%s.json"%testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
+    def test_abaqus_surface(self):
+        filename = osp.join(data_path(), "ABAQUS_SURFACE.inp")
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_SURFACE.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
+
     def test_abaqus_hoj(self):
         testname = "ABAQUS_HOJ"
         folder   = "ABAQUS_HOJ"
