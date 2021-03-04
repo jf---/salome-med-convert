@@ -197,9 +197,9 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_Bending(self):
         filename = osp.join(data_path(), "ABAQUS_THREEPOINTBENDING.inp")
-        standard_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
-                                 14600, 14973, ['QUAD4'],
-                                 7, 5)
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_THREEPOINTBENDING.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome,
+                                 jsonfile)
 
     def test_abaqus_Brake(self):
         filename = osp.join(data_path(), "ABAQUS_BRAKE.inp")

@@ -420,25 +420,49 @@ class AbaqusMesh:
 
         return corresponding_elems
 
-    def addSurface(self, Surfaces, corresponding_elems):
+    def addSurface(self, Surfaces, Elset, corresponding_elems):
         for surfs in Surfaces:
             elemSurf = []
             if surfs.getType() == "ELEMENT":
                 for surf in surfs.getSurface():
-                    self.surfOffset += 1
-                    self.elemsOffset += 1
-                    cell_id = corresponding_elems[int(surf[0])]
-                    cell = self.Elements[cell_id-1]
-                    surf_id = int(surf[1][1:])
+                    try:
+                        listElem = [int(surf[0])]
+                    except:
+                        name_grp = surf[0]
+                        l_find = False
+                        for group in Elset:
+                            if name_grp == group.getName():
+                                listElem = group.getGroup()
+                                l_find = True
+                                break
+                        if not l_find:
+                            raise RuntimeError("Group not find")
 
-                    self.Elements.append(surfs.createElement(cell, surf_id, self.surfOffset))
-
-                    if self.surfOffset in corresponding_elems:
-                        raise KeyError("Two elements with identical id: {0}".format(self.surfOffset))
+                    if len(surf) > 1:
+                        l_create_elem = True
                     else:
-                        corresponding_elems[self.surfOffset] = self.elemsOffset
+                        l_create_elem = False
 
-                    elemSurf.append(self.elemsOffset)
+                    for cell_loc_id in listElem:
+                        cell_id = corresponding_elems[cell_loc_id]
+
+                        if l_create_elem:
+                            self.surfOffset += 1
+                            self.elemsOffset += 1
+                            global_id = self.elemsOffset
+                            cell = self.Elements[cell_id-1]
+                            surf_id = int(surf[1][1:])
+
+                            self.Elements.append(surfs.createElement(cell, surf_id, self.surfOffset))
+
+                            if self.surfOffset in corresponding_elems:
+                                raise KeyError("Two elements with identical id: {0}".format(self.surfOffset))
+                            else:
+                                corresponding_elems[self.surfOffset] = self.elemsOffset
+                        else:
+                            global_id = cell_id
+
+                        elemSurf.append(global_id)
 
                 if surfs.getName() in self.ElsetName:
                         raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
@@ -534,7 +558,7 @@ class AbaqusMesh:
 
         tic = time.perf_counter()
         corresponding_elems = self.addElements(Entities.Elements, corresponding_nodes)
-        self.addSurface(Entities.Surfaces, corresponding_elems)
+        self.addSurface(Entities.Surfaces, Entities.Elset, corresponding_elems)
         toc = time.perf_counter()
         logger.debug("-> Number of elements : %d (in %0.4f seconds)"\
             %(len(Entities.Elements), toc-tic))
