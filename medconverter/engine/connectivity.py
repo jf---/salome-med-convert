@@ -84,6 +84,8 @@ class ConnectivityRenumberer:
         "HEXA27": [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 16, 19, 18, 17, 15, 14, 13, 12, 20, 24, 23, 22, 21, 25, 26],
     }
 
+    _tetgen = {"TRI3": range(3), "TETRA4": range(4)}
+
     _zset = {
         "SEG2": range(2),
         "SEG3": [0, 2, 1],

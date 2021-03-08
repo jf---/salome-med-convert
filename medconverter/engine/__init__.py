@@ -24,6 +24,7 @@ from .abaqus import MedConverterAbaqus
 from .ansys import MedConverterAnsys
 from .zset import MedConverterZset
 from .aster import MedConverterAster
+from .tetgen import MedConverterTetgen
 
 
 class Fmt:
@@ -35,6 +36,7 @@ class Fmt:
         Ansys
         Zset
         Salome
+        Tetgen
     """
 
     Null = 0x000
@@ -44,6 +46,7 @@ class Fmt:
     Abaqus = 0x005
     Ansys = 0x006
     Zset = 0x007
+    Tetgen = 0x008
 
     @classmethod
     def get(cls, format_name):
@@ -82,6 +85,7 @@ class Fmt:
             Fmt.Abaqus: "Abaqus",
             Fmt.Ansys: "Ansys",
             Fmt.Zset: "Zset",
+            Fmt.Tetgen: "Tetgen",
         }.get(format, "Unknown")
 
     @staticmethod
@@ -102,6 +106,7 @@ class Fmt:
             Fmt.Abaqus: (".inp",),
             Fmt.Ansys: (".CDB", ".cdb"),
             Fmt.Zset: (".geof",),
+            Fmt.Tetgen: (".mesh",),
         }.get(format, "Unknown")
 
     @staticmethod
@@ -168,9 +173,14 @@ def convert(
     # ASTER -> MED
     elif input_format == Fmt.Aster and output_format == Fmt.Salome:
         MedConverterAster.convert_aster_to_med(input_file, output_file, verbose)
+
     # MED -> ASTER
     elif input_format == Fmt.Salome and output_format == Fmt.Aster:
         MedConverterAster.convert_med_to_aster(input_file, output_file, verbose)
+
+    # TETGEN -> MED
+    elif input_format == Fmt.Tetgen and output_format == Fmt.Salome:
+        MedConverterTetgen.convert_tetgen_to_med(input_file, output_file, output_comm, verbose)
 
     else:
         raise ValueError("Unsupported format conversion!")

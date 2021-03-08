@@ -265,6 +265,8 @@ class CellsTypeConverter:
         )
     )
 
+    _tetgen_to_med = {"TRIA3": "TRI3", "TETRA4": "TETRA4"}
+
     _ansys_to_med = OrderedDict(
         (
             # Mesh200

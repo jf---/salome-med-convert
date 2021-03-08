@@ -438,6 +438,26 @@ class TestSimple(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Aster, Fmt.Salome, jsonfile)
 
+    def test_tetgen_convt01(self):
+        filename = osp.join(data_path(), "TETGEN_CONVT01.mesh")
+        jsonfile = osp.join(data_path(), "json", "TETGEN_CONVT01.json")
+        deep_test_conversion(self, filename, Fmt.Tetgen, Fmt.Salome, jsonfile)
+
+    def test_tetgen_cube325(self):
+        filename = osp.join(data_path(), "TETGEN_CUBE325.mesh")
+        jsonfile = osp.join(data_path(), "json", "TETGEN_CUBE325.json")
+        deep_test_conversion(self, filename, Fmt.Tetgen, Fmt.Salome, jsonfile)
+
+    def test_tetgen_tetra01(self):
+        filename = osp.join(data_path(), "TETGEN_TETRA01.mesh")
+        jsonfile = osp.join(data_path(), "json", "TETGEN_TETRA01.json")
+        deep_test_conversion(self, filename, Fmt.Tetgen, Fmt.Salome, jsonfile)
+
+    def test_tetgen_fvca6_tet1(self):
+        filename = osp.join(data_path(), "TETGEN_FVCA6_1.mesh")
+        jsonfile = osp.join(data_path(), "json", "TETGEN_FVCA6_1.json")
+        deep_test_conversion(self, filename, Fmt.Tetgen, Fmt.Salome, jsonfile)
+
 
 if __name__ == "__main__":
     unittest.main()
