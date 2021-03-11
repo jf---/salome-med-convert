@@ -1,26 +1,31 @@
 {
  "CELLS": {
   "0": {
-   "ID0_SEG3": [
-    0,
-    1,
-    2
+   "ID1_SEG2": [
+    2,
+    1
    ]
   }
  },
  "GROUPS": {
-  "0": {}
+  "0": {
+   "MCA_CABLE_1_1": [
+    0,
+    1
+   ]
+  },
+  "1": {
+   "CL_UXYZ": [
+    0,
+    1
+   ]
+  }
  },
- "NB_CELLS": 1,
+ "NB_CELLS": 2,
  "NB_GRP_CELLS": 1,
- "NB_GRP_NODES": 0,
+ "NB_GRP_NODES": 1,
  "NB_NODES": 3,
  "NODES": {
-  "0": [
-   0.0,
-   0.0,
-   0.0
-  ],
   "1": [
    0.0,
    1000.0,

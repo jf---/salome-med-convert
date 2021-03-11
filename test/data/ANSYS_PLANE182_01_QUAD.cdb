@@ -1,14 +1,14 @@
-/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       10:14:12
+/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       17:33:59
 /PREP7
 /NOPR
 /TITLE,PLANE182 - Quad                                                         
+ANTYPE, 0
 *IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
 _CDRDOFF=             !reset flag, numoffs already performed
 *ELSE              !offset database for the following FE model
 NUMOFF,NODE,        4
 NUMOFF,ELEM,        1
 NUMOFF,MAT ,        1
-NUMOFF,SECN,        1
 NUMOFF,TYPE,        1
 *ENDIF
 *SET,_BUTTON ,  1.000000000000    
@@ -42,19 +42,25 @@ EBLOCK,19,SOLID,         1,         1
 (19i9)
         1        1        1        1        0        0        0        0        4        0        1        1        2        3        4
        -1
+CMBLOCK,CL_UXY,NODE,       1  ! users node component definition
+(8i10)
+         1
+CMBLOCK,CL_UY,NODE,       1  ! users node component definition
+(8i10)
+         2
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,EX  ,       1, 1,  200000.000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,NUXY,       1, 1, 0.300000000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
-MPDATA,R5.0, 1,DENS,       1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,DENS,       1, 1, 7.850000000E-09,
 EXTOPT,ATTR,      0,      0,      0
 EXTOPT,ESIZE,  0,  0.0000    
 EXTOPT,ACLEAR,      0
 TREF,  0.00000000
 IRLF,  0
 BFUNIF,TEMP,_TINY
-ACEL,  0.00000000    ,  0.00000000    ,  0.00000000
+ACEL,  0.00000000    ,  9810.00000    ,  0.00000000
 OMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 DOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 CGLOC,  0.00000000    ,  0.00000000    ,  0.00000000
@@ -76,5 +82,8 @@ NEQIT,     0
 
 ERESX,DEFA
 
+D,      1,UX  ,  0.00000000    ,  0.00000000    
+D,      1,UY  ,  0.00000000    ,  0.00000000    
+D,      2,UY  ,  0.00000000    ,  0.00000000    
 /GO
 FINISH

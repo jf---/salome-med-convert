@@ -1,7 +1,8 @@
-/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       16:20:46
+/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       17:31:20
 /PREP7
 /NOPR
 /TITLE,PIPE288 - 3 noeuds (noeud 3 = orientation de la section)                
+ANTYPE, 0
 *IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
 _CDRDOFF=             !reset flag, numoffs already performed
 *ELSE              !offset database for the following FE model
@@ -11,7 +12,7 @@ NUMOFF,MAT ,        1
 NUMOFF,SECN,        1
 NUMOFF,TYPE,        1
 *ENDIF
-*SET,_BUTTON ,  0.000000000000    
+*SET,_BUTTON ,  1.000000000000    
 *SET,_CMAP   ,  1.000000000000    
 *SET,_ET_TYPE,  1.000000000000    
 *SET,_GUI_CLR_BG,' systemButtonFace               '
@@ -29,25 +30,6 @@ NUMOFF,TYPE,        1
 *SET,_RL1    ,  1.000000000000    
 *SET,_STATUS ,  0.000000000000    
 *SET,_UIQR   ,  1.000000000000    
-*SET,_Z1     ,  2.000000000000    
-*SET,_Z2     ,'- 3 noeu                        '
-*SET,_Z3     ,'ds                              '
-*SET,_Z4     ,'                                '
-*SET,_Z5     ,'                                '
-*SET,_Z6     ,'                                '
-*SET,_Z7     ,'                                '
-*SET,_Z8     ,'                                '
-*SET,_Z9     ,'                                '
-*SET,_ZELEM  ,  0.000000000000    
-*SET,_ZELOC  ,  38.00000000000    
-*SET,_ZTYPE  ,  1.000000000000    
-*SET,_ZVECT  ,  1.000000000000    
-*SET,_ZW     ,  1.000000000000    
-*DIM,_ZZ     ,ARRAY,      10,       1,       1,
-*PREAD,_ZZ     ,         6
-  1.000000000000      1.000000000000      1.000000000000      1.000000000000    
-  1.000000000000      1.000000000000    
-END PREAD
 DOF,DELETE
 ET,        1,288
 KEYOP,        1, 4,        1
@@ -61,12 +43,15 @@ EBLOCK,19,SOLID,         1,         1
 (19i9)
         1        1        1        1        0        0        0        0        3        0        1        1        2        3
        -1
+CMBLOCK,CL_UXYZ_RXYZ,NODE,       1  ! users element component definition
+(8i10)
+         1
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,EX  ,       1, 1,  200000.000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,NUXY,       1, 1, 0.300000000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
-MPDATA,R5.0, 1,DENS,       1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,DENS,       1, 1, 7.850000000E-09,
 SECTYPE,      1,PIPE,    ,Tube    
 SECDATA,  100.00    ,  10.000    ,  12.000    ,  0.0000    ,  1.0000    ,
 SECOFFSET,  0.0000    ,  0.0000    
@@ -77,7 +62,7 @@ EXTOPT,ACLEAR,      0
 TREF,  0.00000000
 IRLF,  0
 BFUNIF,TEMP,_TINY
-ACEL,  0.00000000    ,  0.00000000    ,  0.00000000
+ACEL,  0.00000000    ,  0.00000000    ,  9810.00000
 OMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 DOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 CGLOC,  0.00000000    ,  0.00000000    ,  0.00000000
@@ -99,5 +84,11 @@ NEQIT,     0
 
 ERESX,DEFA
 
+D,      1,UX  ,  0.00000000    ,  0.00000000    
+D,      1,UY  ,  0.00000000    ,  0.00000000    
+D,      1,UZ  ,  0.00000000    ,  0.00000000    
+D,      1,ROTX,  0.00000000    ,  0.00000000    
+D,      1,ROTY,  0.00000000    ,  0.00000000    
+D,      1,ROTZ,  0.00000000    ,  0.00000000    
 /GO
 FINISH

@@ -644,6 +644,7 @@ class CellsTypeConverter:
         ('188_2', 'SEG2'),
 
         #BEAM189
+        ('189_2', 'SEG2'),
         ('189_3', 'SEG3'),
 
         #SOLSH190

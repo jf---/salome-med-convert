@@ -48,54 +48,54 @@
         <translation>Conversion du maillage, veuillez patienter...</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="164"/>
+        <location filename="../../medconverter/gui/gui.py" line="163"/>
         <source>Open the SMESH module to see the newly created mesh.</source>
         <translation>Ouvrez le module SMESH pour voir le maillage nouvellement créé.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="170"/>
+        <location filename="../../medconverter/gui/gui.py" line="169"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="171"/>
+        <location filename="../../medconverter/gui/gui.py" line="170"/>
         <source>Conversion Done.</source>
         <translation>Conversion Terminée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="177"/>
+        <location filename="../../medconverter/gui/gui.py" line="176"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="179"/>
+        <location filename="../../medconverter/gui/gui.py" line="178"/>
         <source>Conversion Failed.
 {0}</source>
         <translation>La conversion a échoué.
 {0}</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="209"/>
+        <location filename="../../medconverter/gui/gui.py" line="208"/>
         <source>Please select the input mesh format.</source>
         <translation>Veuillez sélectionner le format du maillage d&apos;entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="214"/>
+        <location filename="../../medconverter/gui/gui.py" line="213"/>
         <source>Please select the input mesh file.</source>
         <translation>Veuillez sélectionner le maillage en entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="219"/>
+        <location filename="../../medconverter/gui/gui.py" line="218"/>
         <source>Please select at least one output type.</source>
         <translation>Veuillez sélectionner au moins un type de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="223"/>
+        <location filename="../../medconverter/gui/gui.py" line="222"/>
         <source>Please select the output file.</source>
         <translation>Veuillez sélectionner le fichier de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="270"/>
+        <location filename="../../medconverter/gui/gui.py" line="269"/>
         <source>Select a file</source>
         <translation>Choisir un fichier</translation>
     </message>
@@ -140,7 +140,7 @@
         <translation>Fichier comm de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="227"/>
+        <location filename="../../medconverter/gui/gui.py" line="226"/>
         <source>Please select the output comm.</source>
         <translation>Veuillez sélectionner le fichier comm de sortie.</translation>
     </message>

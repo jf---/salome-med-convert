@@ -1,20 +1,20 @@
-/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       17:01:59
+/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       17:22:19
 /PREP7
 /NOPR
 /TITLE,COMBIN14                                                                
+ANTYPE, 0
 *IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
 _CDRDOFF=             !reset flag, numoffs already performed
 *ELSE              !offset database for the following FE model
 NUMOFF,NODE,        2
-NUMOFF,ELEM,        1
-NUMOFF,MAT ,        1
-NUMOFF,REAL,        1
-NUMOFF,SECN,        1
-NUMOFF,TYPE,        1
+NUMOFF,ELEM,        2
+NUMOFF,REAL,        2
+NUMOFF,TYPE,        2
 *ENDIF
-*SET,_BUTTON ,  0.000000000000    
+*SET,_BUTTON ,  1.000000000000    
 *SET,_CMAP   ,  1.000000000000    
-*SET,_ET_TYPE,  1.000000000000    
+*SET,_ET_NEXT,  3.000000000000    
+*SET,_ET_TYPE,  2.000000000000    
 *SET,_GUI_CLR_BG,' systemButtonFace               '
 *SET,_GUI_CLR_FG,' systemButtonText               '
 *SET,_GUI_CLR_INFOBG,' systemInfoBackground           '
@@ -29,41 +29,45 @@ NUMOFF,TYPE,        1
 *SET,_RC_SET ,  0.000000000000    
 *SET,_RETURN ,  0.000000000000    
 *SET,_RL1    ,  1.000000000000    
-*SET,_STATUS ,  0.000000000000    
+*SET,_STATUS ,  1.000000000000    
 *SET,_UIQR   ,  1.000000000000    
-*DIM,_Z      ,ARRAY,       9,       5,       1,
-*SET,_Z1     ,  1.000000000000    
-*SET,_Z2     ,  0.000000000000    
-*SET,_Z3     ,  0.000000000000    
-*SET,_Z4     ,'                                '
-*SET,_Z5     ,  1.000000000000    
-*SET,_Z6     ,'                                '
-*SET,_Z7     ,'                                '
-*SET,_Z8     ,'                                '
-*SET,_Z9     ,'                                '
-*SET,_ZVECT  ,  0.000000000000    
 DOF,DELETE
 ET,        1, 14
-RLBLOCK,       1,       1,      12,       7
+KEYOP,        1, 2,        2
+ET,        2, 21
+KEYOP,        2, 3,        2
+RLBLOCK,       2,       2,       6,       7
 (2i8,6g16.9)
 (7g16.9)
        1       6  5000.00000      0.00000000      0.00000000      0.00000000      0.00000000      0.00000000    
+       2       6 0.100000000      0.00000000      0.00000000      0.00000000      0.00000000      0.00000000    
+MAT ,        2
+TYPE,        2
+REAL,        2
 NBLOCK,6,SOLID,         2,         2
 (3i9,6e21.13e3)
         1        0        0 0.0000000000000E+000
         2        0        0 0.0000000000000E+000 1.0000000000000E+003
 N,R5.3,LOC,       -1,
-EBLOCK,19,SOLID,         1,         1
+EBLOCK,19,SOLID,         2,         2
 (19i9)
         1        1        1        1        0        0        0        0        2        0        1        1        2
+        2        2        2        1        0        0        0        0        1        0        2        2
        -1
+         1       -32
+CMBLOCK,CL_UY,NODE,       1  ! users element component definition
+(8i10)
+         1
+CMBLOCK,CL_UXZ,NODE,       1  ! users element component definition
+(8i10)
+         2
 EXTOPT,ATTR,      0,      0,      0
 EXTOPT,ESIZE,  0,  0.0000    
 EXTOPT,ACLEAR,      0
 TREF,  0.00000000
 IRLF,  0
 BFUNIF,TEMP,_TINY
-ACEL,  0.00000000    ,  0.00000000    ,  0.00000000
+ACEL,  0.00000000    ,  9810.00000    ,  0.00000000
 OMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 DOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 CGLOC,  0.00000000    ,  0.00000000    ,  0.00000000
@@ -85,5 +89,8 @@ NEQIT,     0
 
 ERESX,DEFA
 
+D,      1,UY  ,  0.00000000    ,  0.00000000    
+D,      2,UX  ,  0.00000000    ,  0.00000000    
+D,      2,UZ  ,  0.00000000    ,  0.00000000    
 /GO
 FINISH

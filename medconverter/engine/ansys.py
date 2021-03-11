@@ -172,17 +172,17 @@ dicoMod = {
     '33'        : 'TMA-AXIS',
     '34'        : 'TMA-AXIS',
     '35'        : 'TMA-PLAN',
-    '39'        : '',
-    '40'        : '',
-    '40_0'      : '',
-    '40_1'      : '',
-    '40_2'      : '',
-    '40_3'      : '',
-    '40_4'      : '',
-    '40_5'      : '',
-    '40_6'      : '',
-    '40_7'      : '',
-    '40_8'      : '',
+    '39'        : 'NAN-undefined',
+    '40'        : 'NAN-undefined',
+    '40_0'      : 'NAN-undefined',
+    '40_1'      : 'NAN-undefined',
+    '40_2'      : 'NAN-undefined',
+    '40_3'      : 'NAN-undefined',
+    '40_4'      : 'NAN-undefined',
+    '40_5'      : 'NAN-undefined',
+    '40_6'      : 'NAN-undefined',
+    '40_7'      : 'NAN-undefined',
+    '40_8'      : 'NAN-undefined',
     '42'        : 'MMA-C_PLAN',
     '42_0_3'    : 'MMA-AXIS',
     '42_2_3'    : 'MMA-AXIS',
@@ -203,7 +203,7 @@ dicoMod = {
     '65'        : 'MMA-3D',
     '68'        : 'TMA-AXIS',
     '70'        : 'TMA-3D',
-    '71'        : '',
+    '71'        : 'NAN-undefined',
     '75'        : 'TMA-PLAN',
     '77'        : 'TMA-PLAN',
     '78'        : 'TMA-PLAN',
@@ -215,112 +215,116 @@ dicoMod = {
     '95'        : 'MMA-3D',
     '95_0'      : 'MMA-3D',
     '95_1'      : 'MMA-3D',
-    '96'        : '',
+    '96'        : 'NAN-undefined',
     '98'        : 'MMA-3D',
     '98_2'      : 'MMA-3D',
     '98_8'      : 'TMA-3D',
-    '111'       : '',
+    '111'       : 'NAN-undefined',
     '111_3'     : 'TMA-3D',
     '116'       : 'TMA-AXIS',
     '116_0'     : 'TMA-AXIS',
     '116_1'     : 'TMA-AXIS',
-    '116_2'     : '',
-    '116_3'     : '',
-    '120'       : '',
-    '121'       : '',
-    '122'       : '',
-    '123'       : '',
-    '129'       : '',
+    '116_2'     : 'NAN-undefined',
+    '116_3'     : 'NAN-undefined',
+    '120'       : 'NAN-undefined',
+    '121'       : 'NAN-undefined',
+    '122'       : 'NAN-undefined',
+    '123'       : 'NAN-undefined',
+    '129'       : 'NAN-undefined',
     '131'       : 'TCO-COQUE',
     '132'       : 'TCO-COQUE',
     '136'       : 'MMA-D_PLAN_HM',
-    '138'       : 'Elem2D',
-    '143'       : '',
-    '143_0'     : '',
-    '143_1'     : '',
+    '138'       : 'NAN-undefined',
+    '143'       : 'NAN-undefined',
+    '143_0'     : 'NAN-undefined',
+    '143_1'     : 'NAN-undefined',
     '151'       : 'TMA-AXIS',
     '152'       : 'TMA-PLAN',
     '153'       : 'MMA-AXIS',
-    '154'       : 'MMA-3D_ABSO',
+    '154'       : 'NAN-undefined',
     '156'       : 'MMA-AXIS',
     '157'       : 'TCO-COQUE',
     '160'       : 'MBA-BARRE',
     '161'       : 'MPO-POU_D_T',
-    '162'       : '',
-    '163'       : 'MCO-DKT',
+    '162'       : 'NAN-undefined',
+    '163'       : 'NAN-undefined',
     '164'       : 'MMA-3D',
-    '164_0'     : '',
-    '164_1'     : '',
-    '164_2'     : '',
+    '164_0'     : 'NAN-undefined',
+    '164_1'     : 'NAN-undefined',
+    '164_2'     : 'NAN-undefined',
     '165'       : 'MDI-DIS_T',
     '165_0'     : 'MDI-DIS_T',
     '165_1'     : 'MDI-DIS_TR',
     '166'       : 'MDI-DIS_T',
     '167'       : 'MCA-CABLE',
     '168'       : 'MMA-3D',
-    '169'       : '',
-    '170'       : '',
-    '171'       : '',
-    '171_0'     : '',
-    '171_1'     : '',
-    '171_2'     : '',
-    '171_7'     : '',
-    '171_8'     : '',
-    '171_9'     : '',
-    '171_10'    : '',
-    '172'       : '',
-    '172_0'     : '',
-    '172_1'     : '',
-    '172_2'     : '',
-    '172_7'     : '',
-    '172_8'     : '',
-    '172_9'     : '',
-    '172_10'    : '',
-    '173'       : '',
-    '173_0'     : '',
-    '173_1'     : '',
-    '173_2'     : '',
-    '173_8'     : '',
-    '173_9'     : '',
-    '173_10'    : '',
-    '174'       : '',
-    '174_0'     : '',
-    '174_1'     : '',
-    '174_2'     : '',
-    '174_8'     : '',
-    '174_9'     : '',
-    '174_10'    : '',
-    '175'       : '',
-    '175_0'     : '',
-    '175_1'     : '',
-    '175_2'     : '',
-    '175_8'     : '',
-    '175_9'     : '',
-    '175_10'    : '',
-    '176'       : '',
-    '177'       : '',
+    '169'       : 'NAN-undefined',
+    '169_3'     : 'NAN-undefined',
+    '170'       : 'NAN-undefined',
+    '171'       : 'NAN-undefined',
+    '171_0'     : 'NAN-undefined',
+    '171_1'     : 'NAN-undefined',
+    '171_2'     : 'NAN-undefined',
+    '171_7'     : 'NAN-undefined',
+    '171_8'     : 'NAN-undefined',
+    '171_9'     : 'NAN-undefined',
+    '171_10'    : 'NAN-undefined',
+    '172'       : 'NAN-undefined',
+    '172_0'     : 'NAN-undefined',
+    '172_1'     : 'NAN-undefined',
+    '172_2'     : 'NAN-undefined',
+    '172_7'     : 'NAN-undefined',
+    '172_8'     : 'NAN-undefined',
+    '172_9'     : 'NAN-undefined',
+    '172_10'    : 'NAN-undefined',
+    '173'       : 'NAN-undefined',
+    '173_0'     : 'NAN-undefined',
+    '173_1'     : 'NAN-undefined',
+    '173_2'     : 'NAN-undefined',
+    '173_8'     : 'NAN-undefined',
+    '173_9'     : 'NAN-undefined',
+    '173_10'    : 'NAN-undefined',
+    '174'       : 'NAN-undefined',
+    '174_0'     : 'NAN-undefined',
+    '174_1'     : 'NAN-undefined',
+    '174_2'     : 'NAN-undefined',
+    '174_8'     : 'NAN-undefined',
+    '174_9'     : 'NAN-undefined',
+    '174_10'    : 'NAN-undefined',
+    '175'       : 'NAN-undefined',
+    '175_0'     : 'NAN-undefined',
+    '175_1'     : 'NAN-undefined',
+    '175_2'     : 'NAN-undefined',
+    '175_8'     : 'NAN-undefined',
+    '175_9'     : 'NAN-undefined',
+    '175_10'    : 'NAN-undefined',
+    '176'       : 'NAN-undefined',
+    '177'       : 'NAN-undefined',
     '180_0'     : 'MBA-BARRE',
     '180_1'     : 'MCA-CABLE',
-    '181'       : 'MCO-DKT',
-    '181_0'     : 'MCO-DKT',
-    '181_1'     : 'MCO-DKT',
+    '181'       : 'MCO-Q4G',
+    '181_0'     : 'MCO-Q4G',
+    '181_1'     : 'MCO-Q4G',
     '182'       : 'MMA-D_PLAN',
-    '182_0'     : 'MMA-C_PLAN',
+    '182_0'     : 'MMA-AXIS',
     '182_2'     : 'MMA-D_PLAN',
-    '182_3'     : 'MMA-C_PLAN',
+    '182_3'     : 'MMA-AXIS',
     '182_5'     : 'MMA-D_PLAN',
-    '183'       : 'MMA-D_PLAN',
+    '183'       : 'MMA-C_PLAN',
     '183_0'     : 'MMA-C_PLAN',
-    '183_2'     : 'MMA-D_PLAN',
+    '183_2'     : 'MMA-C_PLAN',
     '183_3'     : 'MMA-C_PLAN',
-    '183_5'     : 'MMA-D_PLAN',
+    '183_5'     : 'MMA-C_PLAN',
     '184'       : 'MPO-POU_D_T',
     '185'       : 'MMA-3D',
-    '186'       : 'MMA-3D',
+    '186'       : 'MMA-3D_SI',
+    '186_0'     : 'MMA-3D_SI',
+    '186_1'     : 'MMA-3D',
     '187'       : 'MMA-3D',
     '188'       : 'MPO-POU_D_T',
-    '189_3'     : 'MPO-TUYAU_3M',
-    '190'       : 'Coque',
+    '189'       : 'MPO-POU_D_T',
+    '189_3'     : 'MPO-POU_D_T',
+    '190'       : 'MCO-DKT',
     '192'       : 'M-PLAN_JOINT',
     '195'       : 'M-3D_JOINT',
     '202'       : 'MMA-C_PLAN',
@@ -328,50 +332,50 @@ dicoMod = {
     '202_2'     : 'MMA-D_PLAN',
     '202_3'     : 'MMA-C_PLAN',
     '204'       : 'MMA-3D',
-    '212_3'     : '',
-    '212'       : '',
+    '212_3'     : 'NAN-undefined',
+    '212'       : 'NAN-undefined',
     '213_3'     : 'M-D_PLAN_HM',
     '213'       : 'M-D_PLAN_HHM',
-    '215'       : '',
+    '215'       : 'NAN-undefined',
     '216'       : 'M-3D_HM',
-    '217'       : '',
+    '217'       : 'NAN-undefined',
     '218'       : 'M-D_PLAN_THH',
-    '218_0'     : '',
+    '218_0'     : 'NAN-undefined',
     '218_1'     : 'M-D_PLAN_THH',
     '220'       : 'AMA-3D',
     '221'       : 'AMA-3D',
-    '223'       : '',
-    '223_11'    : '',
-    '223_100001': '',
-    '223_100010': '',
-    '223_100011': '',
-    '226'       : '',
-    '226_11'    : '',
-    '226_100001': '',
-    '226_100010': '',
-    '226_100011': '',
-    '227'       : '',
-    '227_11'    : '',
-    '227_100001': '',
-    '227_100010': '',
-    '227_100011': '',
-    '230'       : '',
-    '231'       : '',
-    '232'       : '',
-    '233'       : '',
-    '236'       : '',
-    '237'       : '',
-    '238'       : '',
-    '239'       : '',
-    '240'       : '',
-    '251'       : '',
-    '252'       : '',
-    '278'       : '',
-    '279'       : '',
+    '223'       : 'NAN-undefined',
+    '223_11'    : 'NAN-undefined',
+    '223_100001': 'NAN-undefined',
+    '223_100010': 'NAN-undefined',
+    '223_100011': 'NAN-undefined',
+    '226'       : 'NAN-undefined',
+    '226_11'    : 'NAN-undefined',
+    '226_100001': 'NAN-undefined',
+    '226_100010': 'NAN-undefined',
+    '226_100011': 'NAN-undefined',
+    '227'       : 'NAN-undefined',
+    '227_11'    : 'NAN-undefined',
+    '227_100001': 'NAN-undefined',
+    '227_100010': 'NAN-undefined',
+    '227_100011': 'NAN-undefined',
+    '230'       : 'NAN-undefined',
+    '231'       : 'NAN-undefined',
+    '232'       : 'NAN-undefined',
+    '233'       : 'NAN-undefined',
+    '236'       : 'NAN-undefined',
+    '237'       : 'NAN-undefined',
+    '238'       : 'NAN-undefined',
+    '239'       : 'NAN-undefined',
+    '240'       : 'NAN-undefined',
+    '251'       : 'NAN-undefined',
+    '252'       : 'NAN-undefined',
+    '278'       : 'NAN-undefined',
+    '279'       : 'NAN-undefined',
     '281'       : 'MCO-COQUE_3D',
     '281_0'     : 'MCO-COQUE_3D',
     '281_1'     : 'MCO-COQUE_3D',
-    '285'       : '',
+    '285'       : 'NAN-undefined',
     '288'       : 'MPO-POU_D_T',
     '289_3'     : 'MPO-TUYAU_3M',
     '290'       : 'MPO-TUYAU_3M',
@@ -544,6 +548,9 @@ dicoKeyword = {
     '3D_INCO_UP'   : None,
     '3D_JOINT'     : None,
     'POU_D_SQUE'   : None,
+    '3D_SI'        : None,
+    #undefined
+    'undefined'        : None,
 }
 
 
@@ -555,14 +562,14 @@ class MedConverterAnsys(MedConverterMesh):
         tic = time.perf_counter()
         c = MedConverterAnsys()
         c.verbose = verbose
-        data_read = c.read_ansys_mesh(filename_ansys)
+        c.read_ansys_mesh(filename_ansys, output_comm is not None)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
         if output_comm is not None:
-           c.convert_ansys_data(filename_ansys, output_comm, data_read) 
+           c.convert_ansys_data(filename_ansys, output_comm) 
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, output_comm, verbose = False):
@@ -580,13 +587,13 @@ class MedConverterAnsys(MedConverterMesh):
         super(MedConverterAnsys, self).__init__()
         self.ansysmesh = None
 
-    def read_ansys_mesh(self, filename):
+    def read_ansys_mesh(self, filename, convert):
         logger.debug("Read ANSYS mesh.")
 
         self._reset_structures()
         Cells, Groups, groupsName, title  = [], [], [], None
-        nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len = 0, 0, 0, 0, 0
-        time_nodes, time_cell, time_groups = 0.0, 0.0, 0.0
+        nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len, = 0, 0, 0, 0, 0
+        time_nodes, time_cell, time_groups, = 0.0, 0.0, 0.0,
         ElemAnsys = {}
         ElemOpt = {}
         Sect= {}
@@ -659,13 +666,14 @@ class MedConverterAnsys(MedConverterMesh):
                         tmp=float(sspline[2].strip())
                         Sect[last_idx_sec].option=int(tmp)
                 elif strip_line.startswith("inis,set,csys"):
-                    sspline=strip_line.split(",")
                     snext=next(file).strip()
                     ssnext=snext.split(",")
                     if float(ssnext[6]) not in tension_init:
                         tension_init[float(ssnext[6])]=len(tension_init)+1
                     tension[int(ssnext[2])]=float(ssnext[6])
                 elif strip_line.startswith("RLBLOCK") :
+                    len_tmp=0
+                    cpt=0
                     sspline = strip_line.split(",")
                     for i in range(int(sspline[1])+2):
                         nextLine=next(file)
@@ -673,11 +681,18 @@ class MedConverterAnsys(MedConverterMesh):
                             line=nextLine
                         else :
                             snext=nextLine.split()
+                            len_tmp=int(snext[1])
                             if int(snext[1]) > const_len:
-                                    const_len = int(snext[1])
+                                const_len = int(snext[1])
                             tmp=float(snext[0])
-                            RealConst[int(tmp)]=[float(i) for i in snext[1:]]
-                        line=nextLine
+                            RealConst[int(tmp)]=[float(i) for i in snext[2:]]
+                            cpt=len(snext[2:])
+                            while cpt < len_tmp:
+                                nextLine=next(file)
+                                snext=nextLine.split()
+                                for i in snext[:]:
+                                    RealConst[int(tmp)].append(float(i))
+                                cpt=cpt+len(snext)
                 elif (strip_line.startswith("LOCAL") or strip_line.startswith("CLOCAL") or \
                      strip_line.startswith("CS,")):
                     sspline=strip_line.split(",")
@@ -698,6 +713,11 @@ class MedConverterAnsys(MedConverterMesh):
                     # Gestion du titre
                     title = line.split(",")[1].strip().replace("\n", '')
 
+        for i in RealConst:
+            if len(RealConst[i][0:]) < const_len:
+                tmp_list=[0.0]*(const_len-len(RealConst[i][0:]))
+                for j in tmp_list:
+                    RealConst[i].append(j)
 
         const=np.zeros((1, const_len), dtype=float)
         #assert nb_total_nodes == len(self.nodes)
@@ -726,9 +746,14 @@ class MedConverterAnsys(MedConverterMesh):
             element_ansys_test = str(element_ansys_type) + '_' + str(len(cell.nodes))
             if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
                 nb_nodes = len(cell.nodes) - 1
-                msg="Présence de noeuds orphelins"
+                logger.debug("Présence de noeuds orphelins")
             else:
                 nb_nodes = len(cell.nodes)
+
+            if '189' in element_ansys_test and convert==True:
+                nb_nodes = nb_nodes - 1
+                logger.debug("Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2")
+                del cell.nodes[2]
 
             if cell.type in ElemOpt and \
                ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)] :
@@ -747,30 +772,34 @@ class MedConverterAnsys(MedConverterMesh):
 
             namegroupelem=element_group
             #Récupération des caractéristiques des éléments discrets
-            if dicoKeyword[element_group[4:]]=="DISCRET" or dicoKeyword[element_group[4:]]=="DISCRET_2D":
-                const_index=np.where((const==RealConst[cell.const][1:]).all(axis=1))
+            if dicoKeyword[element_group[4:]]=='DISCRET' or dicoKeyword[element_group[4:]]=='DISCRET_2D':
+                const_index=np.where((const==RealConst[cell.const][0:]).all(axis=1))
                 if len(const_index[0])>0 :
                     const_id=const_index[0][0]
                 else :
                     const_id=len(const)
-                    const=np.append(const, [RealConst[cell.const][1:]], axis=0)
+                    const=np.append(const, [RealConst[cell.const][0:]], axis=0)
                 if str(ElemAnsys[cell.type]) in ('21', '166') and cell.type in ElemOpt:
                     namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-M'+str(ElemOpt[cell.type][1])
                 elif str(ElemAnsys[cell.type]) in  ('21', '166') and cell.type not in ElemOpt:
                     namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-M0'
                 elif str(ElemAnsys[cell.type])=='14':
-                    if ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==1:
-                        namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Kx'
-                    elif ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==2:
-                        namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Ky'
-                    elif ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==3:
-                        namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Kz'
+                    if cell.type in ElemOpt:
+                        if ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==1:
+                            namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Kx'
+                        elif ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==2:
+                            namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Ky'
+                        elif ElemOpt[cell.type][0]==2 and ElemOpt[cell.type][1]==3:
+                            namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-Kz'
+                    else:
+                        namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(const_id)+'-KxKyKz'
 
             #Calcul des axes X et Y du plan tangent des éléments coque
             if dicoKeyword[element_group[4:]]=='COQUE':
                 namegroupelem=namegroupelem+'-'+str(cell.rep)
                 i=cell.sec
-                epais_index_real=np.where((epais==RealConst[cell.const][1]))
+                if len(RealConst)>0:
+                    epais_index_real=np.where((epais==RealConst[cell.const][0]))
                 if i in Sect and Sect[i].type=='SHELL':
                     epais_index=np.where((epais==Sect[i].data[0]))
                     if len(epais_index[0])>0:
@@ -782,7 +811,7 @@ class MedConverterAnsys(MedConverterMesh):
                     id_epais=epais_index_real[0][0]
                 else :
                     id_epais=len(epais)
-                    epais=np.append(epais, RealConst[cell.const][1])
+                    epais=np.append(epais, RealConst[cell.const][0])
 
                 namegroupelem=namegroupelem+'-'+str(id_epais)
 
@@ -803,7 +832,7 @@ class MedConverterAnsys(MedConverterMesh):
 
                     z=np.cross(x, y)
 
-                    vale_c=np.around(np.add(x,z), decimals=2)
+                    vale_c=np.around(np.add(x,z), decimals=0)
 
                     index_orien=np.where((Orien_coque==vale_c).all(axis=1))
                     index2_orien=np.where((np.cross(Orien_coque[1:], vale_c)==[[0.0, 0.0, 0.0]]).all(axis=1))
@@ -827,7 +856,7 @@ class MedConverterAnsys(MedConverterMesh):
                     y=x2[1]-o2[1]
                     z=x2[2]-o2[2]
 
-                    vale_p=np.around(np.array([x,y,z]), decimals=2)
+                    vale_p=np.around(np.array([x,y,z]), decimals=0)
 
                     index_orien=np.where((Orien_poutre==vale_p).all(axis=1))
                     index2_orien=np.where((np.cross(Orien_poutre[1:], vale_p)==[0.0, 0.0, 0.0]).all(axis=1))
@@ -840,21 +869,6 @@ class MedConverterAnsys(MedConverterMesh):
                         Orien_poutre=np.append(Orien_poutre, [vale_p], axis=0)
 
                     namegroupelem=namegroupelem+"-"+str(id_orien)
-
-                #Courbure élements courbes
-                if element_ansys_test in ("189", "289"):
-                    x=(o2[0]-nodes[cell.nodes[2]][0])**2
-                    y=(o2[1]-nodes[cell.nodes[2]][1])**2
-                    z=(o2[2]-nodes[cell.nodes[2]][2])**2
-                    dist_PB=sqrt(x+y+z)/2
-                    x1=(nodes[cell.nodes[1]][0]-o2[0])**2
-                    y1=(nodes[cell.nodes[1]][1]-o2[1])**2
-                    z1=(nodes[cell.nodes[1]][2]-o2[2])**2
-                    dist_CB=sqrt(x1+y1+z1)
-                    courbure=cos(2*asin(dist_PB/dist_CB)-(math.pi/2))/dist_PB
-
-                    if abs(courbure)>0.005:
-                        Sect[cell.sec].courbure=courbure
 
             elif dicoKeyword[element_group[4:]]=='BARRE':
                 namegroupelem=namegroupelem+'-'+str(cell.sec)
@@ -905,11 +919,8 @@ class MedConverterAnsys(MedConverterMesh):
         toc = time.perf_counter()
         logger.debug(" Load %d groups (in %0.4f seconds)"%(len(Groups), toc-tic))
 
-        data_read=(groupsName, nodes, Orien_coque, Orien_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
-
         #Recuperation des informations de la mise en donnees pour la creation du fichier de commandes
-        return data_read
-
+        self._structural_data_read=(groupsName, nodes, Orien_coque, Orien_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
 
     def getCoor(self, line, firstStr, longFloat):
         # le premier decimal commence a la colonne firstStrg
@@ -1017,18 +1028,18 @@ class MedConverterAnsys(MedConverterMesh):
     def create_ansys_mesh(self):
         raise NotImplementedError()
 
-    def write_cara_elems(self, f, modele_name, group_name, data_read):
+    def write_cara_elems(self, f, modele_name, group_name):
 
-        nodes=data_read[1]
-        orien_coque=data_read[2]
-        orien_poutre=data_read[3]
-        const=data_read[4]
-        Rep=data_read[5]
-        Sect=data_read[6]
-        RealConst=data_read[7]
-        epais=data_read[8]
-        tension_init=data_read[9]
-        rep_global=data_read[10]
+        nodes=self._structural_data_read[1]
+        orien_coque=self._structural_data_read[2]
+        orien_poutre=self._structural_data_read[3]
+        const=self._structural_data_read[4]
+        Rep=self._structural_data_read[5]
+        Sect=self._structural_data_read[6]
+        RealConst=self._structural_data_read[7]
+        epais=self._structural_data_read[8]
+        tension_init=self._structural_data_read[9]
+        rep_global=self._structural_data_read[10]
 
         if 'MECA' in modele_name:
             f.write("CARA_M=AFFE_CARA_ELEM(MODELE={},\n".format(modele_name))
@@ -1085,7 +1096,7 @@ class MedConverterAnsys(MedConverterMesh):
                 i=int(sname[3])
                 if i in Sect and Sect[i].type=='BEAM':
                     if Sect[i].subtype == 'RECT' :
-                        f.write("SECTION='RECTANGLE', VARI_SECT='CONSTANT', CARA=('HY', 'HZ'), VALE=({}),),\
+                        f.write("SECTION='RECTANGLE', VARI_SECT='CONSTANT', CARA=('HY', 'HZ'), VALE=({0}, {1}),),\
                                 \n".format(Sect[i].data[0], Sect[i].data[1]))
                     elif Sect[i].subtype == 'QUAD' :
                         hy1=math.sqrt((Sect[i].data[0]-Sect[i].data[2])**2+(Sect[i].data[1]-Sect[i].data[3])**2)
@@ -1101,20 +1112,20 @@ class MedConverterAnsys(MedConverterMesh):
                     elif Sect[i].subtype == 'CSOLID':
                         f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R'), VALE=({}),),\n".format(Sect[i].data[0]))
                     elif 'CTUB' in Sect[i].subtype:
-                        f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE={},),\
-                                \n".format((Sect[i].data[1], Sect[i].data[1]-Sect[i].data[0])))
+                        f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0},{1})),\
+                                \n".format(Sect[i].data[1], Sect[i].data[1]-Sect[i].data[0]))
                     elif Sect[i].subtype =='ASEC':
-                        f.write("SECTION='GENERALE', CARA=('A', 'IY', 'IZ', 'AY', 'AZ', 'EY', 'EZ', 'JX', 'JG', 'IYR2', 'IZR2'), VALE=({}),),\
-                                \n".format(Sect[i].data[0], Sect[i].data[1], Sect[i].data[3], \
+                        f.write("SECTION='GENERALE', CARA=('A', 'IY', 'IZ', 'AY', 'AZ', 'EY', 'EZ', 'JX', 'JG', 'IYR2', 'IZR2'), VALE={},),\
+                                \n".format((Sect[i].data[0], Sect[i].data[1], Sect[i].data[3], \
                                 Sect[i].data[8], Sect[i].data[9], Sect[i].data[6], Sect[i].data[7],\
-                                Sect[i].data[5], Sect[i].data[4], Sect[i].data[11], Sect[i].data[10]))
+                                Sect[i].data[5], Sect[i].data[4], Sect[i].data[11], Sect[i].data[10])))
                     elif Sect[i].subtype in ('I', 'L', 'T', 'Z', 'CHAN', 'HATS'):
                         raise MedConverterError("Section non traitée")
                     else :
                         raise MedConverterError("Section non reconnue")
                 elif i in Sect and Sect[i].type=='PIPE':
-                    f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({}),),\
-                            \n".format(Sect[i].data[0], ", ", Sect[i].data[1]))
+                    f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0}, {1}),),\
+                            \n".format(Sect[i].data[0], Sect[i].data[1]))
 
                 i=int(sname[2])
                 if flag[7]==False:
@@ -1137,7 +1148,6 @@ class MedConverterAnsys(MedConverterMesh):
                 if flag[2]==False:
                     if parenthese==True:
                         f.write("{0:>29}),\n".format(" "))
-                        parenthese=False
                     f.write("{0:>22}DISCRET=(_F(GROUP_MA='{1}', ".format(" ", rname))
                     parenthese=True
                     flag[2]=True
@@ -1150,6 +1160,8 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write("CARA='K_T_D_L', VALE={}, ".format((0.0, const[idx][0], 0.0)))
                 elif sname[4]=='Kz':
                     f.write("CARA='K_T_D_L', VALE={}, ".format((0.0, 0.0, const[idx][0])))
+                elif sname[4]=='KxKyKz':
+                    f.write("CARA='K_T_D_L', VALE={}, ".format((const[idx][0], const[idx][0], const[idx][0])))
                 elif sname[4]=='M2':
                     f.write("CARA='M_T_D_N', VALE={}, ".format(const[idx][0]))
                 elif sname[4]=='M0':
@@ -1247,23 +1259,23 @@ class MedConverterAnsys(MedConverterMesh):
                 i=int(sname[2])
                 if flag[6]==False:
                     if parenthese==True:
-                        f.write("{0:>28},)\n".format(" "))
+                        f.write("{0:>28}),\n".format(" "))
                         parenthese=False
                     f.write("{0:>22}MASSIF=(_F(GROUP_MA='{1}', ".format(" ", rname))
-                    parenthese=False
+                    parenthese=True
                     flag[6]=True
                 else :
                     f.write("{0:>30}_F(GROUP_MA='{1}', ".format(" ", rname))
                 if rep_global==0 and i==0:
-                    f.write("{}ANGL_EULER=(0, 0, 0),)\n".format(" "))
+                    f.write(" ANGL_EULER=(0, 0, 0),)\n".format(" "))
                 else:
                     if i in Rep and (Rep[i].type=='LOCAL' or Rep[i].type=='CLOCAL' or i==rep_global):
-                        f.write("ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
+                        f.write(" ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
                     elif i in Rep and (Rep[i].type=='CS'):
-                        f.write("ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
+                        f.write(" ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
 
         if parenthese==True:
-            f.write("{0:>28},)\n".format(" "))
+            f.write("{0:>28}),\n".format(" "))
             parenthese=False
 
 
@@ -1271,21 +1283,21 @@ class MedConverterAnsys(MedConverterMesh):
             for s in orientation:
                 f.write(s)
             f.write("{0:>34}),\n".format(" "))
-        f.write("{0:>32}),\n{0:>21})\n\n".format(" "))
+        f.write("{0:>21})\n\n".format(" "))
 
-    def convert_ansys_data(self, ansys_file, comm_file, data_read):
+    def convert_ansys_data(self, ansys_file, comm_file):
 
-        group_name=data_read[0]
-        nodes=data_read[1]
-        orien_coque=data_read[2]
-        orien_poutre=data_read[3]
-        const=data_read[4]
-        Rep=data_read[5]
-        Sect=data_read[6]
-        RealConst=data_read[7]
-        epais=data_read[8]
-        tension_init=data_read[9]
-        rep_global=data_read[10]
+        group_name=self._structural_data_read[0]
+        nodes=self._structural_data_read[1]
+        orien_coque=self._structural_data_read[2]
+        orien_poutre=self._structural_data_read[3]
+        const=self._structural_data_read[4]
+        Rep=self._structural_data_read[5]
+        Sect=self._structural_data_read[6]
+        RealConst=self._structural_data_read[7]
+        epais=self._structural_data_read[8]
+        tension_init=self._structural_data_read[9]
+        rep_global=self._structural_data_read[10]
 
         with open(comm_file, 'w') as f :
 
@@ -1343,13 +1355,13 @@ class MedConverterAnsys(MedConverterMesh):
 
             if flag[0]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_MECA', meca_name, data_read)
+                self.write_cara_elems(f, 'MO_MECA', meca_name, self._structural_data_read)
             elif flag[1]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_THER', ther_name, data_read)
+                self.write_cara_elems(f, 'MO_THER', ther_name, self._structural_data_read)
             elif flag[2]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_ACOU', acou_name, data_read)
+                self.write_cara_elems(f, 'MO_ACOU', acou_name, self._structural_data_read)
 
             #Gestion des coques 3D avec un passage de TRIA6/QUAD8 vers TRIA7/QUAD9
             elif coque==True:
@@ -1357,15 +1369,14 @@ class MedConverterAnsys(MedConverterMesh):
                 f.write("MA_COQUE=CREA_MAILLAGE(MAILLAGE=MA, \n")
 
                 for name in coque_name:
-                    sname=name.split("-")
-                    s=s+sname+"', '"
+                    s=s+name.replace("-", "_")+"', '"
                 s=s[:-2]
-                f.write("MODI_MAILLE=(_F(GROUP_MA='{0}'\n{1:>17}OPTION='TRIA6_7'),\
-                        \n{1:>14}_F(GROUP_MA='{0}\n{1:>17}OPTION='QUAD8_9'),),),\n ".format(s, " "))
+                f.write("{1:>22}MODI_MAILLE=(_F(GROUP_MA=({0}),\n{1:>39}OPTION='TRIA6_7'),\
+                        \n{1:>36}_F(GROUP_MA=({0}),\n{1:>39}OPTION='QUAD8_9'),),),\n ".format(s, " "))
 
                 f.write("MO_COQUE=AFFE_MODELE(MAILLAGE=MA_COQUE,\n{0:>20}AFFE=(_F(TOUT='OUI',\
                         \n{0:>28}PHENOMENE='MECANIQUE',\n{0:>29}MODELISATION='COQUE_3D'),),),\n".format(" "))
 
-                self.write_cara_elems(f, 'MO_COQUE', coque_name, data_read)
+                self.write_cara_elems(f, 'MO_COQUE', coque_name, self._structural_data_read)
 
             f.write("\n")

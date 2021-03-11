@@ -434,6 +434,23 @@ class TestSimple(unittest.TestCase):
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                              jsonfile)
 
+    def test_ansys_link180_cable(self):
+        filename = osp.join(data_path(), "ANSYS_LINK180_cable.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_LINK180_cable.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_modele_FE_mixte_v4(self):
+        filename = osp.join(data_path(), "ANSYS_Modele_FE_Mixte_v4.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_Modele_FE_Mixte_v4.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_plane183_03_tri(self):
+        filename = osp.join(data_path(), "ANSYS_PLANE183_03_TRI.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_PLANE183_03_TRI.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
 
     def test_zset_multi(self):
         filename = osp.join(data_path(), "ZSET_MULTI.geof")

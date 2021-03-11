@@ -1,7 +1,8 @@
-/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       09:50:56
+/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       17:39:32
 /PREP7
 /NOPR
 /TITLE,SHELL281 - Quad                                                         
+ANTYPE, 0
 *IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
 _CDRDOFF=             !reset flag, numoffs already performed
 *ELSE              !offset database for the following FE model
@@ -11,7 +12,7 @@ NUMOFF,MAT ,        1
 NUMOFF,SECN,        1
 NUMOFF,TYPE,        1
 *ENDIF
-*SET,_BUTTON ,  0.000000000000    
+*SET,_BUTTON ,  1.000000000000    
 *SET,_CMAP   ,  1.000000000000    
 *SET,_ET_TYPE,  1.000000000000    
 *SET,_GUI_CLR_BG,' systemButtonFace               '
@@ -29,16 +30,6 @@ NUMOFF,TYPE,        1
 *SET,_RL1    ,  1.000000000000    
 *SET,_STATUS ,  0.000000000000    
 *SET,_UIQR   ,  1.000000000000    
-*SET,_Z1     ,'SHELL181                        '
-*SET,_Z2     ,' - Quad                         '
-*SET,_Z3     ,'                                '
-*SET,_Z4     ,'                                '
-*SET,_Z5     ,'                                '
-*SET,_Z6     ,'                                '
-*SET,_Z7     ,'                                '
-*SET,_Z8     ,'                                '
-*SET,_Z9     ,'                                '
-*SET,_ZVECT  ,  1.000000000000    
 DOF,DELETE
 ET,        1,281
 NBLOCK,6,SOLID,         8,         8
@@ -56,12 +47,15 @@ EBLOCK,19,SOLID,         1,         1
 (19i9)
         1        1        1        1        0        0        0        0        8        0        1        1        2        4        6        3        5        7        8
        -1
+CMBLOCK,CL_UXYZ_RXYZ ,NODE,       3  ! users node component definition
+(8i10)
+         1         6        8
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,EX  ,       1, 1,  200000.000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
 MPDATA,R5.0, 1,NUXY,       1, 1, 0.300000000    ,
 MPTEMP,R5.0, 1, 1,  0.00000000    ,
-MPDATA,R5.0, 1,DENS,       1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,DENS,       1, 1, 7.850000000E-09,
 SECTYPE,      1,SHELL,    ,Thick   
 SECOFFSET,MID
 SECBLOCK,      1
@@ -73,7 +67,7 @@ EXTOPT,ACLEAR,      0
 TREF,  0.00000000
 IRLF,  0
 BFUNIF,TEMP,_TINY
-ACEL,  0.00000000    ,  0.00000000    ,  0.00000000
+ACEL,  0.00000000    ,  0.00000000    ,  9810.00000
 OMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 DOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
 CGLOC,  0.00000000    ,  0.00000000    ,  0.00000000
@@ -95,5 +89,23 @@ NEQIT,     0
 
 ERESX,DEFA
 
+D,      1,UX  ,  0.00000000    ,  0.00000000    
+D,      1,UY  ,  0.00000000    ,  0.00000000    
+D,      1,UZ  ,  0.00000000    ,  0.00000000    
+D,      1,ROTX,  0.00000000    ,  0.00000000    
+D,      1,ROTY,  0.00000000    ,  0.00000000    
+D,      1,ROTZ,  0.00000000    ,  0.00000000    
+D,      6,UX  ,  0.00000000    ,  0.00000000    
+D,      6,UY  ,  0.00000000    ,  0.00000000    
+D,      6,UZ  ,  0.00000000    ,  0.00000000    
+D,      6,ROTX,  0.00000000    ,  0.00000000    
+D,      6,ROTY,  0.00000000    ,  0.00000000    
+D,      6,ROTZ,  0.00000000    ,  0.00000000    
+D,      8,UX  ,  0.00000000    ,  0.00000000    
+D,      8,UY  ,  0.00000000    ,  0.00000000    
+D,      8,UZ  ,  0.00000000    ,  0.00000000    
+D,      8,ROTX,  0.00000000    ,  0.00000000    
+D,      8,ROTY,  0.00000000    ,  0.00000000    
+D,      8,ROTZ,  0.00000000    ,  0.00000000    
 /GO
 FINISH

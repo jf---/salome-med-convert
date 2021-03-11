@@ -1,5 +1,10 @@
 {
  "CELLS": {
+  "-1": {
+   "ID0_POINT1": [
+    1
+   ]
+  },
   "0": {
    "ID0_SEG2": [
     0,
@@ -8,11 +13,28 @@
   }
  },
  "GROUPS": {
-  "0": {}
+  "-1": {
+   "MDI_DIS_T_0_2_M2": [
+    0
+   ]
+  },
+  "0": {
+   "MDI_DIS_T_0_1_Ky": [
+    0
+   ]
+  },
+  "1": {
+   "CL_UXZ": [
+    1
+   ],
+   "CL_UY": [
+    0
+   ]
+  }
  },
- "NB_CELLS": 1,
- "NB_GRP_CELLS": 0,
- "NB_GRP_NODES": 0,
+ "NB_CELLS": 2,
+ "NB_GRP_CELLS": 2,
+ "NB_GRP_NODES": 2,
  "NB_NODES": 2,
  "NODES": {
   "0": [
