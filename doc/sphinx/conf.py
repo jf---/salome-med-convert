@@ -129,7 +129,7 @@ html_theme = 'classic'
 # documentation.
 #
 # html_theme_options = {}
-
+html_theme_options = {'body_max_width': '70%'}
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
 

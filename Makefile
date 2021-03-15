@@ -21,6 +21,9 @@ install: ## Install the plugin into directory given by $SALOMEMECA_MEDCONVERTER_
 	make translate
 	python setup.py install --prefix=$(PREFIX)
 	python setup.py clean --all
+
+install_doc: ## Install the plugin into directory given by $SALOMEMECA_MEDCONVERTER_ROOT_DIR and make doc too
+	make install
 	make doc
 
 uninstall: ## Uninstall a previous installation ($SALOMEMECA_MEDCONVERTER_ROOT_DIR must be the same)

@@ -56,7 +56,7 @@ class MedConverterMesh:
             msg = "Mesh name '%s' is too long %d>%d"%(name, len(name), MED_NAME_SIZE)
             raise MedConverterError(msg)
 
-        self._mesh_name = name
+        self._mesh_name = name.strip('"').strip("'")
 
     @property
     def dimensions(self):
@@ -260,7 +260,6 @@ class MedConverterMesh:
 
         self.medmesh = medcoupling.MEDFileUMesh()
         coords = medcoupling.DataArrayDouble(self.nodes)
-        mesh_name = self.mesh_name.strip('"').strip("'")
 
         # Les clés de elements correspondent aux dimensions dans le maillage
         for dim in self.dimensions:
@@ -268,7 +267,7 @@ class MedConverterMesh:
             logger.debug(" Level : %d"%level)
 
             tic = time.perf_counter()
-            mesh_at_current_level = medcoupling.MEDCouplingUMesh(mesh_name, int(dim[0]))
+            mesh_at_current_level = medcoupling.MEDCouplingUMesh(self.mesh_name, int(dim[0]))
             mesh_at_current_level.setCoords(coords)
             number_of_elements_at_level = len(self.cells[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
@@ -313,7 +312,7 @@ class MedConverterMesh:
             group_medcoupling.setName(group_name.strip('"').strip("'"))
             groups_n_at_level.append(group_medcoupling)
         self.medmesh.setGroupsAtLevel(1, groups_n_at_level) # Groupes de noeuds au niveau 1
-        self.medmesh.setName(mesh_name)
+        self.medmesh.setName(self.mesh_name)
         toc = time.perf_counter()
         logger.debug(" Level : 1")
         logger.debug("  Add %d groups of nodes (in %0.4f seconds)"%(len(groups_n_at_level), toc-tic))
