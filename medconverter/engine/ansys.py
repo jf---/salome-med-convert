@@ -386,7 +386,7 @@ dicoOpt = {
     '5'  : 1,
     '11' : None,
     '13' : 1,
-    '14' : 3, 
+    '14' : 3,
     '16' : None,
     '21' : 3,
     '25' : None,
@@ -538,9 +538,6 @@ dicoKeyword = {
     'AXIS_FOURIER' : 'MASSIF',
     'C_PLAN'       : 'MASSIF',
     'D_PLAN'       : 'MASSIF',
-    'TUYAU_3M'     : 'POUTRE',
-    'TUYAU_6M'     : 'POUTRE',
-    'POU_D_EM'     : 'POUTRE',
     #THER
     'COQUE'        : 'COQUE',
     'COQUE_PLAN'   : 'COQUE',
@@ -570,7 +567,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
         if output_comm is not None:
-           c.convert_ansys_data(filename_ansys, output_comm) 
+           c.convert_ansys_data(filename_ansys, output_comm)
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, output_comm, verbose = False):
@@ -817,7 +814,7 @@ class MedConverterAnsys(MedConverterMesh):
                 namegroupelem=namegroupelem+'-'+str(id_epais)
 
                 if (cell.rep==0 or cell.rep==rep_global):
-                    
+
                     x1=nodes[cell.nodes[1]]
                     o1=nodes[cell.nodes[0]]
                     y1=nodes[cell.nodes[2]]
@@ -1199,9 +1196,9 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write("{0:>35}_F(GROUP_MA='{1}', ".format(" ", rname))
                 idx=int(sname[3])
                 if sname[4]=='Kx':
-                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format((const[idx][0], 0.0)))
+                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format(const[idx][0], 0.0))
                 elif sname[4]=='Ky':
-                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format((0.0, const[idx][0])))
+                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format(0.0, const[idx][0]))
                 elif sname[4]=='M4':
                     f.write("CARA='M_T_D_N', VALE={0}, ".format(const[idx][0]))
                 elif sname[4]=='M3':
@@ -1268,7 +1265,7 @@ class MedConverterAnsys(MedConverterMesh):
                 else :
                     f.write("{0:>30}_F(GROUP_MA='{1}', ".format(" ", rname))
                 if rep_global==0 and i==0:
-                    f.write(" ANGL_EULER=(0, 0, 0),)\n".format(" "))
+                    f.write(" ANGL_EULER=(0, 0, 0),)\n")
                 else:
                     if i in Rep and (Rep[i].type=='LOCAL' or Rep[i].type=='CLOCAL' or i==rep_global):
                         f.write(" ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
@@ -1289,16 +1286,6 @@ class MedConverterAnsys(MedConverterMesh):
     def convert_ansys_data(self, ansys_file, comm_file):
 
         group_name=self._structural_data_read[0]
-        nodes=self._structural_data_read[1]
-        orien_coque=self._structural_data_read[2]
-        orien_poutre=self._structural_data_read[3]
-        const=self._structural_data_read[4]
-        Rep=self._structural_data_read[5]
-        Sect=self._structural_data_read[6]
-        RealConst=self._structural_data_read[7]
-        epais=self._structural_data_read[8]
-        tension_init=self._structural_data_read[9]
-        rep_global=self._structural_data_read[10]
 
         with open(comm_file, 'w') as f :
 
