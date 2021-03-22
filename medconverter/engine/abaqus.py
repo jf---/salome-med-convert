@@ -426,26 +426,38 @@ class AbaqusMesh:
             elemSurf = []
             if surfs.getType() == "ELEMENT":
                 for surf in surfs.getSurface():
+                    l_global_grp = False
                     try:
                         listElem = [int(surf[0])]
                     except:
                         name_grp = surf[0]
                         l_find = False
-                        for group in Elset:
+                        for group in self.Elset:
                             if name_grp == group.getName():
                                 listElem = group.getGroup()
                                 l_find = True
+                                l_global_grp = True
                                 break
+                        if not l_find:
+                            for group in Elset:
+                                if name_grp == group.getName():
+                                    listElem = group.getGroup()
+                                    l_find = True
+                                    l_global_grp = False
+                                    break
                         if not l_find:
                             raise RuntimeError("Group not find")
 
-                    if len(surf) > 1:
-                        l_create_elem = True
-                    else:
+                    if len(surf) == 1 or surf[1] in ("SPOS", "SNEG"):
                         l_create_elem = False
+                    else:
+                        l_create_elem = True
 
                     for cell_loc_id in listElem:
-                        cell_id = corresponding_elems[cell_loc_id]
+                        if l_global_grp:
+                            cell_id = cell_loc_id
+                        else:
+                            cell_id = corresponding_elems[cell_loc_id]
 
                         if l_create_elem:
                             self.surfOffset += 1
