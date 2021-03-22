@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import math
 import os.path as osp
 from collections import OrderedDict
 import medcoupling
@@ -104,7 +105,7 @@ class Section:
             aire=rec1+rec2+rec3-supp1-supp2
 
         elif self.subtype=='ASEC':
-            aire=data[0]
+            aire=self.data[0]
 
         elif self.subtype=='HATS':
             rec1=self.data[0]*self.data[4]
@@ -1355,13 +1356,13 @@ class MedConverterAnsys(MedConverterMesh):
 
             if flag[0]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_MECA', meca_name, self._structural_data_read)
+                self.write_cara_elems(f, 'MO_MECA', meca_name)
             elif flag[1]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_THER', ther_name, self._structural_data_read)
+                self.write_cara_elems(f, 'MO_THER', ther_name)
             elif flag[2]==True:
                 f.write("{0:>21}),\n{0:>15})\n\n".format(" "))
-                self.write_cara_elems(f, 'MO_ACOU', acou_name, self._structural_data_read)
+                self.write_cara_elems(f, 'MO_ACOU', acou_name)
 
             #Gestion des coques 3D avec un passage de TRIA6/QUAD8 vers TRIA7/QUAD9
             elif coque==True:
@@ -1377,6 +1378,6 @@ class MedConverterAnsys(MedConverterMesh):
                 f.write("MO_COQUE=AFFE_MODELE(MAILLAGE=MA_COQUE,\n{0:>20}AFFE=(_F(TOUT='OUI',\
                         \n{0:>28}PHENOMENE='MECANIQUE',\n{0:>29}MODELISATION='COQUE_3D'),),),\n".format(" "))
 
-                self.write_cara_elems(f, 'MO_COQUE', coque_name, self._structural_data_read)
+                self.write_cara_elems(f, 'MO_COQUE', coque_name)
 
             f.write("\n")
