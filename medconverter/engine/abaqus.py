@@ -686,6 +686,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
         # Lecture du fichier .inp où les blocs sont separés par des *Instance et *End Instance
         with open(filename, 'r', encoding = self._get_file_encoding(filename)) as file :
+            self.file = []
             self.filename = filename
             self.mesh_name = self._read_meshname(filename)
             # a priori, this is a 3D mesh
@@ -705,11 +706,13 @@ class MedConverterAbaqus(MedConverterMesh):
 
             sys.setrecursionlimit(recur_level_default)
 
+            # close open file
+            for fich in self.file:
+                fich.close()
+
             toc = time.perf_counter()
             logger.debug("Ending to parse mesh file in %0.4f seconds"%(toc-tic))
 
-
-        file.close()
 
         # create Abaqus mesh
         logger.debug(" ")
@@ -839,6 +842,7 @@ class MedConverterAbaqus(MedConverterMesh):
             l_extern_file = True
             filename_node = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
             file_to_read = open(filename_node, 'r')
+            self.file.append(file_to_read)
         else:
             l_extern_file = False
             file_to_read = file
@@ -920,6 +924,7 @@ class MedConverterAbaqus(MedConverterMesh):
             l_extern_file = True
             filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
             file_to_read = open(filename_elem, 'r')
+            self.file.append(file_to_read)
         else:
             l_extern_file = False
             file_to_read = file
@@ -1097,6 +1102,7 @@ class MedConverterAbaqus(MedConverterMesh):
         # open external file
         filename_elem = osp.dirname(self.filename) + "/"+ params_map["INPUT"]
         file_to_read = open(filename_elem, 'r')
+        self.file.append(file_to_read)
 
         logger.debug("-> Reading included file: " + filename_elem)
 
