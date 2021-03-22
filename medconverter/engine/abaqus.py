@@ -5,6 +5,7 @@ import time
 import os.path as osp
 import numpy as np
 import medcoupling
+import sys
 
 from .logger import logger
 from .medconverter import MedConverterMesh
@@ -683,9 +684,14 @@ class MedConverterAbaqus(MedConverterMesh):
             logger.debug("Beginning to parse mesh file")
             tic = time.perf_counter()
 
+            recur_level_default = sys.getrecursionlimit()
+            sys.setrecursionlimit(10000)
+
             for line in file :
                 self.line = line
                 self._read_data(file, Assembly)
+
+            sys.setrecursionlimit(recur_level_default)
 
             toc = time.perf_counter()
             logger.debug("Ending to parse mesh file in %0.4f seconds"%(toc-tic))
@@ -751,7 +757,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
     def _read_data(self, file, Entities):
         self.line = self.line.strip()
-
+        #print("LINE: ", self.line )
         if(self.line.upper().startswith("*NODE")):
             self._read_nodes(file, Entities.Nodes, Entities.Nset, Entities.NsetName)
             # print("Nodes")
@@ -973,7 +979,7 @@ class MedConverterAbaqus(MedConverterMesh):
             self.line = file.readline()
             return
 
-        logger.debug("-> Reading Surface : " + params_map["TYPE"])
+        logger.debug("-> Reading Surface : %s (%s)"%(params_map["NAME"], params_map["TYPE"]))
 
         elem = []
         # loop on list of elements
