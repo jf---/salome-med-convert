@@ -538,6 +538,9 @@ dicoKeyword = {
     'AXIS_FOURIER' : 'MASSIF',
     'C_PLAN'       : 'MASSIF',
     'D_PLAN'       : 'MASSIF',
+    'TUYAU_3M'     : 'POUTRE',
+    'TUYAU_6M'     : 'POUTRE',
+    'POU_D_EM'     : 'POUTRE',
     #THER
     'COQUE'        : 'COQUE',
     'COQUE_PLAN'   : 'COQUE',
@@ -567,7 +570,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
 
         if output_comm is not None:
-           c.convert_ansys_data(filename_ansys, output_comm)
+           c.convert_ansys_data(filename_ansys, output_comm, filename_med)
 
     @staticmethod
     def convert_med_to_ansys(filename_med, filename_ansys, output_comm, verbose = False):
@@ -1107,7 +1110,7 @@ class MedConverterAnsys(MedConverterMesh):
                     elif Sect[i].subtype == 'HREC':
                         f.write("SECTION='RECTANGLE', VARI_SECT='HOMOTHETIQUE', CARA=('HY1', 'HZ1', 'HY2', 'HZ2', 'EPY1', 'EPY2', 'EPZ1', EPZ2'), VALE=({}),),\
                                 \n".format(Sect[i].data[:]))
-                    elif Sect[i].subtype == 'CSOLID':
+                    elif 'CSOL' in Sect[i].subtype:
                         f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R'), VALE=({}),),\n".format(Sect[i].data[0]))
                     elif 'CTUB' in Sect[i].subtype:
                         f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0},{1})),\
@@ -1118,7 +1121,9 @@ class MedConverterAnsys(MedConverterMesh):
                                 Sect[i].data[8], Sect[i].data[9], Sect[i].data[6], Sect[i].data[7],\
                                 Sect[i].data[5], Sect[i].data[4], Sect[i].data[11], Sect[i].data[10])))
                     elif Sect[i].subtype in ('I', 'L', 'T', 'Z', 'CHAN', 'HATS'):
-                        raise MedConverterError("Section non traitée")
+                        name=Sect[i].subtype+"_"+str(i)
+                        f.write("SECTION='GENERALE', TABLE_CARA={0}, NOM_SEC='{1}',),\n"\
+                                .format("CARA_"+name, name))
                     else :
                         raise MedConverterError("Section non reconnue")
                 elif i in Sect and Sect[i].type=='PIPE':
@@ -1283,10 +1288,11 @@ class MedConverterAnsys(MedConverterMesh):
             f.write("{0:>34}),\n".format(" "))
         f.write("{0:>21})\n\n".format(" "))
 
-    def convert_ansys_data(self, ansys_file, comm_file):
+    def convert_ansys_data(self, ansys_file, comm_file, filename_med):
 
         group_name=self._structural_data_read[0]
-
+        Sect=self._structural_data_read[6]
+        
         with open(comm_file, 'w') as f :
 
             coque=False
@@ -1297,6 +1303,20 @@ class MedConverterAnsys(MedConverterMesh):
             acou_name=[]
 
             groupname=sorted(group_name)
+
+            for k in Sect :
+                if Sect[k].type == "BEAM" and Sect[k].subtype in ['I', 'L', 'CHAN', 'HATS', 'T', 'Z']:
+                    self.geometrie(Sect[k].data, Sect[k].subtype, k, filename_med)
+                    name = Sect[k].subtype+"_"+str(k) 
+                    f.write("{0}=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{1}')\n\n".format("MA_CARA_"+str(k), name))
+                    name_cells = "GR_CE_"+name
+                    name_ma = "MA_CARA_"+str(k)
+                    name_cara = "CARA_"+name
+                    name_node="GR_NO_"+name
+                    f.write("{1}=MACR_CARA_POUTRE(MAILLAGE={2},\n{0:>29}TABLE_CARA='OUI',\n{0:>29}GROUP_MA_BORD='{3}',\n{0:>29}NOM='{4}',\n{0:>29}GROUP_NO='{5}',)\n\n".\
+                            format(" ", name_cara, name_ma, name_cells, name, name_node))
+
+            f.write("MA=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{0}')\n".format(self.mesh_name))
 
             for name in groupname :
 
@@ -1368,3 +1388,160 @@ class MedConverterAnsys(MedConverterMesh):
                 self.write_cara_elems(f, 'MO_COQUE', coque_name)
 
             f.write("\n")
+
+    def geometrie(self, data, sec_type, sec_id, medfile):
+
+        import salome
+        from salome.geom import geomBuilder
+        from salome.smesh import smeshBuilder
+
+        geompy = geomBuilder.New()
+        geompy.init_geom()
+
+        O = geompy.MakeVertex(0, 0, 0)
+        OX = geompy.MakeVectorDXDYDZ(1, 0, 0)
+        OY = geompy.MakeVectorDXDYDZ(0, 1, 0)
+        OZ = geompy.MakeVectorDXDYDZ(0, 0, 1)
+
+        if sec_type=='I':
+            Rect1 = geompy.MakeFaceHW(data[3], data[0], 1)
+            geompy.TranslateDXDYDZ(Rect1, data[3]/2, 0, 0)
+            Rect2 = geompy.MakeFaceHW(data[4], data[1], 1)
+            geompy.TranslateDXDYDZ(Rect2, data[2]-data[3]/2, 0, 0)
+            Rect3 = geompy.MakeFaceHW(data[2]-data[3]-data[4], data[5], 1)
+            geompy.TranslateDXDYDZ(Rect3, data[2]/2, 0, 0)
+            Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
+            Section = geompy.MakeFuse(Fuse1, Rect3, True, True)
+            geompy.addToStudy(Section, 'Section')
+
+            name = sec_type+"_"+str(sec_id)
+            group_cell_name = "GR_CE_"+name
+            group_node_name = "GR_NO_"+name
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.LocalLength(1.0,None,1e-07)
+            algo2D = mesh.Triangle()
+            mesh.Compute()
+
+        elif sec_type=='L':
+            Rect1 = geompy.MakeFaceHW(data[0], data[2], 1)
+            Rect2 = geompy.MakeFaceHW(data[3], data[1], 1)
+            geompy.TranslateDXDYDZ(Rect1, (data[0]-data[3])/2, 0, 0)
+            geompy.TranslateDXDYDZ(Rect2, 0, (data[1]-data[2])/2, 0)
+            Section = geompy.MakeFuse(Rect1, Rect2, True, True)
+            geompy.addToStudy(Section, 'Section')
+
+            name = sec_type+"_"+str(sec_id)
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.NumberOfSegments(40)
+            algo2D = mesh.Quadrangle()
+            mesh.Compute()
+
+        elif sec_type=='CHAN':
+            Rect1 = geompy.MakeFaceHW(data[0], data[3], 1)
+            Rect2 = geompy.MakeFaceHW(data[5], data[2], 1)
+            Rect3 = geompy.MakeFaceHW(data[1], data[4], 1)
+            geompy.TranslateDXDYDZ(Rect1, data[0]/2, data[3]/2, 0)
+            geompy.TranslateDXDYDZ(Rect2, data[5]/2, data[2]/2, 0)
+            geompy.TranslateDXDYDZ(Rect3, data[1]/2, data[2]-data[4]/2, 0)
+            Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
+            Section = geompy.MakeFuse(Fuse1, Rect3, True, True)
+            geompy.addToStudy(Section, 'Section')
+
+            name = sec_type+"_"+str(sec_id)
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.LocalLength(1.0,None,1e-07)
+            algo2D = mesh.Quadrangle()
+            mesh.Compute()
+
+        elif sec_type=='Z':
+            Rect1 = geompy.MakeFaceHW(data[0], data[3], 1)
+            Rect2 = geompy.MakeFaceHW(data[5], data[2], 1)
+            Rect3 = geompy.MakeFaceHW(data[1], data[4], 1)
+            geompy.TranslateDXDYDZ(Rect1, (data[0]-data[5])/2, 0, 0)
+            geompy.TranslateDXDYDZ(Rect2, 0, (data[2]-data[3])/2, 0)
+            geompy.TranslateDXDYDZ(Rect3, -(data[1]-data[5])/2, data[2], 0)
+            Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
+            Section = geompy.MakeFuse(Fuse1, Rect3, True, True)
+            geompy.addToStudy(Section, 'Section')
+            name = sec_type+"_"+str(sec_id)
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.LocalLength(1.2, None,1e-07)
+            algo2D = mesh.Triangle()
+            mesh.Compute()
+
+        elif sec_type=='T':
+            Rect1 = geompy.MakeFaceHW(data[2], data[0], 1)
+            Rect2 = geompy.MakeFaceHW(data[1], data[3], 1)
+            geompy.TranslateDXDYDZ(Rect2, (data[1]-data[2])/2, 0, 0)
+            Section = geompy.MakeFuse(Rect1, Rect2, True, True)
+            geompy.addToStudy(Section, 'Section')
+
+            name = sec_type+"_"+str(sec_id)
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.LocalLength(1.0,None,1e-07)
+            algo2D = mesh.Triangle()
+            mesh.Compute()
+
+        elif sec_type=='HATS':
+            Rect1 = geompy.MakeFaceHW(data[1], data[4], 1)
+            geompy.TranslateDXDYDZ(Rect1, data[0]/2, data[4]/2, 0)
+            Rect2 = geompy.MakeFaceHW(data[7], data[3], 1)
+            geompy.TranslateDXDYDZ(Rect2, data[0]-data[7]/2, data[3]/2, 0)
+            Rect3 = geompy.MakeFaceHW(data[2], data[6], 1)
+            geompy.TranslateDXDYDZ(Rect3, data[0]+data[2]/2-data[7], data[3]-data[6]/2, 0)
+            Rect4 = geompy.MakeFaceHW(data[8], data[3], 1)
+            geompy.TranslateDXDYDZ(Rect4, data[0]+data[2]-data[7]-data[8]/2, data[3]/2, 0)
+            Rect5 = geompy.MakeFaceHW(data[1], data[5], 1)
+            geompy.TranslateDXDYDZ(Rect5, data[0]+data[2]-data[7]-data[8]+data[1]/2, data[4]/2, 0)
+
+            Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
+            Fuse2 = geompy.MakeFuse(Fuse1, Rect3, True, True)
+            Fuse3 = geompy.MakeFuse(Fuse2, Rect4, True, True)
+            Section = geompy.MakeFuse(Fuse3, Rect5, True, True)
+            geompy.addToStudy(Section, 'Section')
+
+            name = sec_type+"_"+str(sec_id)
+            smesh = smeshBuilder.New()
+            mesh = smesh.Mesh(Section, name)
+            algo1D = mesh.Segment()
+            algo1D.NumberOfSegments(40)
+            algo2D = mesh.Quadrangle()
+            mesh.Compute()
+
+        group_cell_name = "GR_CE_"+name
+        group_node_name = "GR_NO_"+name
+
+        geom_group_cell = geompy.CreateGroup(Section, geompy.ShapeType["EDGE"])
+        list_edge = geompy.SubShapeAll(Section, geompy.ShapeType["EDGE"])
+        for edge in list_edge :
+            geompy.AddObject(geom_group_cell, geompy.GetSubShapeID(Section, edge))
+        geompy.addToStudyInFather(Section, geom_group_cell, group_cell_name)
+        mesh_group_cell = mesh.GroupOnGeom(geom_group_cell, group_cell_name)
+
+
+        geom_group_node = geompy.CreateGroup(Section, geompy.ShapeType["VERTEX"])
+        node = geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])
+        geompy.AddObject(geom_group_node, geompy.GetSubShapeID(Section, geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])[0]))
+        
+        mesh_group_node = mesh.GroupOnGeom(geom_group_node, group_node_name)
+
+        try:
+            mesh.ExportMED(medfile, auto_groups=0, minor=40, overwrite=0, meshPart=None, autoDimension=1)
+            pass
+        except:
+            msg="ExportMED() failed. Invalid file name?"
+            raise MedConverterError(msg)
+
+        if salome.sg.hasDesktop():
+            salome.sg.updateObjBrowser()
+

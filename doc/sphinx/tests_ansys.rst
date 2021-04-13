@@ -222,6 +222,48 @@ Ansys
      - HEXA8
      - 1
      - 1
+   * - ANSYS_BEAM189_section_C.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
+   * - ANSYS_BEAM189_section_Hats.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
+   * - ANSYS_BEAM189_section_I.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
+   * - ANSYS_BEAM189_section_L.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
+   * - ANSYS_BEAM189_section_T.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
+   * - ANSYS_BEAM189_section_Z.cdb
+     - Public
+     - 1
+     - 4
+     - SEG3
+     - 1
+     - 1
    * - EXEMPLE_01.cdb
      - Private
      - 109730
@@ -454,6 +496,66 @@ Ansys
      - 0.08684
      - 2.9%
      - 
+   * - ANSYS_BEAM189_section_C.cdb
+     - 188chan.comm
+     - Public
+     - Min
+     - DZ
+     - -0.060044 
+     - -0.064750
+     - 0.004706
+     - 7.8%
+     - 
+   * - ANSYS_BEAM189_section_Hats.cdb
+     - 188hats.comm
+     - Public
+     - Min
+     - DZ
+     - -0.036307 
+     - -0.1131338
+     - 0.768268
+     - 211%
+     - 
+   * - ANSYS_BEAM189_section_I.cdb
+     - 188i.comm
+     - Public
+     - Min
+     - DZ
+     - -0.008394
+     - -0.008398
+     - 0.000004
+     - 0.053%
+     - 
+   * - ANSYS_BEAM189_section_L.cdb
+     - 188l.comm
+     - Public
+     - Min
+     - DZ
+     - -0.021348 
+     - -0.0274907
+     - 0.0061427
+     - 28.8%
+     - 
+   * - ANSYS_BEAM189_section_T.cdb
+     - 188t.comm
+     - Public
+     - Min
+     - DZ
+     - -0.012221
+     - -0.0122276 
+     - 0.0000066
+     - 0.054%
+     - 
+   * - ANSYS_BEAM189_section_Z.cdb
+     - 188z.comm
+     - Public
+     - Min
+     - DZ
+     - -0.020038 
+     - -0.0071621
+     - 0.0128759
+     - 64.3%
+     - 
    * - Modele_FE_Mixte_v4.cdb
      - vali.comm
      - Private
@@ -463,6 +565,4 @@ Ansys
      - -1.160298
      - 0.220649
      - 23.5%
-     - Précense d'éléments n'ayant pas une précision optimal
-
-
+     - Présence d'éléments n'ayant pas une précision optimal

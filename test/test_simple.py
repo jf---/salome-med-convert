@@ -308,6 +308,42 @@ class TestSimple(unittest.TestCase):
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
                              jsonfile)
 
+    def test_ansys_beam189_section_c(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_C.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_C.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_beam189_section_hats(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_Hats.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_Hats.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_beam189_section_i(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_I.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_I.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_beam189_section_l(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_L.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_L.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_beam189_section_t(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_T.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_T.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
+    def test_ansys_beam189_section_z(self):
+        filename = osp.join(data_path(), "ANSYS_BEAM189_section_Z.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_BEAM189_section_Z.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome,
+                             jsonfile)
+
     def test_ansys_combin14(self):
         filename = osp.join(data_path(), "ANSYS_COMBIN14.cdb")
         jsonfile = osp.join(data_path(), "json", "ANSYS_COMBIN14.json")

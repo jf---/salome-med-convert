@@ -1,0 +1,111 @@
+/COM,ANSYS RELEASE Release 17.1      BUILD 17.1      UP20160404       07:01:08
+/PREP7
+/NOPR
+/TITLE,BEAM189 - Section T                                                     
+ANTYPE, 0
+EQSLV,SPAR,  0.00000000    ,,1
+*IF,_CDRDOFF,EQ,1,THEN     !if solid model was read in
+_CDRDOFF=             !reset flag, numoffs already performed
+*ELSE              !offset database for the following FE model
+NUMOFF,NODE,        4
+NUMOFF,ELEM,        2
+NUMOFF,MAT ,        1
+NUMOFF,SECN,        1
+NUMOFF,TYPE,        1
+*ENDIF
+*SET,DENS1   , 0.7850000000000E-08
+*SET,DENS2   ,  7850.000000000    
+*SET,MASS_X  , 0.2276500000000E-01
+*SET,MASS_Y  , 0.2276500000000E-01
+*SET,MASS_Z  , 0.2276500000000E-01
+*SET,MULT    ,  1000.000000000    
+*SET,MX      ,  22.76500000000    
+*SET,MY      ,  22.76500000000    
+*SET,MZ      ,  22.76500000000    
+*SET,NMAT    ,  1.000000000000    
+*SET,X       ,  0.000000000000    
+*SET,XG      ,  0.000000000000    
+*SET,Y       ,  500.0000000000    
+*SET,YG      ,  500.0000000000    
+*SET,Z       ,  0.000000000000    
+*SET,ZG      ,  0.000000000000    
+*SET,_BUTTON ,  1.000000000000    
+*SET,_CMAP   ,  1.000000000000    
+*SET,_ET_TYPE,  1.000000000000    
+*SET,_GUI_CLR_BG,' systemButtonFace               '
+*SET,_GUI_CLR_FG,' systemButtonText               '
+*SET,_GUI_CLR_INFOBG,' systemInfoBackground           '
+*SET,_GUI_CLR_SEL,' systemHighlight                '
+*SET,_GUI_CLR_SELBG,' systemHighlight                '
+*SET,_GUI_CLR_SELFG,' systemHighlightText            '
+*SET,_GUI_CLR_WIN,' systemWindow                   '
+*SET,_GUI_FNT_FMLY,'Arial                           '
+*SET,_GUI_FNT_PXLS,  16.00000000000    
+*SET,_GUI_FNT_SLNT,'r                               '
+*SET,_GUI_FNT_WEGT,'medium                          '
+*SET,_RETURN ,  0.000000000000    
+*SET,_RL1    ,  1.000000000000    
+*SET,_STATUS ,  0.000000000000    
+*SET,_UIQR   ,  1.000000000000    
+DOF,DELETE
+ET,        1,189
+NBLOCK,6,SOLID,         4,         4
+(3i9,6e21.13e3)
+        1        0        0 0.0000000000000E+000
+        2        0        0 0.0000000000000E+000 1.0000000000000E+003
+        3        0        0 0.0000000000000E+000 5.0000000000000E+002
+        4        0        0 0.0000000000000E+000 0.0000000000000E+000 1.5000000000000E+002
+N,R5.3,LOC,       -1,
+EBLOCK,19,SOLID,         2,         1
+(19i9)
+        1        1        1        1        0        0        0        0        4        0        2        1        2        3        4
+       -1
+CMBLOCK,CL_UXYZ_RXYZ ,NODE,       1  ! users node component definition
+(8i10)
+        1
+MPTEMP,R5.0, 1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,EX  ,       1, 1,  200000.000    ,
+MPTEMP,R5.0, 1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,NUXY,       1, 1, 0.300000000    ,
+MPTEMP,R5.0, 1, 1,  0.00000000    ,
+MPDATA,R5.0, 1,DENS,       1, 1, 7.850000000E-09,
+SECTYPE,      1,BEAM,T   ,T200_100
+SECDATA,  100.00    ,  200.00    ,  10.000    ,  10.000    ,
+SECOFFSET,CENT
+SECCONTROL,  0.0000    ,  0.0000    ,  0.0000    ,  0.0000    
+EXTOPT,ATTR,      0,      0,      0
+EXTOPT,ESIZE,  0,  0.0000    
+EXTOPT,ACLEAR,      0
+TREF,  0.00000000
+IRLF,  0
+BFUNIF,TEMP,_TINY
+ACEL,  0.00000000    ,  0.00000000    ,  9810.00000
+OMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
+DOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
+CGLOC,  0.00000000    ,  0.00000000    ,  0.00000000
+CGOMEGA,  0.00000000    ,  0.00000000    ,  0.00000000
+DCGOMG,  0.00000000    ,  0.00000000    ,  0.00000000
+
+KUSE,     0
+TIME,  0.00000000
+ALPHAD,  0.00000000
+BETAD,  0.00000000
+DMPRAT,  0.00000000
+DMPSTR,  0.00000000
+
+CRPLIM, 0.100000000    ,   0
+CRPLIM,  0.00000000    ,   1
+NCNV,     1,  0.00000000    ,     0,  0.00000000    ,  0.00000000
+
+NEQIT,     0
+
+ERESX,DEFA
+
+D,      1,UX  ,  0.00000000    ,  0.00000000    
+D,      1,UY  ,  0.00000000    ,  0.00000000    
+D,      1,UZ  ,  0.00000000    ,  0.00000000    
+D,      1,ROTX,  0.00000000    ,  0.00000000    
+D,      1,ROTY,  0.00000000    ,  0.00000000    
+D,      1,ROTZ,  0.00000000    ,  0.00000000    
+/GO
+FINISH
