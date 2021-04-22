@@ -14,7 +14,18 @@
   }
  },
  "GROUPS": {
-  "0": {}
+  "0": {
+   "MCO_COQUE_3D_0_1_1": [
+    0
+   ]
+  },
+  "1": {
+   "CL_UXYZ_RXYZ": [
+    0,
+    5,
+    7
+   ]
+  }
  },
  "NB_CELLS": 1,
  "NB_GRP_CELLS": 1,

@@ -9,7 +9,11 @@
   }
  },
  "GROUPS": {
-  "0": {}
+  "0": {
+   "MMA_D_PLAN_0": [
+    0
+   ]
+  }
  },
  "NB_CELLS": 1,
  "NB_GRP_CELLS": 1,

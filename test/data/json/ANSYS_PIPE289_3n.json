@@ -9,7 +9,11 @@
   }
  },
  "GROUPS": {
-  "0": {}
+  "0": {
+   "MPO_TUYAU_3M_0_1": [
+    0
+   ]
+  }
  },
  "NB_CELLS": 1,
  "NB_GRP_CELLS": 1,

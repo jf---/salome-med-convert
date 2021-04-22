@@ -123,15 +123,19 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
 
     utest.assertTrue(osp.isfile(filename), filename)
 
-    outfile = osp.join(tmpdir if DEBUG != 1 else os.getcwd(),
-                       osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
+    wdir = tmpdir if DEBUG != 1 else os.getcwd()
+    outfile = osp.join(wdir, osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
+    output_comm = osp.join(wdir, "%s.comm"%osp.splitext(osp.basename(filename))[0])
+
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert_engine(filename, input_format, outfile, output_format, verbose=(DEBUG == 1))
+    convert_engine(filename, input_format, outfile, output_format, output_comm, verbose=(DEBUG == 1))
 
     utest.assertTrue(osp.isfile(outfile))
-
+    if output_format is Fmt.Ansys :
+        utest.assertTrue(osp.isfile(output_comm))
+        
     if output_format is Fmt.Salome :
         mesh = MEDFileUMesh(outfile)
     else :

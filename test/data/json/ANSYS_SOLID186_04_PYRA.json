@@ -19,7 +19,11 @@
   }
  },
  "GROUPS": {
-  "0": {}
+  "0": {
+   "MMA_3D_SI": [
+    0
+   ]
+  }
  },
  "NB_CELLS": 1,
  "NB_GRP_CELLS": 1,
