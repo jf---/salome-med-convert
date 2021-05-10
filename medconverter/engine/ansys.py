@@ -306,11 +306,11 @@ dicoMod = {
     '181'       : 'MCO-Q4G',
     '181_0'     : 'MCO-Q4G',
     '181_1'     : 'MCO-Q4G',
-    '182'       : 'MMA-D_PLAN',
+    '182'       : 'MMA-C_PLAN',
     '182_0'     : 'MMA-AXIS',
     '182_2'     : 'MMA-D_PLAN',
     '182_3'     : 'MMA-AXIS',
-    '182_5'     : 'MMA-D_PLAN',
+    '182_5'     : 'MMA-C_PLAN',
     '183'       : 'MMA-C_PLAN',
     '183_0'     : 'MMA-C_PLAN',
     '183_2'     : 'MMA-C_PLAN',
@@ -723,7 +723,6 @@ class MedConverterAnsys(MedConverterMesh):
         const=np.zeros((1, const_len), dtype=float)
         #assert nb_total_nodes == len(self.nodes)
         assert nb_total_cells == len(Cells)
-
         #Réupération du nom du maillage
         self.mesh_name = title or osp.splitext(osp.split(filename)[-1])[0]
 
@@ -1128,7 +1127,7 @@ class MedConverterAnsys(MedConverterMesh):
                         raise MedConverterError("Section non reconnue")
                 elif i in Sect and Sect[i].type=='PIPE':
                     f.write("SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0}, {1}),),\
-                            \n".format(Sect[i].data[0], Sect[i].data[1]))
+                            \n".format(Sect[i].data[0]/2, Sect[i].data[1]))
 
                 i=int(sname[2])
                 if flag[7]==False:
