@@ -356,79 +356,79 @@ Ansys
    * - Mesh
      - Type
      - Test
-     - Ansys results
-     - Aster results
+     - Ansys (rounded)
+     - Aster (rounded)
      - Error
      - Comment
    * - LINK180.cdb
      - Public
      - Min DY
      - -1.93E-4
-     - -1.9252125E-4
-     - 0.248%
+     - -1.93E-4
+     - None
      - 
    * - COMBIN14.comm
      - Public
      - Min DY
      - -0.1962
      - -0.1962
-     - 1.4E-14%
+     - None
      - 
    * - SHELL181_01_QUAD.cdb
      - Public
      - Min DZ
      - -5.66E-8
-     - -5.663709E-8
-     - 6.55E-2%
+     - -5.66E-8
+     - None
      - 
    * - PLANE182_01_Quad.cdb
      - Public
      - Avg DY (at Y=1)
      - -1.93E-10
-     - -1.9252125E-10
-     - 0.25%
+     - -1.93E-10
+     - None
      - 
    * - PLANE183_01_Quad.cdb
      - Public
      - Avg DY (corner nodes at Y=1)
      - -1.73E-10
-     - -1.790729E-10
-     - 3.5%
+     - -1.79E-10
+     - 4%
      - 
    * - SOLID185_01_HEXA.cdb
      - Public
      - Min DZ
      - -1.93E-10
-     - -1.9252125E-10
-     - 0.24%
+     - -1.93E-10
+     - None
      - 
    * - SOLID186_01_QUAD.cdb
      - Public
      - Avg DZ (corner nodes at Z=1)
      - -1.67E-10
-     - -1.1667622E-10
-     - 0.14%
+     - -1.67E-10
+     - None
      - 
    * - SOLID187_TETRA.cdb
      - Public
      - Min DZ
      - -7.35E-11
-     - -7.355212E-11
-     - 0.02%
+     - -7.35E-11
+     - None
      - 
    * - BEAM188_3n.cdb
      - Public
      - Min DZ
      - -0.039014
      - -0.036698
-     - 5.93%
+     - 6%
      - 
    * - BEAM189_4n.cdb
      - Public
      - Min DZ
-     - -0.036692
      - -0.036698
-     - 0.017%
+     - -0.036698
+     - None
      - 
    * - SHELL181_01_QUAD.cdb
      - Public
@@ -442,63 +442,63 @@ Ansys
      - Min DZ
      - -0.052924
      - -0.047937
-     - 9.4%
+     - 10%
      - Ansys sections have finite discretization
    * - PIPE289_4n.cdb
      - Public
      - Min DZ
      - -0.047938
      - -0.034332
-     - 28.3%
-     - Pipe Element
+     - 30%
+     - See issue31000
    * - LINK180_cable.cdb
      - Public
      - Min DZ
-     - -2.97394
-     - -2.88711
+     - -2.973940
+     - -2.887107
      - 3.0%
      - 
    * - BEAM189_section_C.cdb
      - Public
      - Min DZ
      - -0.060044 
-     - -0.064750
-     - 7.8%
+     - -0.062021
+     - 3%
      - 
    * - BEAM189_section_Hats.cdb
      - Public
      - Min DZ
      - -0.036307 
-     - -0.1131338
-     - 211%
+     - -0.111108
+     - 200%
      - 
    * - BEAM189_section_I.cdb
      - Public
      - Min DZ
      - -0.008394
-     - -0.008398
-     - 0.053%
+     - -0.008407
+     - 0.1%
      - 
    * - BEAM189_section_L.cdb
      - Public
      - Min DZ
      - -0.021348 
-     - -0.0274907
+     - -0.027149
      - 28.8%
      - 
    * - BEAM189_section_T.cdb
      - Public
      - Min DZ
      - -0.012221
-     - -0.0122276 
-     - 0.054%
+     - -0.012229
+     - None
      - 
    * - BEAM189_section_Z.cdb
      - Public
      - Min DZ
      - -0.020038 
-     - -0.0071621
-     - 64.3%
+     - -0.007196
+     - 65%
      - 
    * - Modele_FE_Mixte_v4.cdb
      - Private
