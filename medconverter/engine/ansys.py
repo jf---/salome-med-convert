@@ -1391,6 +1391,7 @@ class MedConverterAnsys(MedConverterMesh):
     def geometrie(self, data, sec_type, sec_id, medfile):
 
         import salome
+        import SMESH
         from salome.geom import geomBuilder
         from salome.smesh import smeshBuilder
 
@@ -1422,6 +1423,7 @@ class MedConverterAnsys(MedConverterMesh):
             algo1D.LocalLength(1.0,None,1e-07)
             algo2D = mesh.Triangle()
             mesh.Compute()
+            mesh.RotateObject(mesh, SMESH.AxisStruct(0, 0, 0, 0, 0, 1), 1.5708, 0) #90
 
         elif sec_type=='L':
             Rect1 = geompy.MakeFaceHW(data[0], data[2], 1)
@@ -1490,6 +1492,7 @@ class MedConverterAnsys(MedConverterMesh):
             algo1D.LocalLength(1.0,None,1e-07)
             algo2D = mesh.Triangle()
             mesh.Compute()
+            mesh.RotateObject(mesh, SMESH.AxisStruct(0, 0, 0, 0, 0, 1), 1.5708, 0) #90
 
         elif sec_type=='HATS':
             Rect1 = geompy.MakeFaceHW(data[1], data[4], 1)
@@ -1513,7 +1516,7 @@ class MedConverterAnsys(MedConverterMesh):
             smesh = smeshBuilder.New()
             mesh = smesh.Mesh(Section, name)
             algo1D = mesh.Segment()
-            algo1D.NumberOfSegments(40)
+            algo1D.NumberOfSegments(30)
             algo2D = mesh.Quadrangle()
             mesh.Compute()
 
