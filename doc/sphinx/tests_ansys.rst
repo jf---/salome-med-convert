@@ -350,160 +350,182 @@ Ansys
      - 8
 
 .. list-table::
-   :widths: 50 20 50 20 20 20 50
+   :widths: 50 20 50 20 20 20 20 50
    :header-rows: 1
 
-   * - Mesh
+   * - Case
      - Type
      - Test
+     - Analytical (rounded)
      - Ansys (rounded)
      - Aster (rounded)
      - Error
      - Comment
+   * - COMBIN14.cdb
+     - Public
+     - DY on free node
+     - -1.962E-1
+     - -1.962E-1
+     - -1.962E-1
+     - None
+     -
    * - LINK180.cdb
      - Public
-     - Min DY
+     - DY on free node
      - -1.93E-4
      - -1.93E-4
+     - -1.93E-4
      - None
      - 
-   * - COMBIN14.comm
+   * - LINK180_cable.cdb
      - Public
-     - Min DY
-     - -0.1962
-     - -0.1962
-     - None
-     - 
-   * - SHELL181_01_QUAD.cdb
-     - Public
-     - Min DZ
-     - -5.66E-8
-     - -5.66E-8
-     - None
-     - 
-   * - PLANE182_01_Quad.cdb
-     - Public
-     - Avg DY (at Y=1)
-     - -1.93E-10
-     - -1.93E-10
-     - None
-     - 
-   * - PLANE183_01_Quad.cdb
-     - Public
-     - Avg DY (corner nodes at Y=1)
-     - -1.73E-10
-     - -1.79E-10
-     - 4%
-     - 
-   * - SOLID185_01_HEXA.cdb
-     - Public
-     - Min DZ
-     - -1.93E-10
-     - -1.93E-10
-     - None
-     - 
-   * - SOLID186_01_QUAD.cdb
-     - Public
-     - Avg DZ (corner nodes at Z=1)
-     - -1.67E-10
-     - -1.67E-10
-     - None
-     - 
-   * - SOLID187_TETRA.cdb
-     - Public
-     - Min DZ
-     - -7.35E-11
-     - -7.35E-11
-     - None
+     - DZ on free node
+     -
+     - -2.973940
+     - -2.887107
+     - 3%
      - 
    * - BEAM188_3n.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     - -0.04084
      - -0.039014
      - -0.036698
      - 6%
      - 
    * - BEAM189_4n.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     - -0.04084
      - -0.036698
      - -0.036698
      - None
+     - BEAM189_4n is reduced to SEG2 as BEAM188_3n
+   * - PLANE182_01_Quad.cdb
+     - Public
+     - Avg DY on free edge
+     - -1.93E-10
+     - -1.93E-10
+     - -1.93E-10
+     - None
      - 
+   * - PLANE183_01_Quad.cdb
+     - Public
+     - Avg DY on free edge
+     - -1.93E-10
+     - -1.73E-10
+     - -1.82E-10
+     - 6%
+     - Ansys values from visu (average on corner nodes only)
    * - SHELL181_01_QUAD.cdb
      - Public
-     - Min DZ
+     - Avg DZ on free edge
+     - -5.78E-8
+     - -5.66E-8
+     - -5.66E-8
+     - None
+     - 
+   * - SHELL281_01_QUAD.cdb
+     - Public
+     - Avg DZ on free edge
+     - -5.78E-8
      - -5.27E-8
-     - -5.4826E-8
-     - 4%
+     - -5.31E-8
+     - 1%
      - Conversion of QUAD8->QUAD9 and TRI6->TRI7
+   * - SOLID185_01_HEXA.cdb
+     - Public
+     - Avg DZ on top face
+     - -1.93E-10
+     - -1.93E-10
+     - -1.93E-10
+     - None
+     - 
+   * - SOLID186_01_QUAD.cdb
+     - Public
+     - Avg DZ on top face
+     - -1.93E-10
+     - -1.67E-10
+     - -1.76E-10
+     - 5%
+     - Ansys values from visu (average on corner nodes only)
+   * - SOLID187_TETRA.cdb
+     - Public
+     - DZ on top node
+     -
+     - -7.35E-11
+     - -7.35E-11
+     - None
+     - 
    * - PIPE288_3n.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     - -0.046956
      - -0.052924
      - -0.047937
      - 10%
      - Ansys sections have finite discretization
    * - PIPE289_4n.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     - -0.046956
      - -0.047938
      - -0.034332
      - 30%
-     - See issue31000
-   * - LINK180_cable.cdb
-     - Public
-     - Min DZ
-     - -2.973940
-     - -2.887107
-     - 3.0%
-     - 
+     - Issue31000
    * - BEAM189_section_C.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.060044 
      - -0.062021
      - 3%
-     - 
+     - Issue31026
    * - BEAM189_section_Hats.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.036307 
      - -0.111108
      - 200%
-     - 
+     - Issue31026
    * - BEAM189_section_I.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.008394
      - -0.008407
      - 0.1%
-     - 
+     - Issue31026
    * - BEAM189_section_L.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.021348 
      - -0.027149
-     - 28.8%
-     - 
+     - 30%
+     - Issue31026
    * - BEAM189_section_T.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.012221
      - -0.012229
      - None
-     - 
+     - Issue31026
    * - BEAM189_section_Z.cdb
      - Public
-     - Min DZ
+     - DZ on free node
+     -
      - -0.020038 
      - -0.007196
      - 65%
-     - 
+     - Issue31026
    * - Modele_FE_Mixte_v4.cdb
      - Private
      - Min DZ
+     -
      - -0.939649
      - -1.160298
-     - 23.5%
-     - 
+     - 25%
+     - AsterError
