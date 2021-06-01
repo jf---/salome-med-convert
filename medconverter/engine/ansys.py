@@ -849,25 +849,25 @@ class MedConverterAnsys(MedConverterMesh):
             #Orientation des poutres à partir du noeud optionnel
             elif dicoKeyword[element_group[4:]]=='POUTRE':
                 namegroupelem=namegroupelem+'-'+str(cell.rep)+'-'+str(cell.sec)
-                o2=nodes[cell.nodes[0]]
+
                 if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
-                    x2=nodes[cell.nodes[len(cell.nodes)-1]]
-                    x=x2[0]-o2[0]
-                    y=x2[1]-o2[1]
-                    z=x2[2]-o2[2]
+                    I = np.array(nodes[cell.nodes[0]])
+                    J = np.array(nodes[cell.nodes[1]])
+                    L = np.array(nodes[cell.nodes[-1]])
 
-                    vale_p=np.around(np.array([x,y,z]), decimals=0)
+                    PL = np.dot(L-I, J-I) / np.dot(J-I, J-I) * (J-I)
+                    ORI = I + PL + np.cross(L-I-PL, J-I-PL)/np.linalg.norm(J-I-PL)
 
-                    index_orien=np.where((Orien_poutre==vale_p).all(axis=1))
-                    index2_orien=np.where((np.cross(Orien_poutre[1:], vale_p)==[0.0, 0.0, 0.0]).all(axis=1))
+                    index_orien=np.where((Orien_poutre==ORI).all(axis=1))
+                    index2_orien=np.where((np.cross(Orien_poutre[1:], ORI)==[0.0, 0.0, 0.0]).all(axis=1))
                     if len(index_orien[0])>0:
                         id_orien=index_orien[0][0]
                     elif len(index2_orien[0])>0:
                         id_orien=index2_orien[0][0]
                     else:
                         id_orien=len(Orien_poutre)
-                        Orien_poutre=np.append(Orien_poutre, [vale_p], axis=0)
-
+                        Orien_poutre=np.append(Orien_poutre, [ORI], axis=0)
+                        
                     namegroupelem=namegroupelem+"-"+str(id_orien)
 
             elif dicoKeyword[element_group[4:]]=='BARRE':
@@ -1291,7 +1291,7 @@ class MedConverterAnsys(MedConverterMesh):
 
         group_name=self._structural_data_read[0]
         Sect=self._structural_data_read[6]
-        
+
         with open(comm_file, 'w') as f :
 
             coque=False
@@ -1306,7 +1306,7 @@ class MedConverterAnsys(MedConverterMesh):
             for k in Sect :
                 if Sect[k].type == "BEAM" and Sect[k].subtype in ['I', 'L', 'CHAN', 'HATS', 'T', 'Z']:
                     self.geometrie(Sect[k].data, Sect[k].subtype, k, filename_med)
-                    name = Sect[k].subtype+"_"+str(k) 
+                    name = Sect[k].subtype+"_"+str(k)
                     f.write("{0}=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{1}')\n\n".format("MA_CARA_"+str(k), name))
                     name_cells = "GR_CE_"+name
                     name_ma = "MA_CARA_"+str(k)
@@ -1314,6 +1314,46 @@ class MedConverterAnsys(MedConverterMesh):
                     name_node="GR_NO_"+name
                     f.write("{1}=MACR_CARA_POUTRE(MAILLAGE={2},\n{0:>29}TABLE_CARA='OUI',\n{0:>29}GROUP_MA_BORD='{3}',\n{0:>29}NOM='{4}',\n{0:>29}GROUP_NO='{5}',)\n\n".\
                             format(" ", name_cara, name_ma, name_cells, name, name_node))
+                    f.write("""
+tab_cara = {0}.EXTR_TABLE()
+cara_values = {{key : item[0] for key, item in tab_cara.values().items()}}
+cara_updated = {{key : item[0] for key, item in tab_cara.values().items()}}
+
+alpha_deg = cara_values['ALPHA']
+if alpha_deg < 90 :
+    pass
+elif (alpha_deg>=90 and alpha_deg<180):
+    cara_updated['ALPHA'] = cara_values['ALPHA'] - 90
+    cara_updated['IY'] = cara_values['IZ']
+    cara_updated['IZ'] = cara_values['IY']
+    cara_updated['AY'] = cara_values['AZ']
+    cara_updated['AZ'] = cara_values['AY']
+    cara_updated['EY'] = cara_values['EZ'] * -1
+    cara_updated['EZ'] = cara_values['EY']
+    cara_updated['IYR2'] = cara_values['IZR2']
+    cara_updated['IZR2'] = cara_values['IYR2']
+elif (alpha_deg>=180 and alpha_deg<270):
+    cara_updated['ALPHA'] = cara_values['ALPHA'] - 180
+    cara_updated['EY'] = cara_values['EY'] * -1
+    cara_updated['EZ'] = cara_values['EZ'] * -1
+elif (alpha_deg>=270 and alpha_deg<360):
+    cara_updated['ALPHA'] = cara_values['ALPHA'] - 270
+    cara_updated['IY'] = cara_values['IZ']
+    cara_updated['IZ'] = cara_values['IY']
+    cara_updated['AY'] = cara_values['AZ']
+    cara_updated['AZ'] = cara_values['AY']
+    cara_updated['EY'] = cara_values['EZ']
+    cara_updated['EZ'] = cara_values['EY'] * -1
+    cara_updated['IYR2'] = cara_values['IZR2']
+    cara_updated['IZR2'] = cara_values['IYR2']
+else:
+    raise ValueError(alpha_deg)
+
+from code_aster.Objects.table_py import Table
+tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
+{0} = CREA_TABLE(**tab_updated.dict_CREA_TABLE())
+
+""".format(name_cara))
 
             f.write("MA=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{0}')\n".format(self.mesh_name))
 
@@ -1466,7 +1506,7 @@ class MedConverterAnsys(MedConverterMesh):
             Rect3 = geompy.MakeFaceHW(data[1], data[4], 1)
             geompy.TranslateDXDYDZ(Rect1, (data[0]-data[5])/2, 0, 0)
             geompy.TranslateDXDYDZ(Rect2, 0, (data[2]-data[3])/2, 0)
-            geompy.TranslateDXDYDZ(Rect3, -(data[1]-data[5])/2, data[2], 0)
+            geompy.TranslateDXDYDZ(Rect3, -(data[1]-data[5])/2, data[2]-(data[3]+data[4])/2, 0)
             Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
             Section = geompy.MakeFuse(Fuse1, Rect3, True, True)
             geompy.addToStudy(Section, 'Section')
@@ -1534,7 +1574,7 @@ class MedConverterAnsys(MedConverterMesh):
         geom_group_node = geompy.CreateGroup(Section, geompy.ShapeType["VERTEX"])
         node = geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])
         geompy.AddObject(geom_group_node, geompy.GetSubShapeID(Section, geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])[0]))
-        
+
         mesh_group_node = mesh.GroupOnGeom(geom_group_node, group_node_name)
 
         try:

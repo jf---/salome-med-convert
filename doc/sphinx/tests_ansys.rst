@@ -388,7 +388,7 @@ Ansys
    * - BEAM188_3n.cdb
      - Public
      - DZ on free node
-     - -0.04084
+     - -0.036098
      - -0.039014
      - -0.036698
      - 6%
@@ -396,7 +396,7 @@ Ansys
    * - BEAM189_4n.cdb
      - Public
      - DZ on free node
-     - -0.04084
+     - -0.036098
      - -0.036698
      - -0.036698
      - None
@@ -480,23 +480,23 @@ Ansys
      - -0.060044 
      - -0.062021
      - 3%
-     - Issue31026
+     - 
    * - BEAM189_section_Hats.cdb
      - Public
      - DZ on free node
      -
      - -0.036307 
-     - -0.111108
-     - 200%
-     - Issue31026
+     - -0.036341
+     - 0.09%
+     - 
    * - BEAM189_section_I.cdb
      - Public
      - DZ on free node
      -
      - -0.008394
      - -0.008407
-     - 0.1%
-     - Issue31026
+     - 0.15%
+     - 
    * - BEAM189_section_L.cdb
      - Public
      - DZ on free node
@@ -504,20 +504,20 @@ Ansys
      - -0.021348 
      - -0.027149
      - 30%
-     - Issue31026
+     - 
    * - BEAM189_section_T.cdb
      - Public
      - DZ on free node
      -
      - -0.012221
      - -0.012229
-     - None
-     - Issue31026
+     - 0.07%
+     - 
    * - BEAM189_section_Z.cdb
      - Public
      - DZ on free node
      -
      - -0.020038 
-     - -0.007196
-     - 65%
-     - Issue31026
+     - -0.00777
+     - 62%
+     - 
