@@ -14,6 +14,47 @@ from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
+def cart2sp(x, y, z):
+    """Converts data from cartesian coordinates into spherical.
+
+    Args:
+        x (scalar or array_like): X-component of data.
+        y (scalar or array_like): Y-component of data.
+        z (scalar or array_like): Z-component of data.
+
+    Returns:
+        Tuple (r, theta, phi) of data in spherical coordinates.
+    """
+    r = np.sqrt(x**2+y**2+z**2)
+    theta = np.arcsin(z/r)
+    phi = np.arctan2(y, x)
+
+    return (r, theta, phi)
+
+
+def rotate(heading, attitude, bank):
+    """ Get rotation matrix from euler angles """
+    ch = np.cos(heading)
+    sh = np.sin(heading)
+    ca = np.cos(attitude)
+    sa = np.sin(attitude)
+    cb = np.cos(bank)
+    sb = np.sin(bank)
+
+    m00 = ch * ca
+    m01 = sh*sb - ch*sa*cb
+    m02 = ch*sa*sb + sh*cb
+    m10 = sa
+    m11 = ca*cb
+    m12 = -ca*sb
+    m20 = -sh*ca
+    m21 = sh*sa*cb + ch*sb
+    m22 = -sh*sa*sb + ch*cb
+
+    return np.around(np.asarray([[m00, m01, m02],
+                                 [m10, m11, m12],
+                                 [m20, m21, m22]]), 12)
+
 class AnsysCell:
 
     def __init__(self, elem_type=None, elem_id=None, elem_nodes=None, sec_id=None, elem_rep=None, elem_const=None, elem_tension=None):
@@ -606,6 +647,7 @@ class MedConverterAnsys(MedConverterMesh):
         nodes = {}
         Orien_coque = np.zeros((1,3), dtype=float)
         Orien_poutre = np.zeros((1,3), dtype=float)
+        Ang_vrille_poutre = [0]
         epais = np.zeros((1,1), dtype=float)
         GROUPSMODELE = {}
 
@@ -856,17 +898,30 @@ class MedConverterAnsys(MedConverterMesh):
                     L = np.array(nodes[cell.nodes[-1]])
 
                     PL = np.dot(L-I, J-I) / np.dot(J-I, J-I) * (J-I)
-                    ORI = I + PL + np.cross(L-I-PL, J-I-PL)/np.linalg.norm(J-I-PL)
+                    r, theta, phi = cart2sp(*(J-I))
+                    R = rotate(theta, phi, 0)
 
-                    index_orien=np.where((Orien_poutre==ORI).all(axis=1))
-                    index2_orien=np.where((np.cross(Orien_poutre[1:], ORI)==[0.0, 0.0, 0.0]).all(axis=1))
-                    if len(index_orien[0])>0:
-                        id_orien=index_orien[0][0]
-                    elif len(index2_orien[0])>0:
-                        id_orien=index2_orien[0][0]
-                    else:
-                        id_orien=len(Orien_poutre)
-                        Orien_poutre=np.append(Orien_poutre, [ORI], axis=0)
+                    z_glob_proj = R.dot((0,0,1))
+                    z_loc = L-PL
+
+                    unit_z_glob_proj = z_glob_proj / np.linalg.norm(z_glob_proj)
+                    unit_z_loc = z_loc / np.linalg.norm(z_loc)
+                    angle = np.degrees(np.arccos(np.dot(unit_z_glob_proj, unit_z_loc)))
+
+                    id_orien=len(Ang_vrille_poutre)
+                    Ang_vrille_poutre.append(angle)
+                                        
+                    # ORI = I + PL + np.cross(L-I-PL, J-I-PL)/np.linalg.norm(J-I-PL)
+
+                    # index_orien=np.where((Orien_poutre==ORI).all(axis=1))
+                    # index2_orien=np.where((np.cross(Orien_poutre[1:], ORI)==[0.0, 0.0, 0.0]).all(axis=1))
+                    # if len(index_orien[0])>0:
+                    #     id_orien=index_orien[0][0]
+                    # elif len(index2_orien[0])>0:
+                    #     id_orien=index2_orien[0][0]
+                    # else:
+                    #     id_orien=len(Orien_poutre)
+                    #     Orien_poutre=np.append(Orien_poutre, [ORI], axis=0)
                         
                     namegroupelem=namegroupelem+"-"+str(id_orien)
 
@@ -920,7 +975,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug(" Load %d groups (in %0.4f seconds)"%(len(Groups), toc-tic))
 
         #Recuperation des informations de la mise en donnees pour la creation du fichier de commandes
-        self._structural_data_read=(groupsName, nodes, Orien_coque, Orien_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
+        self._structural_data_read=(groupsName, nodes, Orien_coque, Orien_poutre, Ang_vrille_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
 
     def getCoor(self, line, firstStr, longFloat):
         # le premier decimal commence a la colonne firstStrg
@@ -1033,13 +1088,14 @@ class MedConverterAnsys(MedConverterMesh):
         nodes=self._structural_data_read[1]
         orien_coque=self._structural_data_read[2]
         orien_poutre=self._structural_data_read[3]
-        const=self._structural_data_read[4]
-        Rep=self._structural_data_read[5]
-        Sect=self._structural_data_read[6]
-        RealConst=self._structural_data_read[7]
-        epais=self._structural_data_read[8]
-        tension_init=self._structural_data_read[9]
-        rep_global=self._structural_data_read[10]
+        ang_vril_poutre=self._structural_data_read[4]
+        const=self._structural_data_read[5]
+        Rep=self._structural_data_read[6]
+        Sect=self._structural_data_read[7]
+        RealConst=self._structural_data_read[8]
+        epais=self._structural_data_read[9]
+        tension_init=self._structural_data_read[10]
+        rep_global=self._structural_data_read[11]
 
         if 'MECA' in modele_name:
             f.write("CARA_M=AFFE_CARA_ELEM(MODELE={},\n".format(modele_name))
@@ -1137,8 +1193,13 @@ class MedConverterAnsys(MedConverterMesh):
                     orientation.append("{:>35}_F(GROUP_MA='{}', ".format(" ", rname))
                 if rep_global==0 and len(sname)>4:
                     k=int(sname[4])
-                    orientation.append("CARA='VECT_Y', VALE=({0}, {1} ,{2}),),\n".\
-                            format(orien_poutre[k][0], orien_poutre[k][1], orien_poutre[k][2]))
+                    if Sect[int(sname[3])].subtype in ('I', 'L', 'T', 'Z', 'CHAN', 'HATS') :
+                        name=Sect[int(sname[3])].subtype+"_"+str(int(sname[3]))
+                        tag_sect = "CARA_{}.EXTR_TABLE().values()['ALPHA'][0]".format(name)
+                        orientation.append("CARA='ANGL_VRIL', VALE={} + {},),\n".format(ang_vril_poutre[k], tag_sect))
+                    else:
+                        orientation.append("CARA='ANGL_VRIL', VALE={},),\n".format(ang_vril_poutre[k]))
+                        
                 elif i in Rep and (Rep[i].type=='LOCAL' or Rep[i]=='CLOCAL' or i==rep_global):
                     orientation.append("CARA='ANGL_VRIL', VALE={},),\n".format(Rep[i].getRep(nodes)[1]))
                 elif i in Rep and (Rep[i].type=='CS'):
@@ -1290,7 +1351,7 @@ class MedConverterAnsys(MedConverterMesh):
     def convert_ansys_data(self, ansys_file, comm_file, filename_med):
 
         group_name=self._structural_data_read[0]
-        Sect=self._structural_data_read[6]
+        Sect=self._structural_data_read[7]
 
         with open(comm_file, 'w') as f :
 
@@ -1312,7 +1373,7 @@ class MedConverterAnsys(MedConverterMesh):
                     name_ma = "MA_CARA_"+str(k)
                     name_cara = "CARA_"+name
                     name_node="GR_NO_"+name
-                    f.write("{1}=MACR_CARA_POUTRE(MAILLAGE={2},\n{0:>29}TABLE_CARA='OUI',\n{0:>29}GROUP_MA_BORD='{3}',\n{0:>29}NOM='{4}',\n{0:>29}GROUP_NO='{5}',)\n\n".\
+                    f.write("{1}=MACR_CARA_POUTRE(MAILLAGE={2},\n{0:>29}TABLE_CARA='NON',\n{0:>29}GROUP_MA_BORD='{3}',\n{0:>29}NOM='{4}',\n{0:>29}GROUP_NO='{5}',)\n\n".\
                             format(" ", name_cara, name_ma, name_cells, name, name_node))
                     f.write("""
 tab_cara = {0}.EXTR_TABLE()
