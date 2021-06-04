@@ -510,6 +510,10 @@ class CellsTypeConverter:
         #FLUID138
         ('138_2', 'SEG2'),
 
+        #SHELL43 : n'existe plus mais ce comporte comme un SHELL181
+        ('43_4', 'QUAD4'),
+        ('43_3', 'TRI3'),
+        
         #SHELL143 : n'existe plus mais ce comporte comme un SHELL181
         ('143_4', 'QUAD4'),
         ('143_3', 'TRI3'),
@@ -639,6 +643,14 @@ class CellsTypeConverter:
 
         #SOLID187
         ('187_10', 'TETRA10'),
+
+        #BEAM4
+        ('4_2', 'SEG2'),
+        ('4_3', 'SEG3'),
+
+        #BEAM44
+        ('44_2', 'SEG2'),
+        ('44_3', 'SEG3'),
 
         #BEAM188
         ('188_2', 'SEG2'),

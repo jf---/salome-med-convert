@@ -277,9 +277,12 @@ dicoMod = {
     '132'       : 'TCO-COQUE',
     '136'       : 'MMA-D_PLAN_HM',
     '138'       : 'NAN-undefined',
-    '143'       : 'NAN-undefined',
-    '143_0'     : 'NAN-undefined',
-    '143_1'     : 'NAN-undefined',
+    '43'        : 'MCO-Q4G',
+    '43_0'      : 'MCO-Q4G',
+    '43_1'      : 'MCO-Q4G',
+    '143'       : 'MCO-Q4G',
+    '143_0'     : 'MCO-Q4G',
+    '143_1'     : 'MCO-Q4G',
     '151'       : 'TMA-AXIS',
     '152'       : 'TMA-PLAN',
     '153'       : 'MMA-AXIS',
@@ -363,6 +366,10 @@ dicoMod = {
     '186_0'     : 'MMA-3D_SI',
     '186_1'     : 'MMA-3D',
     '187'       : 'MMA-3D',
+    '4'         : 'MPO-POU_D_T',
+    '4_3'       : 'MPO-POU_D_T',
+    '44'        : 'MPO-POU_D_T',
+    '44_3'      : 'MPO-POU_D_T',
     '188'       : 'MPO-POU_D_T',
     '189'       : 'MPO-POU_D_T',
     '189_3'     : 'MPO-POU_D_T',
@@ -424,6 +431,7 @@ dicoMod = {
 }
 
 dicoOpt = {
+    '4'  : None,
     '5'  : 1,
     '11' : None,
     '13' : 1,
@@ -440,6 +448,7 @@ dicoOpt = {
     '39' : 4,
     '40' : 3,
     '42' : 3,
+    '44' : None,
     '45' : 2,
     '47' : 1,
     '55' : None,
@@ -498,6 +507,7 @@ dicoOpt = {
     '176': None,
     '177': None,
     '180': None,
+    '43' : 1,
     '181': 1,
     '182': 3,
     '183': 3,
@@ -796,7 +806,7 @@ class MedConverterAnsys(MedConverterMesh):
                 nb_nodes = nb_nodes - 1
                 logger.debug("Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2")
                 del cell.nodes[2]
-
+                
             if cell.type in ElemOpt and \
                ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)] :
                 element_group_type=str(element_ansys_type)+ '_' + str(ElemOpt[cell.type][1])
