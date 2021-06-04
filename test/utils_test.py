@@ -23,6 +23,7 @@ import json
 import tempfile
 from functools import wraps
 import ssl
+import getpass
 from urllib.request import urlopen
 from urllib.error import HTTPError
 
@@ -74,7 +75,7 @@ def get_datafile_path(datafile, force=False):
     force = force or int(os.environ.get("MEDCONVERT_FORCEDOWNLOAD", 0)) == 1
 
     subdir, filename = osp.split(datafile)
-    cachedir = osp.join('/', 'tmp', '_med_convert_cache', subdir)
+    cachedir = osp.join('/', 'tmp', '_med_convert_cache_%s'%getpass.getuser(), subdir)
     os.makedirs(cachedir, exist_ok=True)
 
     filepath = osp.join(cachedir, filename)
@@ -202,7 +203,7 @@ def deep_test_conversion(utest, filename, input_format, output_format,
     utest.assertEqual(set(mesh.getNonEmptyLevels()), set(map(int,refe['CELLS'].keys())))
 
     for n, coords in refe['NODES'].items():
-        utest.assertEqual(mesh.getCoords()[int(n)].getValues(), coords)
+        utest.assertAlmostEqual(mesh.getCoords()[int(n)].getValues(), coords)
 
     refe_cells_types = []
     for lev, item in refe['CELLS'].items():
