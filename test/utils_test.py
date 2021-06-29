@@ -168,7 +168,7 @@ def standard_test_conversion(utest, filename, input_format, output_format,
 
     utest.assertEqual(total_nb_of_cells, nbcells)
     utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
-    utest.assertEqual(set(convertedcellstypes), set(cellstypes))
+    utest.assertSetEqual(set(convertedcellstypes), set(cellstypes))
     utest.assertEqual(total_nb_of_cells_groups, nbcellsgrps)
     utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
 
@@ -200,10 +200,11 @@ def deep_test_conversion(utest, filename, input_format, output_format,
     utest.assertEqual(total_nb_of_cells_groups, refe['NB_GRP_CELLS'])
     utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), refe['NB_GRP_NODES'])
     utest.assertEqual(mesh.getNumberOfNodes(), refe['NB_NODES'])
-    utest.assertEqual(set(mesh.getNonEmptyLevels()), set(map(int,refe['CELLS'].keys())))
+    utest.assertSetEqual(set(mesh.getNonEmptyLevels()), set(map(int,refe['CELLS'].keys())))
 
     for n, coords in refe['NODES'].items():
-        utest.assertAlmostEqual(mesh.getCoords()[int(n)].getValues(), coords)
+        for c1, c2 in zip(mesh.getCoords()[int(n)].getValues(), coords):
+            utest.assertAlmostEqual(c1, c2)
 
     refe_cells_types = []
     for lev, item in refe['CELLS'].items():
@@ -212,10 +213,10 @@ def deep_test_conversion(utest, filename, input_format, output_format,
             cell_type = "NORM_%s"%cell.split('_')[1]
             refe_cells_types.append(cell_type)
             utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)
-            utest.assertEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
+            utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
 
-    utest.assertEqual(set(convertedcellstypes), set(refe_cells_types))
+    utest.assertSetEqual(set(convertedcellstypes), set(refe_cells_types))
 
     for lev, item in refe['GROUPS'].items():
         for name, values in item.items():
-            utest.assertEqual(mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS], values)
+            utest.assertListEqual(mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS], values)
