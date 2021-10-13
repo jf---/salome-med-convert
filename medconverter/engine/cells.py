@@ -819,7 +819,7 @@ class CellsTypeConverter:
 
         if 'systus' in self.code:
             self._f_e2m = self._systus_to_mc
-            self._f_m2e = self._mc_to_systus
+            self._f_m2e = self._to_ext
         else :
             self._f_e2m = self._to_mc
             self._f_m2e = self._to_ext
@@ -834,10 +834,11 @@ class CellsTypeConverter:
     # Specific functions
     def _systus_to_mc(self, systus_type):
         dim, stype, nb_nodes = systus_type[0], systus_type[1], systus_type[-2:]
-        return self._to_mc('0'.join((dim, nb_nodes)))
 
-    def _mc_to_systus(self, medcoupling_type):
-        return self._to_ext(medcoupling_type)
+        if not stype in ('0', '1', '2', '3'):
+            raise MedConverterError("Cannot convert {} type '{}'".format(*(self.code.title(), systus_type)))
+
+        return self._to_mc('0'.join((dim, nb_nodes)))
     
     # Generic functions
     def _to_mc(self, external_type):

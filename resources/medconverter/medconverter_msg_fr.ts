@@ -95,27 +95,27 @@
         <translation>Veuillez sélectionner le fichier de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="269"/>
+        <location filename="../../medconverter/gui/gui.py" line="267"/>
         <source>Select a file</source>
         <translation>Choisir un fichier</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="119"/>
+        <location filename="../../medconverter/gui/settings.py" line="116"/>
         <source>Input File</source>
         <translation>Fichier Entrée</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="121"/>
+        <location filename="../../medconverter/gui/settings.py" line="118"/>
         <source>Input Format</source>
         <translation>Format d&apos; Entrée</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="123"/>
+        <location filename="../../medconverter/gui/settings.py" line="120"/>
         <source>Output File</source>
         <translation>Fichier de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="125"/>
+        <location filename="../../medconverter/gui/settings.py" line="122"/>
         <source>Output Format</source>
         <translation>Format de sortie</translation>
     </message>
@@ -135,7 +135,7 @@
         <translation>Exécuter</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/settings.py" line="127"/>
+        <location filename="../../medconverter/gui/settings.py" line="124"/>
         <source>Output Comm</source>
         <translation>Fichier comm de sortie</translation>
     </message>
