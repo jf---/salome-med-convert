@@ -115,7 +115,7 @@ class MedConverterSystus(MedConverterMesh):
         for line in ELEMENTS[:-1] :
             spline = line.split()
             idx_element_systus = int(spline[0])
-            element_systus_type = spline[1]
+            element_systus_type = "%04d"%int(spline[1])
             elements_nodes_systus = tuple(map(int, spline[5:]))
 
             element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
@@ -164,7 +164,7 @@ class MedConverterSystus(MedConverterMesh):
         # Noeuds
         tic = time.perf_counter()
         nb_nodes = len(self.nodes)
-        nodes_lines = ('%d 0 0 0 0 0 '%(i+SYSTUS_NODES_SHIFT) + ' '.join(map(str,node)) for i, node in enumerate(self.nodes))
+        nodes_lines = ('%d 0 0 0 0 0 '%(i+SYSTUS_NODES_SHIFT) + ' '.join(map("{:g}".format, node)) for i, node in enumerate(self.nodes))
         toc = time.perf_counter()
         logger.debug(" Add %d nodes (in %0.4f seconds)"%(nb_nodes, toc-tic))
 
@@ -182,7 +182,7 @@ class MedConverterSystus(MedConverterMesh):
             systus_type = e_conv.medcoupling_to_external(medcoupling_type)
             element_nodes_med = SYSTUS_CELLS_SHIFT + medcoupling.DataArrayInt(element_nodes_med)
             element_nodes_asc = c_renum.medcoupling_to_external(medcoupling_type, element_nodes_med)
-            elements_lines.append('%d %s 1 0 0 '%(j+SYSTUS_CELLS_SHIFT, systus_type) + ' '.join(map(str,element_nodes_asc)))
+            elements_lines.append('%d %s 0 0 0 '%(j+SYSTUS_CELLS_SHIFT, systus_type) + ' '.join(map(str,element_nodes_asc)))
 
         nb_elements = len(self.cells_continuous)
         toc = time.perf_counter()
@@ -200,13 +200,13 @@ class MedConverterSystus(MedConverterMesh):
         id_groups = 1 # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()) :
             group_e = groups_e_ids[name]
-            group_line = '%d %s 2 0 "PART_ID %d" "" "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_e)))
+            group_line = '%d %s 2 0 "PART_ID %d"  ""  "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_e)))
             id_groups+=1
             groups_lines.append(group_line)
 
         for name in sorted(groups_n_ids.keys()) :
             group_n = groups_n_ids[name]
-            group_line = '%d %s 1 0 "COLLECTOR_ID %d" "" "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_n)))
+            group_line = '%d %s 1 0 "COLLECTOR_ID %d"  ""  "" %s'%(id_groups, name, id_groups, ' '.join(map(str, group_n)))
             id_groups+=1
             groups_lines.append(group_line)
 

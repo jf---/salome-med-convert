@@ -79,7 +79,7 @@ def get_datafile_path(datafile, force=False):
     os.makedirs(cachedir, exist_ok=True)
 
     filepath = osp.join(cachedir, filename)
-    if force or not osp.isfile(filename):
+    if force or not osp.isfile(filepath):
         if not download_file(datafile, filepath, insecure=True):
             return None
     return filepath

@@ -11,23 +11,25 @@ from .errors import MedConverterError
 class CellsTypeConverter:
 
     _systus_to_med = {
-        '001' : 'POINT1',
+        '0001' : 'POINT1',
 
-        '102' : 'SEG2',
-        '203' : 'TRI3',
-        '204' : 'QUAD4',
-        '304' : 'TETRA4',
-        '308' : 'HEXA8',
-        '305' : 'PYRA5',
-        '306' : 'PENTA6',
+        '1002' : 'SEG2',
+        '2003' : 'TRI3',
+        '2004' : 'QUAD4',
+        '3004' : 'TETRA4',
+        '3008' : 'HEXA8',
+        '3005' : 'PYRA5',
+        '3006' : 'PENTA6',
 
-        '103' : 'SEG3',
-        '206' : 'TRI6',
-        '208' : 'QUAD8',
-        '310' : 'TETRA10',
-        '320' : 'HEXA20',
-        '313' : 'PYRA13',
-        '315' : 'PENTA15',
+        '1003' : 'SEG3',
+        '2006' : 'TRI6',
+        '2008' : 'QUAD8',
+        '3010' : 'TETRA10',
+        '3020' : 'HEXA20',
+        '3013' : 'PYRA13',
+        '3015' : 'PENTA15',
+
+        '1004' : 'SEG4',
     }
 
     _abaqus_to_med = OrderedDict((
@@ -513,7 +515,7 @@ class CellsTypeConverter:
         #SHELL43 : n'existe plus mais ce comporte comme un SHELL181
         ('43_4', 'QUAD4'),
         ('43_3', 'TRI3'),
-        
+
         #SHELL143 : n'existe plus mais ce comporte comme un SHELL181
         ('143_4', 'QUAD4'),
         ('143_3', 'TRI3'),
@@ -831,13 +833,12 @@ class CellsTypeConverter:
 
     # Specific functions
     def _systus_to_mc(self, systus_type):
-        dim, nb_nodes = systus_type[0], systus_type[-2:]
-        return self._to_mc(''.join((dim, nb_nodes)))
+        dim, stype, nb_nodes = systus_type[0], systus_type[1], systus_type[-2:]
+        return self._to_mc('0'.join((dim, nb_nodes)))
 
     def _mc_to_systus(self, medcoupling_type):
-        item = self._to_ext(medcoupling_type)
-        return '0'.join((item[0], item[1:]))
-
+        return self._to_ext(medcoupling_type)
+    
     # Generic functions
     def _to_mc(self, external_type):
         try :

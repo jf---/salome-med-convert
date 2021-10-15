@@ -25,7 +25,7 @@ import json
 import random
 
 from PyQt5 import Qt as Q
-from medcoupling import *
+import medcoupling
 
 try:
     import salome
@@ -131,7 +131,7 @@ def create_test_json_file(medfilename, jsonfilename):
 
     """
 
-    mm = MEDFileUMesh(medfilename)
+    mm = medcoupling.MEDFileUMesh(medfilename)
     testvalues = {}
     testvalues['NODES'] = {}
     testvalues['CELLS'] = {}
@@ -151,7 +151,7 @@ def create_test_json_file(medfilename, jsonfilename):
             cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
             cell = random.choice(cells_by_type)
             cell_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-            cell_type = MEDCouplingUMesh.GetReprOfGeometricType(medcoupling_cell_type).strip('NORM_')
+            cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(medcoupling_cell_type).strip('NORM_')
             cell_code = "ID%d_%s"%(cell, cell_type)
             testvalues['CELLS'][lev][cell_code] = cell_nodes_med
             for i in cell_nodes_med:
