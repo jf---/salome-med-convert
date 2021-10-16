@@ -164,7 +164,7 @@ class MedConverterSystus(MedConverterMesh):
         # Noeuds
         tic = time.perf_counter()
         nb_nodes = len(self.nodes)
-        nodes_lines = ('%d 0 0 0 0 0 '%(i+SYSTUS_NODES_SHIFT) + ' '.join(map("{:g}".format, node)) for i, node in enumerate(self.nodes))
+        nodes_lines = ('%d 0 0 0 0 0 '%(i+SYSTUS_NODES_SHIFT) + ' '.join(map(repr, node)) for i, node in enumerate(self.nodes))
         toc = time.perf_counter()
         logger.debug(" Add %d nodes (in %0.4f seconds)"%(nb_nodes, toc-tic))
 

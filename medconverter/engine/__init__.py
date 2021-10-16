@@ -96,7 +96,7 @@ class Fmt:
         return {
             Fmt.Salome: ('.med',),
             Fmt.Aster:  ('.mail',),
-            Fmt.Systus: ('.ASC', '.asc'),
+            Fmt.Systus: ('.ASC',),
             Fmt.Abaqus: ('.inp',),
             Fmt.Ansys : ('.CDB', '.cdb',),
             Fmt.Zset: ('.geof',),
