@@ -205,6 +205,7 @@ dicoMod = {
     '21_2'      : 'MDI-DIS_T',
     '21_3'      : 'MDD-2D_DIS_TR',
     '21_4'      : 'MDD-2D_DIS_T',
+    '25'        : 'MMA-AXIS',
     '25_3'      : 'MMA-AXIS',
     '25_4'      : 'MMA-D_PLAN',
     '29_3'      : 'MMA-AXIS',
@@ -376,6 +377,7 @@ dicoMod = {
     '190'       : 'MCO-DKT',
     '192'       : 'M-PLAN_JOINT',
     '195'       : 'M-3D_JOINT',
+    '200'       : 'NAN-undefined',
     '202'       : 'MMA-C_PLAN',
     '202_0'     : 'MMA-C_PLAN',
     '202_2'     : 'MMA-D_PLAN',
@@ -520,6 +522,7 @@ dicoOpt = {
     '190': None,
     '192': None,
     '195': None,
+    '200': None,
     '202': 3,
     '204': None,
     '212': None,
@@ -950,7 +953,11 @@ class MedConverterAnsys(MedConverterMesh):
                 GROUPSMODELE[namegroupelem]=[cell.id]
 
             elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
-            element_ansys_type = str(element_ansys_type) + '_' + str(len(elements_nodes_ansys))
+            if element_ansys_type == 200:
+                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys), ElemOpt[cell.type][1])))
+            else:
+                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys))))
+
             element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
             element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
 

@@ -325,6 +325,18 @@ class CellsTypeConverter:
 
     _ansys_to_med =  OrderedDict((
 
+        # Mesh200
+        ('200_2_2', 'SEG2'),
+        ('200_3_3', 'SEG3'),
+        ('200_3_4', 'TRI3'),
+        ('200_6_5', 'TRI6'),
+        ('200_4_6', 'QUAD4'),
+        ('200_8_7', 'QUAD8'),
+        ('200_4_8', 'TETRA4'),
+        ('200_10_9', 'TETRA10'),
+        ('200_8_10', 'HEXA8'),
+        ('200_27_11', 'HEXA27'),
+
         # Mass element - 0D
         ('21_1', 'POINT1'),
         ('71_1', 'POINT1'),
@@ -839,7 +851,7 @@ class CellsTypeConverter:
             raise MedConverterError("Cannot convert {} type '{}'".format(*(self.code.title(), systus_type)))
 
         return self._to_mc('0'.join((dim, nb_nodes)))
-    
+
     # Generic functions
     def _to_mc(self, external_type):
         try :
