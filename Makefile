@@ -18,7 +18,6 @@ doc :
 	sphinx-build -b html $(SPHINXROOTDIR) $(SPHINXHTMLDIR)
 
 install: ## Install the plugin into directory given by $SALOMEMECA_MEDCONVERTER_ROOT_DIR
-	make translate
 	python setup.py install --prefix=$(PREFIX)
 	python setup.py clean --all
 
