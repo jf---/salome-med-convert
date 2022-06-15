@@ -4,7 +4,8 @@ import os
 import os.path as osp
 import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+root_dir = osp.realpath(osp.dirname(osp.dirname(osp.dirname(osp.abspath(__file__)))))
+sys.path.insert(0, root_dir)
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
