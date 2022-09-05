@@ -13,10 +13,10 @@ from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
-class MedConverterAster(MedConverterMesh):
 
+class MedConverterAster(MedConverterMesh):
     @staticmethod
-    def convert_aster_to_med(filename_aster, filename_med, output_comm, verbose = False):
+    def convert_aster_to_med(filename_aster, filename_med, output_comm, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAster()
@@ -25,10 +25,10 @@ class MedConverterAster(MedConverterMesh):
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
-        logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
+        logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_aster(filename_med, filename_aster, output_comm, verbose = False):
+    def convert_med_to_aster(filename_med, filename_aster, output_comm, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAster()
@@ -37,33 +37,32 @@ class MedConverterAster(MedConverterMesh):
         c.create_aster_mesh()
         c.write_aster_mesh(filename_aster)
         toc = time.perf_counter()
-        logger.debug("Mesh converted (in %0.4f seconds)"%(toc-tic))
-
+        logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     def __init__(self):
         super(MedConverterAster, self).__init__()
         self.astermesh = None
 
     def _slow_parser(self, filename):
-        #Pour lire des fichiers .mail assez vieux...
-        skip = 'NBOBJ NBLIGE NBLIGT NUMIN NUMAX AUTEUR DATE'.split()
-        re_dbl_fort = re.compile(r'(\d*\.\d+)[dD]([-+]?\d+)')
+        # Pour lire des fichiers .mail assez vieux...
+        skip = "NBOBJ NBLIGE NBLIGT NUMIN NUMAX AUTEUR DATE".split()
+        re_dbl_fort = re.compile(r"(\d*\.\d+)[dD]([-+]?\d+)")
 
-        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+        with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
             for line in f:
                 line = line.partition("%")[0].strip()
                 if any(j in line for j in skip):
-                    for k in skip :
+                    for k in skip:
                         line = line.partition(k)[0].strip()
                 line = line.upper()
-                line = re_dbl_fort.sub(r'\1E\2', line)
+                line = re_dbl_fort.sub(r"\1E\2", line)
                 spline = line.split()
                 if len(spline) > 0:
                     yield line, spline
 
     def _fast_parser(self, filename):
-        #Pour lire des fichiers .mail exportés par un IMPR_RESU
-        with open(filename, 'r', encoding = self._get_file_encoding(filename)) as f :
+        # Pour lire des fichiers .mail exportés par un IMPR_RESU
+        with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
             for line in f:
                 line = line.partition("%")[0].strip()
                 spline = line.split()
@@ -77,10 +76,7 @@ class MedConverterAster(MedConverterMesh):
 
         NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
 
-        flag = {'NODES' : 0,
-                'ELEMENTS' : 0,
-                'GROUPS_N' : 0,
-                'GROUPS_M' : 0}
+        flag = {"NODES": 0, "ELEMENTS": 0, "GROUPS_N": 0, "GROUPS_M": 0}
 
         tic = time.perf_counter()
 
@@ -90,75 +86,75 @@ class MedConverterAster(MedConverterMesh):
         for line, spline in mail_parser:
 
             if not "FINSF" in spline[0]:
-                if flag['NODES'] is 1 :
+                if flag["NODES"] is 1:
                     NODES.append(spline)
-                elif flag['ELEMENTS'] is 1 :
-                    for i in spline :
+                elif flag["ELEMENTS"] is 1:
+                    for i in spline:
                         ELEMENTS[etype].append(i)
-                elif flag['GROUPS_N'] is 1 :
-                    for i in spline :
+                elif flag["GROUPS_N"] is 1:
+                    for i in spline:
                         GROUPS_N[grp_name].append(i)
-                elif flag['GROUPS_M'] is 1 :
-                    for i in spline :
+                elif flag["GROUPS_M"] is 1:
+                    for i in spline:
                         GROUPS_M[grp_name].append(i)
 
             if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")):
-                flag['NODES'] = 1
-                self.space_dim = int(spline[0].strip('COOR_').strip('D'))
+                flag["NODES"] = 1
+                self.space_dim = int(spline[0].strip("COOR_").strip("D"))
 
             elif any(i in (spline[0],) for i in CellsTypeConverter._aster_to_med.keys()):
-                flag['ELEMENTS'] = 1
+                flag["ELEMENTS"] = 1
                 etype = spline[0]
                 ELEMENTS[etype] = []
 
             elif "GROUP_NO" in spline[0]:
-                flag['GROUPS_N'] = 1
-                if any('NOM' in i for i in spline):
-                    grp_name = line.partition('NOM')[-1].partition('=')[-1].strip().split()[0]
+                flag["GROUPS_N"] = 1
+                if any("NOM" in i for i in spline):
+                    grp_name = line.partition("NOM")[-1].partition("=")[-1].strip().split()[0]
                 else:
                     grp_name = next(mail_parser)[0]
                 GROUPS_N[grp_name] = []
 
             elif "GROUP_MA" in spline[0]:
-                flag['GROUPS_M'] = 1
-                if any('NOM' in i for i in spline):
-                    grp_name = line.partition('NOM')[-1].partition('=')[-1].strip().split()[0]
+                flag["GROUPS_M"] = 1
+                if any("NOM" in i for i in spline):
+                    grp_name = line.partition("NOM")[-1].partition("=")[-1].strip().split()[0]
                 else:
                     grp_name = next(mail_parser)[0]
                 GROUPS_M[grp_name] = []
 
             elif "FINSF" in spline[0]:
-                flag['NODES'] = 0
-                flag['ELEMENTS'] = 0
-                flag['GROUPS_N'] = 0
-                flag['GROUPS_M'] = 0
+                flag["NODES"] = 0
+                flag["ELEMENTS"] = 0
+                flag["GROUPS_N"] = 0
+                flag["GROUPS_M"] = 0
 
         for etype, values in ELEMENTS.items():
-            nb_nodes = int(re.findall(r'\d+', etype)[0])
+            nb_nodes = int(re.findall(r"\d+", etype)[0])
             ELEMENTS[etype] = list(chunks(values, 1 + nb_nodes))
 
         toc = time.perf_counter()
-        logger.debug(" File name : %s (parsed in %0.4f seconds)"%(filename, toc-tic))
-        logger.debug(" Mesh name : %s"%self.mesh_name)
-        logger.debug(" Space Dimension : %d"%self.space_dim)
+        logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
+        logger.debug(" Mesh name : %s" % self.mesh_name)
+        logger.debug(" Space Dimension : %d" % self.space_dim)
 
         # Les noeuds
         tic = time.perf_counter()
         for spline in NODES:
             idx_aster = spline[0]
-            coords = tuple(map(float, spline[-self.space_dim:]))
+            coords = tuple(map(float, spline[-self.space_dim :]))
             self.add_node(idx_aster, coords)
         toc = time.perf_counter()
-        logger.debug(" Load %d nodes (in %0.4f seconds)"%(len(NODES), toc-tic))
+        logger.debug(" Load %d nodes (in %0.4f seconds)" % (len(NODES), toc - tic))
 
         # Les elements
-        e_conv = CellsTypeConverter('ASTER')
-        c_renum = ConnectivityRenumberer('ASTER')
+        e_conv = CellsTypeConverter("ASTER")
+        c_renum = ConnectivityRenumberer("ASTER")
 
         tic = time.perf_counter()
         nb_elements = 1
-        for element_aster_type, cells in ELEMENTS.items() :
-            for spline in cells :
+        for element_aster_type, cells in ELEMENTS.items():
+            for spline in cells:
                 idx_element_aster = spline[0]
                 elements_nodes_aster = spline[1:]
 
@@ -166,23 +162,23 @@ class MedConverterAster(MedConverterMesh):
                 element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_aster)
 
                 self.add_cell(idx_element_aster, element_medcoupling_type, element_nodes_med)
-                nb_elements+=1
+                nb_elements += 1
 
         toc = time.perf_counter()
-        logger.debug(" Load %d cells (in %0.4f seconds)"%(nb_elements, toc-tic))
+        logger.debug(" Load %d cells (in %0.4f seconds)" % (nb_elements, toc - tic))
 
         # Les groups
         tic = time.perf_counter()
         nb_groups = 1
         for group_name, values in GROUPS_N.items():
             self.add_group_nodes(group_name, values)
-            nb_groups+=1
+            nb_groups += 1
         for group_name, values in GROUPS_M.items():
             self.add_group_cells(group_name, values)
-            nb_groups+=1
+            nb_groups += 1
 
         toc = time.perf_counter()
-        logger.debug(" Load %d groups (in %0.4f seconds)"%(nb_groups, toc-tic))
+        logger.debug(" Load %d groups (in %0.4f seconds)" % (nb_groups, toc - tic))
 
     def write_aster_mesh(self, filename):
         raise NotImplementedError()

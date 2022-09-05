@@ -25,6 +25,7 @@ import sys
 from PyQt5 import Qt as Q
 from ..utilities import resources_path, docs_path
 
+
 def mandatory_suffix():
     """
     Get suffix to be shown for mandatory parameters.
@@ -32,7 +33,7 @@ def mandatory_suffix():
     Returns:
         str: Suffix for label.
     """
-    return ' (*)'
+    return " (*)"
 
 
 def debug_mode():
@@ -43,7 +44,7 @@ def debug_mode():
         bool: *True* if we are in debug mode; *False* otherwise.
     """
     try:
-        return int(os.getenv('DEBUG', 0)) > 0
+        return int(os.getenv("DEBUG", 0)) > 0
     except ValueError:
         pass
     return False
@@ -65,11 +66,12 @@ def debug_message(*args):
     if debug_mode():
         if args:
             stream = sys.stdout
-            stream.write('medconverter_plugin:')
+            stream.write("medconverter_plugin:")
             for arg in args:
-                stream.write(' ' + str(arg))
-            stream.write('\n')
+                stream.write(" " + str(arg))
+            stream.write("\n")
             stream.flush()
+
 
 def connect(signal, slot, connection_type=Q.Qt.UniqueConnection):
     """
@@ -98,7 +100,7 @@ def disconnect(signal, slot=None):
     if signal is not None:
         try:
             signal.disconnect(slot) if slot else signal.disconnect()
-        except TypeError: # prevent exception when there's no connection
+        except TypeError:  # prevent exception when there's no connection
             pass
 
 
@@ -137,8 +139,8 @@ def get_dir_name(parent, title, url):
 
     return dlg.selectedFiles()[0] if dlg.exec_() else None
 
-def get_file_name(parent, mode, title, url, filters, suffix=None,
-                  default_filter=None):
+
+def get_file_name(parent, mode, title, url, filters, suffix=None, default_filter=None):
     """
     Show standard file dialog, to select a file to open or save.
 
@@ -166,8 +168,7 @@ def get_file_name(parent, mode, title, url, filters, suffix=None,
     urls.append(osp.dirname(Q.QApplication.arguments()[0]))
     dlg.setSidebarUrls([Q.QUrl.fromLocalFile(i) for i in urls])
 
-    accept_mode = Q.QFileDialog.AcceptOpen if mode \
-        else Q.QFileDialog.AcceptSave
+    accept_mode = Q.QFileDialog.AcceptOpen if mode else Q.QFileDialog.AcceptSave
     dlg.setAcceptMode(accept_mode)
 
     file_mode = Q.QFileDialog.ExistingFile if mode else Q.QFileDialog.AnyFile
@@ -233,6 +234,7 @@ def publish_meshes(medfile):
     """
     import salome
     from salome.smesh import smeshBuilder
+
     smesh = smeshBuilder.New()
     objs, _ = smesh.CreateMeshesFromMED(medfile)
     if salome.sg.hasDesktop():

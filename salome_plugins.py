@@ -24,11 +24,11 @@ import salome_pluginsmanager
 
 # pragma pylint: disable=invalid-name
 
-if 'fr' in Q.QLocale.system().name() :
+if "fr" in Q.QLocale.system().name():
     title = "salome_meca/Convertisseur de maillage"
     description = "IHM pour la conversion de maillages"
     error = "ERROR: L'outil MedConvert n'est pas disponible"
-    
+
 else:
     title = "salome_meca/Mesh Converter"
     description = "GUI plugin to convert meshes"
@@ -36,6 +36,7 @@ else:
 
 try:
     from medconverter.gui import startGUIfromSalome
+
     salome_pluginsmanager.AddFunction(title, description, startGUIfromSalome)
-except: # pragma pylint: disable=bare-except
+except:  # pragma pylint: disable=bare-except
     salome_pluginsmanager.logger.info(error)

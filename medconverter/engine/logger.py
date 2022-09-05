@@ -20,12 +20,13 @@ This package defines the *logger* of the *medconverter* plugin.
 """
 import logging
 
-class MedConverterLogger :
+
+class MedConverterLogger:
     def __init__(self, level=logging.INFO):
         logger = logging.getLogger("med_convert")
         logger.setLevel(level)
         ch = logging.StreamHandler()
-        formatter = logging.Formatter(' %(message)s')
+        formatter = logging.Formatter(" %(message)s")
         ch.setFormatter(formatter)
         logger.addHandler(ch)
         self._log = logger
@@ -40,5 +41,6 @@ class MedConverterLogger :
 
     def info(self, msg):
         self._log.info(msg)
+
 
 logger = MedConverterLogger()

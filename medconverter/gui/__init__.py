@@ -22,23 +22,27 @@ Implementation of *medconverter* plugin.
 import traceback
 from ..engine import Fmt, convert as convert_engine
 
+
 def supported_input_formats():
     return (Fmt.Abaqus, Fmt.Ansys, Fmt.Aster, Fmt.Systus, Fmt.Zset)
+
 
 def supported_output_formats():
     return (Fmt.Salome,)
 
+
 def convert(*args):
-    """Safe call to the converter.
-    """
-    try :
+    """Safe call to the converter."""
+    try:
         convert_engine(*args)
-        return True, ''
-    
+        return True, ""
+
     except Exception as err:
         traceback.print_exc()
         return False, err
 
-def startGUIfromSalome(context=None):    
+
+def startGUIfromSalome(context=None):
     from .gui import start
+
     start(context)

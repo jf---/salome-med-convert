@@ -30,7 +30,7 @@ def _build_suite(testlist):
     for test in testlist or []:
         suite.addTests(ldr.loadTestsFromName(test))
     if not testlist:
-        suite.addTests(ldr.discover(osp.dirname(__file__), pattern='test_*.py'))
+        suite.addTests(ldr.discover(osp.dirname(__file__), pattern="test_*.py"))
     return suite
 
 
@@ -41,11 +41,9 @@ def main(verbose, test=None):
     sys.exit(not RET.wasSuccessful())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help="increase verbosity")
-    parser.add_argument('test', nargs='*', metavar='TEST',
-                        help="test(s) to be executed")
+    parser.add_argument("-v", "--verbose", action="store_true", help="increase verbosity")
+    parser.add_argument("test", nargs="*", metavar="TEST", help="test(s) to be executed")
     args = parser.parse_args()
     main(args.verbose, args.test)

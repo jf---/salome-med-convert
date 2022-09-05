@@ -22,4 +22,4 @@ Implementation of *medconverter* plugin.
 from .engine import Fmt, convert
 from .gui.gui import start
 
-from .version import (__version__, __hgrevid__, __release__)
+from .version import __version__, __hgrevid__, __release__

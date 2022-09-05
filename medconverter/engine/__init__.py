@@ -25,6 +25,7 @@ from .ansys import MedConverterAnsys
 from .zset import MedConverterZset
 from .aster import MedConverterAster
 
+
 class Fmt:
     """Enumerator for mesh formats.
 
@@ -35,6 +36,7 @@ class Fmt:
         Zset
         Salome
     """
+
     Null = 0x000
     Salome = 0x001
     Aster = 0x002
@@ -54,11 +56,11 @@ class Fmt:
         Returns:
             Fmt: Format value.
         """
-        try :
-            name = 'null' if format_name == "-" else format_name
+        try:
+            name = "null" if format_name == "-" else format_name
             return getattr(cls, name.title())
         except AttributeError:
-            msg = "Unknown format '%s'"%format_name
+            msg = "Unknown format '%s'" % format_name
             raise AttributeError(msg)
 
     @staticmethod
@@ -73,13 +75,13 @@ class Fmt:
             str: Format name.
         """
         return {
-            Fmt.Null : "-",
-            Fmt.Salome : "Salome",
-            Fmt.Aster : "Aster",
-            Fmt.Systus : "Systus",
-            Fmt.Abaqus : "Abaqus",
-            Fmt.Ansys : "Ansys",
-            Fmt.Zset : "Zset",
+            Fmt.Null: "-",
+            Fmt.Salome: "Salome",
+            Fmt.Aster: "Aster",
+            Fmt.Systus: "Systus",
+            Fmt.Abaqus: "Abaqus",
+            Fmt.Ansys: "Ansys",
+            Fmt.Zset: "Zset",
         }.get(format, "Unknown")
 
     @staticmethod
@@ -94,12 +96,15 @@ class Fmt:
             tuple: List of format's extensions
         """
         return {
-            Fmt.Salome: ('.med',),
-            Fmt.Aster:  ('.mail',),
-            Fmt.Systus: ('.ASC',),
-            Fmt.Abaqus: ('.inp',),
-            Fmt.Ansys : ('.CDB', '.cdb',),
-            Fmt.Zset: ('.geof',),
+            Fmt.Salome: (".med",),
+            Fmt.Aster: (".mail",),
+            Fmt.Systus: (".ASC",),
+            Fmt.Abaqus: (".inp",),
+            Fmt.Ansys: (
+                ".CDB",
+                ".cdb",
+            ),
+            Fmt.Zset: (".geof",),
         }.get(format, "Unknown")
 
 
@@ -118,28 +123,28 @@ def convert(input_file, input_format, output_file, output_format, output_comm=No
 
     """
 
-    if (input_format == Fmt.Systus and output_format == Fmt.Salome):
+    if input_format == Fmt.Systus and output_format == Fmt.Salome:
         MedConverterSystus.convert_systus_to_med(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Salome and output_format == Fmt.Systus):
+    elif input_format == Fmt.Salome and output_format == Fmt.Systus:
         MedConverterSystus.convert_med_to_systus(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Abaqus and output_format == Fmt.Salome):
+    elif input_format == Fmt.Abaqus and output_format == Fmt.Salome:
         MedConverterAbaqus.convert_abaqus_to_med(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Ansys and output_format == Fmt.Salome):
+    elif input_format == Fmt.Ansys and output_format == Fmt.Salome:
         MedConverterAnsys.convert_ansys_to_med(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Zset and output_format == Fmt.Salome):
+    elif input_format == Fmt.Zset and output_format == Fmt.Salome:
         MedConverterZset.convert_zset_to_med(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Salome and output_format == Fmt.Zset):
+    elif input_format == Fmt.Salome and output_format == Fmt.Zset:
         MedConverterZset.convert_med_to_zset(input_file, output_file, output_comm, verbose)
 
-    elif (input_format == Fmt.Aster and output_format == Fmt.Salome):
+    elif input_format == Fmt.Aster and output_format == Fmt.Salome:
         MedConverterAster.convert_aster_to_med(input_file, output_file, output_comm, verbose)
 
-    else :
+    else:
         raise ValueError("Unsupported format conversion!")
 
     return True

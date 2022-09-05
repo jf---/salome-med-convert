@@ -35,9 +35,9 @@ DEBUG = int(os.getenv("DEBUG", 0))
 try:
     from medcoupling import *
 except ImportError:
-    sys.stderr.write("Please read the README file to execute the unittests "
-                     "inside SALOME environment.")
+    sys.stderr.write("Please read the README file to execute the unittests " "inside SALOME environment.")
     raise
+
 
 def download_file(datafile, dest, insecure=False):
     """Download a testcase datafile from the repository and copy it onto `dest`.
@@ -52,15 +52,16 @@ def download_file(datafile, dest, insecure=False):
     repo = "https://nexus.retd.edf.fr/repository/codeaster-archives/tests-data"
     url = repo + "/salome-med-convert/" + datafile
     ctx = ssl._create_unverified_context() if insecure else None
-    try :
+    try:
         with urlopen(url, timeout=timeout, context=ctx) as request:
             with open(dest, "wb") as fobj:
                 fobj.write(request.read())
             iret = request.getcode()
         return iret == 200
 
-    except HTTPError :
+    except HTTPError:
         return None
+
 
 def get_datafile_path(datafile, force=False):
     """Returns the filename of the testcase datafile.
@@ -75,7 +76,7 @@ def get_datafile_path(datafile, force=False):
     force = force or int(os.environ.get("MEDCONVERT_FORCEDOWNLOAD", 0)) == 1
 
     subdir, filename = osp.split(datafile)
-    cachedir = osp.join('/', 'tmp', '_med_convert_cache_%s'%getpass.getuser(), subdir)
+    cachedir = osp.join("/", "tmp", "_med_convert_cache_%s" % getpass.getuser(), subdir)
     os.makedirs(cachedir, exist_ok=True)
 
     filepath = osp.join(cachedir, filename)
@@ -83,6 +84,7 @@ def get_datafile_path(datafile, force=False):
         if not download_file(datafile, filepath, insecure=True):
             return None
     return filepath
+
 
 def tempdir(func):
     """Decorator that executes a function in a temporary directory.
@@ -94,7 +96,7 @@ def tempdir(func):
         """wrapper"""
         retcode = None
         try:
-            tmpdir = tempfile.mkdtemp(prefix='tmp_medconverter_')
+            tmpdir = tempfile.mkdtemp(prefix="tmp_medconverter_")
             retcode = func(tmpdir, *args, **kwds)
         except Exception:
             sys.stderr.write("temporary directory is: {0}\n".format(tmpdir))
@@ -103,7 +105,9 @@ def tempdir(func):
             if osp.exists(tmpdir):
                 shutil.rmtree(tmpdir)
         return retcode
+
     return wrapper
+
 
 @tempdir
 def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
@@ -126,7 +130,7 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
 
     wdir = tmpdir if DEBUG != 1 else os.getcwd()
     outfile = osp.join(wdir, osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
-    output_comm = osp.join(wdir, "%s.comm"%osp.splitext(osp.basename(filename))[0])
+    output_comm = osp.join(wdir, "%s.comm" % osp.splitext(osp.basename(filename))[0])
 
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
@@ -134,34 +138,33 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     convert_engine(filename, input_format, outfile, output_format, output_comm, verbose=(DEBUG == 1))
 
     utest.assertTrue(osp.isfile(outfile))
-    if output_format is Fmt.Ansys :
+    if output_format is Fmt.Ansys:
         utest.assertTrue(osp.isfile(output_comm))
-        
-    if output_format is Fmt.Salome :
+
+    if output_format is Fmt.Salome:
         mesh = MEDFileUMesh(outfile)
-    else :
-        convert_engine(outfile, output_format, '%s.med'%outfile, Fmt.Salome, verbose=(DEBUG == 1))
-        mesh = MEDFileUMesh('%s.med'%outfile)
+    else:
+        convert_engine(outfile, output_format, "%s.med" % outfile, Fmt.Salome, verbose=(DEBUG == 1))
+        mesh = MEDFileUMesh("%s.med" % outfile)
 
     return mesh
 
-def standard_test_conversion(utest, filename, input_format, output_format,
-                             nbcells, nbnodes, cellstypes,
-                             nbcellsgrps, nbnodesgrps):
+
+def standard_test_conversion(utest, filename, input_format, output_format, nbcells, nbnodes, cellstypes, nbcellsgrps, nbnodesgrps):
     """Function to check a mesh conversion.
 
-     Arguments:
-        utest (*unittest.TestCase*): Test object.
-        filename (str): Input mesh file.
-        input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
-        nbcells (int): Expected number of cells of dimension 0.
-        nbnodes (int): Expected number of nodes.
+    Arguments:
+       utest (*unittest.TestCase*): Test object.
+       filename (str): Input mesh file.
+       input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
+       nbcells (int): Expected number of cells of dimension 0.
+       nbnodes (int): Expected number of nodes.
     """
 
     mesh = base_test_conversion(utest, filename, input_format, output_format)
     utest.assertTrue(isinstance(mesh, MEDFileUMesh))
 
-    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i).strip('NORM_') for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
+    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i).strip("NORM_") for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
 
     total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
@@ -173,8 +176,7 @@ def standard_test_conversion(utest, filename, input_format, output_format,
     utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
 
 
-def deep_test_conversion(utest, filename, input_format, output_format,
-                         jsonfile):
+def deep_test_conversion(utest, filename, input_format, output_format, jsonfile):
 
     """Function to deep check a mesh conversion.
 
@@ -196,27 +198,27 @@ def deep_test_conversion(utest, filename, input_format, output_format,
     convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i) for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
     total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
 
-    utest.assertEqual(total_nb_of_cells, refe['NB_CELLS'])
-    utest.assertEqual(total_nb_of_cells_groups, refe['NB_GRP_CELLS'])
-    utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), refe['NB_GRP_NODES'])
-    utest.assertEqual(mesh.getNumberOfNodes(), refe['NB_NODES'])
-    utest.assertSetEqual(set(mesh.getNonEmptyLevels()), set(map(int,refe['CELLS'].keys())))
+    utest.assertEqual(total_nb_of_cells, refe["NB_CELLS"])
+    utest.assertEqual(total_nb_of_cells_groups, refe["NB_GRP_CELLS"])
+    utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), refe["NB_GRP_NODES"])
+    utest.assertEqual(mesh.getNumberOfNodes(), refe["NB_NODES"])
+    utest.assertSetEqual(set(mesh.getNonEmptyLevels()), set(map(int, refe["CELLS"].keys())))
 
-    for n, coords in refe['NODES'].items():
+    for n, coords in refe["NODES"].items():
         for c1, c2 in zip(mesh.getCoords()[int(n)].getValues(), coords):
             utest.assertAlmostEqual(c1, c2)
 
     refe_cells_types = []
-    for lev, item in refe['CELLS'].items():
+    for lev, item in refe["CELLS"].items():
         for cell, values in item.items():
-            idx = int(cell.split('_')[0].strip('ID'))
-            cell_type = "NORM_%s"%cell.split('_')[1]
+            idx = int(cell.split("_")[0].strip("ID"))
+            cell_type = "NORM_%s" % cell.split("_")[1]
             refe_cells_types.append(cell_type)
             utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)
             utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
 
     utest.assertSetEqual(set(convertedcellstypes), set(refe_cells_types))
 
-    for lev, item in refe['GROUPS'].items():
+    for lev, item in refe["GROUPS"].items():
         for name, values in item.items():
             utest.assertListEqual(mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS], values)

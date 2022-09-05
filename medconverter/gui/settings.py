@@ -23,6 +23,7 @@ from collections import OrderedDict
 from ..utilities import translate
 from ..engine import Fmt
 
+
 class Settings(object):
     """
     Class that stores settings data.
@@ -40,55 +41,55 @@ class Settings(object):
         """
         str: Attribute that holds output file.
         """
-        return self._data.get('Output File')
+        return self._data.get("Output File")
 
     @output_file.setter
     def output_file(self, output_file):
-        self._data['Output File'] = output_file
+        self._data["Output File"] = output_file
 
     @property
     def output_comm(self):
         """
         str: Attribute that holds output comm.
         """
-        return self._data.get('Output Comm')
+        return self._data.get("Output Comm")
 
     @output_comm.setter
     def output_comm(self, output_comm):
-        self._data['Output Comm'] = output_comm
+        self._data["Output Comm"] = output_comm
 
     @property
     def input_file(self):
         """
         str: Attribute that holds input file.
         """
-        return self._data.get('Input File')
+        return self._data.get("Input File")
 
     @input_file.setter
     def input_file(self, input_file):
-        self._data['Input File'] = input_file
+        self._data["Input File"] = input_file
 
     @property
     def input_format(self):
         """
         str: Attribute that holds input format.
         """
-        return self._data.get('Input Format')
+        return self._data.get("Input Format")
 
     @input_format.setter
     def input_format(self, input_format):
-        self._data['Input Format'] = input_format
+        self._data["Input Format"] = input_format
 
     @property
     def output_format(self):
         """
         str: Attribute that holds output format.
         """
-        return self._data.get('Output Format')
+        return self._data.get("Output Format")
 
     @output_format.setter
     def output_format(self, output_format):
-        self._data['Output Format'] = output_format
+        self._data["Output Format"] = output_format
 
     def from_defaults(self):
         """
@@ -97,11 +98,11 @@ class Settings(object):
         Arguments:
             settings_file (str): Name of settings file.
         """
-        self.input_file = ''
+        self.input_file = ""
         self.input_format = Fmt.Null
-        self.output_file = ''
+        self.output_file = ""
         self.output_format = Fmt.Salome
-        self.output_comm = ''
+        self.output_comm = ""
 
     def dump(self, stream):
         """
@@ -110,16 +111,16 @@ class Settings(object):
         Arguments:
             stream (object): Writer.
         """
-        stream.write('==========================================\n')
-        stream.write('medconverter parameters\n')
-        stream.write('==========================================\n')
+        stream.write("==========================================\n")
+        stream.write("medconverter parameters\n")
+        stream.write("==========================================\n")
         title = translate("medconverter", "Input File")
-        stream.write('{:<35}: {}\n'.format(title, self.input_file))
+        stream.write("{:<35}: {}\n".format(title, self.input_file))
         title = translate("medconverter", "Input Format")
-        stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.input_format)))
+        stream.write("{:<35}: {}\n".format(title, Fmt.name(self.input_format)))
         title = translate("medconverter", "Output File")
-        stream.write('{:<35}: {}\n'.format(title, self.output_file))
+        stream.write("{:<35}: {}\n".format(title, self.output_file))
         title = translate("medconverter", "Output Format")
-        stream.write('{:<35}: {}\n'.format(title, Fmt.name(self.output_format)))
+        stream.write("{:<35}: {}\n".format(title, Fmt.name(self.output_format)))
         title = translate("medconverter", "Output Comm")
-        stream.write('{:<35}: {}\n'.format(title, self.output_comm))
+        stream.write("{:<35}: {}\n".format(title, self.output_comm))

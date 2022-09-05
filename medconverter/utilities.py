@@ -29,11 +29,13 @@ import medcoupling
 
 try:
     import salome
+
     HAS_SALOME = True if salome.hasDesktop() is not None else False
 except ImportError:
     HAS_SALOME = False
 
 MAX_ELTS_CHECK_GROUPS = 20
+
 
 def resources_path():
     """
@@ -42,14 +44,13 @@ def resources_path():
     Returns:
         str: Path to the resources folder.
     """
-    if hasattr(resources_path, 'path'):
+    if hasattr(resources_path, "path"):
         return resources_path.path
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
-    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
-                                os.pardir, 'share', 'salome', 'resources'))
+    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir, os.pardir, "share", "salome", "resources"))
     if not osp.isdir(path):
-        path = osp.join(install_root, 'resources')
+        path = osp.join(install_root, "resources")
 
     resources_path.path = path
     return path
@@ -62,15 +63,13 @@ def docs_path():
     Returns:
         str: Path to the documentation folder.
     """
-    if hasattr(docs_path, 'path'):
+    if hasattr(docs_path, "path"):
         return docs_path.path
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
-    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
-                                os.pardir, 'share', 'doc', 'salome',
-                                'gui', 'medconverter', 'html'))
+    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir, os.pardir, "share", "doc", "salome", "gui", "medconverter", "html"))
     if not osp.isdir(path):
-        path = osp.join(install_root, 'doc')
+        path = osp.join(install_root, "doc")
 
     docs_path.path = path
     return path
@@ -83,16 +82,14 @@ def data_path():
     Returns:
         str: Path to the data test folder.
     """
-    data = 'data'
+    data = "data"
     if hasattr(data_path, data):
         return getattr(data_path, data)
 
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
-    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir,
-                                os.pardir, 'share', 'salome', 'resources',
-                                'test', data))
+    path = osp.abspath(osp.join(install_root, os.pardir, os.pardir, os.pardir, os.pardir, "share", "salome", "resources", "test", data))
     if not osp.isdir(path):
-        path = osp.join(install_root, 'test', data)
+        path = osp.join(install_root, "test", data)
 
     data_path.path = path
     return path
@@ -105,7 +102,7 @@ def references_path():
     Returns:
         str: Path to the data test folder.
     """
-    path = osp.join(resources_path(), 'references')
+    path = osp.join(resources_path(), "references")
     return path
 
 
@@ -126,54 +123,52 @@ def translate(context, source_text, disambiguation=None, num=-1):
     """
     return Q.QApplication.translate(context, source_text, disambiguation, num)
 
-def create_test_json_file(medfilename, jsonfilename):
-    """Function to create the json file suitable for the deep test.
 
-    """
+def create_test_json_file(medfilename, jsonfilename):
+    """Function to create the json file suitable for the deep test."""
 
     mm = medcoupling.MEDFileUMesh(medfilename)
     testvalues = {}
-    testvalues['NODES'] = {}
-    testvalues['CELLS'] = {}
-    testvalues['GROUPS'] = {}
-    testvalues['NB_NODES'] = mm.getNumberOfNodes()
-    testvalues['NB_CELLS'] = sum(mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels())
-    testvalues['NB_GRP_CELLS'] = sum(len(mm.getGroupsOnSpecifiedLev(lev)) for lev in mm.getNonEmptyLevels())
-    testvalues['NB_GRP_NODES'] = len(mm.getGroupsOnSpecifiedLev(1))
+    testvalues["NODES"] = {}
+    testvalues["CELLS"] = {}
+    testvalues["GROUPS"] = {}
+    testvalues["NB_NODES"] = mm.getNumberOfNodes()
+    testvalues["NB_CELLS"] = sum(mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels())
+    testvalues["NB_GRP_CELLS"] = sum(len(mm.getGroupsOnSpecifiedLev(lev)) for lev in mm.getNonEmptyLevels())
+    testvalues["NB_GRP_NODES"] = len(mm.getGroupsOnSpecifiedLev(1))
 
     tested_nodes = []
     for lev in mm.getNonEmptyLevels():
-        testvalues['CELLS'][lev] = {}
-        testvalues['GROUPS'][lev] = {}
+        testvalues["CELLS"][lev] = {}
+        testvalues["GROUPS"][lev] = {}
         mesh_lev = mm[lev]
         types_at_level = mesh_lev.getAllGeoTypesSorted()
-        for medcoupling_cell_type in types_at_level :
+        for medcoupling_cell_type in types_at_level:
             cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
             cell = random.choice(cells_by_type)
             cell_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-            cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(medcoupling_cell_type).strip('NORM_')
-            cell_code = "ID%d_%s"%(cell, cell_type)
-            testvalues['CELLS'][lev][cell_code] = cell_nodes_med
+            cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(medcoupling_cell_type).strip("NORM_")
+            cell_code = "ID%d_%s" % (cell, cell_type)
+            testvalues["CELLS"][lev][cell_code] = cell_nodes_med
             for i in cell_nodes_med:
                 tested_nodes.append(i)
 
         for group in mm.getGroupsOnSpecifiedLev(lev):
-            testvalues['GROUPS'][lev][group] = mm.getGroupArr(lev, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
+            testvalues["GROUPS"][lev][group] = mm.getGroupArr(lev, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
 
-    if len(mm.getGroupsOnSpecifiedLev(1)) > 0 :
-        testvalues['GROUPS'][1] = {}
+    if len(mm.getGroupsOnSpecifiedLev(1)) > 0:
+        testvalues["GROUPS"][1] = {}
         for group in mm.getGroupsOnSpecifiedLev(1):
-            testvalues['GROUPS'][1][group] = mm.getGroupArr(1, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
+            testvalues["GROUPS"][1][group] = mm.getGroupArr(1, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
 
     for n in set(tested_nodes):
-        testvalues['NODES'][n] = mm.getCoords()[n].getValues()
+        testvalues["NODES"][n] = mm.getCoords()[n].getValues()
 
-    with open(jsonfilename, 'w') as fobj:
+    with open(jsonfilename, "w") as fobj:
         json.dump(testvalues, fobj, indent=1, sort_keys=True)
-
 
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
