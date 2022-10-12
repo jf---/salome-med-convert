@@ -30,7 +30,10 @@ import medcoupling
 try:
     import salome
 
-    HAS_SALOME = True if salome.hasDesktop() is not None else False
+    try:
+        HAS_SALOME = True if salome.hasDesktop() is not None else False
+    except AttributeError:
+        HAS_SALOME = False
 except ImportError:
     HAS_SALOME = False
 

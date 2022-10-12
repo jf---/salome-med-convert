@@ -147,6 +147,12 @@ class TestPrivate(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
+    def test_ansys_barrage(self):
+        testname = "ANSYS_BARRAGE"
+        filename = get_datafile_path("%s.cdb" % testname)
+        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
 
 if __name__ == "__main__":
     unittest.main()

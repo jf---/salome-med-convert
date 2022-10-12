@@ -166,10 +166,10 @@ class Section:
 
 
 class Repere:
-    def __init__(self, rep_type, orig_data, angle_data):
+    def __init__(self, rep_type):
         self.type = rep_type
-        self.orig = orig_data
-        self.angle = angle_data
+        self.orig = []
+        self.angle = []
 
     def getRep(self, coord_nodes):
         if self.type == "CS":
@@ -675,14 +675,17 @@ class MedConverterAnsys(MedConverterMesh):
         with open(filename, "r", encoding=self._get_file_encoding(filename)) as file:
 
             for line in file:
-                strip_line = line.strip()
+                strip_line = line.strip().upper()
                 spline = strip_line.split()
 
                 if strip_line.startswith("NBLOCK"):
                     tic0 = time.perf_counter()
-                    dim = int(line.split(",")[1])
-                    nb_total_nodes += int(line.split(",")[4])
-                    self.space_dim = dim - 3
+                    nline = line.split(",")
+                    dim = int(nline[1])
+                    if dim == 6:
+                        self.space_dim = 3
+                    else:
+                        self.space_dim = dim
                     nodes = self.__read_nodes(file, nodes)
                     toc0 = time.perf_counter()
                     time_nodes += toc0 - tic0
@@ -727,7 +730,7 @@ class MedConverterAnsys(MedConverterMesh):
                     if len(sspline) > 2:
                         tmp = float(sspline[2].strip())
                         Sect[last_idx_sec].option = int(tmp)
-                elif strip_line.startswith("inis,set,csys"):
+                elif strip_line.startswith("INIS,SET,CSYS"):
                     snext = next(file).strip()
                     ssnext = snext.split(",")
                     if float(ssnext[6]) not in tension_init:
@@ -757,16 +760,29 @@ class MedConverterAnsys(MedConverterMesh):
                                 cpt = cpt + len(snext)
                 elif strip_line.startswith("LOCAL") or strip_line.startswith("CLOCAL") or strip_line.startswith("CS,"):
                     sspline = strip_line.split(",")
-                    nextLine = next(file)
-                    next_strip = nextLine.strip()
-                    snext = next_strip.split(",")
-                    data1 = [float(i) for i in sspline[5:]]
-                    data2 = [float(j) for j in snext[5:]]
-                    Rep[int(sspline[3])] = Repere(sspline[0], data1, data2)
-                    last_idx_rep = int(sspline[3])
-                    for i in range(2):
-                        nextLine = next(file)
-                    line = nextLine
+                    ncsy, typ, val = 0, None, []
+                    if sspline[1].strip() == "R5.0":
+                        val = [float(i) for i in sspline[5:]]
+                        ncsy = int(sspline[3])
+                        typ = ssppline[2]
+                    else:
+                        val = [float(i) for i in sspline[3:]]
+                        ncsy = int(sspline[1])
+
+                    if ncsy not in Rep:
+                        Rep[ncsy] = Repere(sspline[0].strip())
+
+                    Re = Rep[ncsy]
+
+                    if sspline[1].strip() == "R5.0":
+                        if typ == "LOC":
+                            Re.orig = val
+                        elif typ == "ANG":
+                            Re.angle = val
+                    else:
+                        Re.orig = val[:3]
+                        Re.angle = val[3:]
+
                 elif strip_line.startswith("ESYS"):
                     sspline = strip_line.split(",")
                     rep_global = int(sspline[1])
@@ -928,18 +944,6 @@ class MedConverterAnsys(MedConverterMesh):
                     id_orien = len(Ang_vrille_poutre)
                     Ang_vrille_poutre.append(angle)
 
-                    # ORI = I + PL + np.cross(L-I-PL, J-I-PL)/np.linalg.norm(J-I-PL)
-
-                    # index_orien=np.where((Orien_poutre==ORI).all(axis=1))
-                    # index2_orien=np.where((np.cross(Orien_poutre[1:], ORI)==[0.0, 0.0, 0.0]).all(axis=1))
-                    # if len(index_orien[0])>0:
-                    #     id_orien=index_orien[0][0]
-                    # elif len(index2_orien[0])>0:
-                    #     id_orien=index2_orien[0][0]
-                    # else:
-                    #     id_orien=len(Orien_poutre)
-                    #     Orien_poutre=np.append(Orien_poutre, [ORI], axis=0)
-
                     namegroupelem = namegroupelem + "-" + str(id_orien)
 
             elif dicoKeyword[element_group[4:]] == "BARRE":
@@ -1016,7 +1020,7 @@ class MedConverterAnsys(MedConverterMesh):
             strip_line = line.strip()
             if strip_line.startswith("("):
                 [firstStr, LongFloat] = self.node_format(strip_line)
-            elif strip_line.startswith("N,"):
+            elif strip_line.startswith("N,") or strip_line.startswith("-1"):
                 break
             else:
                 spline = strip_line.split()

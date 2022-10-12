@@ -404,6 +404,11 @@ class TestSimple(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", "ANSYS_PLANE183_03_TRI.json")
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
+    def test_ansys_cube(self):
+        filename = osp.join(data_path(), "ANSYS_CUBE.cdb")
+        jsonfile = osp.join(data_path(), "json", "ANSYS_CUBE.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+
     def test_zset_multi(self):
         filename = osp.join(data_path(), "ZSET_MULTI.geof")
         jsonfile = osp.join(data_path(), "json", "ZSET_MULTI.json")

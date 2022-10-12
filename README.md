@@ -5,6 +5,10 @@ other formats.
 
 At this time, only the following format is supported :
 - SYSTUS (as known as in 2018 release).
+- ABAQUS
+- ASTER
+- ANSYS
+- ZSET
 
 Only the meshes are converted for the moment. It is planned to also convert
 results fields.
