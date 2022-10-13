@@ -153,6 +153,7 @@ class MedConverterMesh:
             self._corresponding_cells[key] = {}
 
         self.cells[key].append((medcoupling_cell_type, cell_nodes_med))
+        assert idx not in self._corresponding_cells[key]
         self._corresponding_cells[key][idx] = len(self._corresponding_cells[key])
 
     def add_group_nodes(self, group_name, group_nodes):

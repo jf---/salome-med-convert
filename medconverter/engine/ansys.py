@@ -14,6 +14,9 @@ from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
+# doc: https://www.mm.bme.hu/~gyebro/files/ans_help_v182/ans_cmd/Hlp_C_CM.html
+# doc: http://oss.jishulink.com/caenet/forums/upload/2013/11/25/389/21437609302438.pdf
+
 
 def cart2sp(x, y, z):
     """Converts data from cartesian coordinates into spherical.
@@ -655,6 +658,8 @@ class MedConverterAnsys(MedConverterMesh):
             0.0,
             0.0,
         )
+        Esel = []
+        ElemEntities = {}
         ElemAnsys = {}
         ElemOpt = {}
         Sect = {}
@@ -669,6 +674,7 @@ class MedConverterAnsys(MedConverterMesh):
         Ang_vrille_poutre = [0]
         epais = np.zeros((1, 1), dtype=float)
         GROUPSMODELE = {}
+        CMELEM = {}
 
         tic = time.perf_counter()
         # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
@@ -703,6 +709,24 @@ class MedConverterAnsys(MedConverterMesh):
                 elif strip_line.startswith("ET,"):
                     sspline = strip_line.split(",")
                     ElemAnsys[int(sspline[1])] = int(sspline[2])
+                elif strip_line.startswith("ESEL,"):
+                    sspline = strip_line.split(",")
+                    assert sspline[1] in ("S", "ALL", "A")
+                    if sspline[1] in ("S", "ALL"):
+                        Esel = []
+
+                    if sspline[1] in ("S", "A") and sspline[2] == "TYPE":
+                        if len(sspline) == 6:
+                            for i in range(int(sspline[4]), int(sspline[5])+1):
+                                Esel.append(i)
+                        else:
+                            Esel.append(int(sspline[4]))
+                elif strip_line.startswith("CM,"):
+                    sspline = strip_line.split(",")
+                    cname = sspline[1]
+                    entity = sspline[2]
+                    if entity == "ELEM":
+                        CMELEM[cname] = Esel
                 elif strip_line.startswith("KEYOP"):
                     sspline = strip_line.split(",")
                     ElemOpt[int(sspline[1])] = [int(sspline[2]), int(sspline[3])]
@@ -806,7 +830,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
         logger.debug(" -> nodes: %d (parsed in %0.4f seconds)" % (len(self.nodes), time_nodes))
         logger.debug(" -> cells: %d (parsed in %0.4f seconds)" % (nb_total_cells, time_cell))
-        logger.debug(" -> groups: %d (parsed in %0.4f seconds)" % (len(Groups), time_groups))
+        logger.debug(" -> groups: %d (parsed in %0.4f seconds)" % (len(Groups) +len(CMELEM), time_groups))
 
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
@@ -817,6 +841,9 @@ class MedConverterAnsys(MedConverterMesh):
         e_conv = CellsTypeConverter("ANSYS")
         c_renum = ConnectivityRenumberer("ANSYS")
         for cell in Cells:
+            if cell.type not in ElemEntities:
+                ElemEntities[cell.type] = []
+            ElemEntities[cell.type].append(cell.id)
             element_ansys_type = ElemAnsys[cell.type]
             # some trick for few cells (remove last node)
             element_ansys_test = str(element_ansys_type) + "_" + str(len(cell.nodes))
@@ -831,6 +858,7 @@ class MedConverterAnsys(MedConverterMesh):
                 logger.debug("Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2")
                 del cell.nodes[2]
 
+            # add cell in medcoupling format
             if cell.type in ElemOpt and ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)]:
                 element_group_type = str(element_ansys_type) + "_" + str(ElemOpt[cell.type][1])
             else:
@@ -845,6 +873,19 @@ class MedConverterAnsys(MedConverterMesh):
                 msg = "Erreur: Option de l'élément non traitée"
                 raise MedConverterError(msg)
 
+            elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
+
+            if element_ansys_type == 200:
+                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys), ElemOpt[cell.type][1])))
+            else:
+                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys))))
+
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
+            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
+
+            self.add_cell(cell.id, element_medcoupling_type, element_nodes_med)
+
+            # define new groups - really usefull ?
             namegroupelem = element_group
             # Récupération des caractéristiques des éléments discrets
             if dicoKeyword[element_group[4:]] == "DISCRET" or dicoKeyword[element_group[4:]] == "DISCRET_2D":
@@ -960,17 +1001,6 @@ class MedConverterAnsys(MedConverterMesh):
             else:
                 GROUPSMODELE[namegroupelem] = [cell.id]
 
-            elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
-            if element_ansys_type == 200:
-                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys), ElemOpt[cell.type][1])))
-            else:
-                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys))))
-
-            element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_ansys)
-
-            self.add_cell(cell.id, element_medcoupling_type, element_nodes_med)
-
         toc = time.perf_counter()
         logger.debug(" Load %d cells (in %0.4f seconds)" % (len(Cells), toc - tic))
 
@@ -991,13 +1021,21 @@ class MedConverterAnsys(MedConverterMesh):
             else:
                 raise MedConverterError("Unknown group's type")
 
+        # CMELEM
+        for name, elem in CMELEM.items():
+            values = []
+            for ent in elem:
+                values += ElemEntities[ent]
+
+            self.add_group_cells(name, values)
+
         for group in GROUPSMODELE:
             groupsName.append(group)
             rname = group.replace("-", "_")
             self.add_group_cells(rname, GROUPSMODELE[group])
 
         toc = time.perf_counter()
-        logger.debug(" Load %d groups (in %0.4f seconds)" % (len(Groups), toc - tic))
+        logger.debug(" Load %d groups (in %0.4f seconds)" % (len(Groups) + len(CMELEM), toc - tic))
 
         # Recuperation des informations de la mise en donnees pour la creation du fichier de commandes
         self._structural_data_read = (groupsName, nodes, Orien_coque, Orien_poutre, Ang_vrille_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
