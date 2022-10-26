@@ -23,6 +23,7 @@ class ConnectivityRenumberer:
     # Le noeud 6 SYSTUS correspond au noeud 3 MED
     # Le noeud 7 SYSTUS correspond au noeud 7 MED
 
+    # fmt: off
     _systus = {
         "POINT1": [0],
         "SEG2": range(2),
@@ -122,6 +123,7 @@ class ConnectivityRenumberer:
     }
 
     _med_types = "POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27".split()
+    # fmt: on
 
     def __init__(self, code):
 

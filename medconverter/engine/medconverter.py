@@ -134,7 +134,11 @@ class MedConverterMesh:
     def _check_group_name(self, name):
         MED_LNAME_SIZE = 80
         if len(name) > MED_LNAME_SIZE:
-            msg = "Group name '%s' is too long %d>%d" % (name, len(name), MED_LNAME_SIZE)
+            msg = "Group name '%s' is too long %d>%d" % (
+                name,
+                len(name),
+                MED_LNAME_SIZE,
+            )
             raise MedConverterError(msg)
 
     def add_node(self, idx, coords):
@@ -179,7 +183,10 @@ class MedConverterMesh:
         cells_shift = 0  # Variable pour la creation d'une numérotation globale
         for dim in sorted(self.cells.keys())[::-1]:
             for j, (medcoupling_cell_type, element_nodes_med) in enumerate(self.cells[dim]):
-                self.cells_continuous[cells_shift + j] = (medcoupling_cell_type, element_nodes_med)
+                self.cells_continuous[cells_shift + j] = (
+                    medcoupling_cell_type,
+                    element_nodes_med,
+                )
 
             for group, values in self.groups_e[dim].items():
                 if group in self.groups_e_continuous:
@@ -226,7 +233,10 @@ class MedConverterMesh:
                 for cell in cells_by_type:
                     element_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
                     self.add_cell(cells_shift + j, medcoupling_cell_type, element_nodes_med)
-                    self.cells_continuous[cells_shift + j] = (medcoupling_cell_type, element_nodes_med)
+                    self.cells_continuous[cells_shift + j] = (
+                        medcoupling_cell_type,
+                        element_nodes_med,
+                    )
                     j += 1
 
             toc = time.perf_counter()

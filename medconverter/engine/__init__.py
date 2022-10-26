@@ -108,7 +108,14 @@ class Fmt:
         }.get(format, "Unknown")
 
 
-def convert(input_file, input_format, output_file, output_format, output_comm=None, verbose=False):
+def convert(
+    input_file,
+    input_format,
+    output_file,
+    output_format,
+    output_comm=None,
+    verbose=False,
+):
     """Main entry point of the converter.
 
     Arguments:

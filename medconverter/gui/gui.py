@@ -32,7 +32,15 @@ from . import supported_input_formats, supported_output_formats, convert
 from ..engine import Fmt
 from ..utilities import HAS_SALOME, translate
 from .settings import Settings
-from .utilities import connect, docs_path, get_dir_name, get_file_name, publish_meshes, resources_path, to_list
+from .utilities import (
+    connect,
+    docs_path,
+    get_dir_name,
+    get_file_name,
+    publish_meshes,
+    resources_path,
+    to_list,
+)
 
 UIFILE = osp.join(resources_path(), "medconverter", "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
@@ -132,7 +140,10 @@ class MainDialog(BASE, FORM):
     @Q.pyqtSlot()
     def launch(self):
         """Called when user clicks *Apply* button."""
-        self.setStatus(translate("medconverter", "Converting mesh, please wait..."), color="#0000ff")
+        self.setStatus(
+            translate("medconverter", "Converting mesh, please wait..."),
+            color="#0000ff",
+        )
         QtCore.QTimer.singleShot(50, self.do_convert)
 
     def do_convert(self):
@@ -147,13 +158,26 @@ class MainDialog(BASE, FORM):
         verbose = int(os.getenv("DEBUG", 0))
         output_comm = settings.output_comm if (self.commands_groupbox.isEnabled() and self.outCommCheckBox.isChecked()) else None
 
-        is_ok, err = convert(settings.input_file, settings.input_format, settings.output_file, settings.output_format, output_comm, verbose)
+        is_ok, err = convert(
+            settings.input_file,
+            settings.input_format,
+            settings.output_file,
+            settings.output_format,
+            output_comm,
+            verbose,
+        )
         self.setStatus("")
 
         if is_ok:
             if self.smeshCheckBox.isChecked():
                 publish_meshes(settings.output_file)
-                self.setStatus(translate("medconverter", "Open the SMESH module to see the newly created mesh."), color="#0000ff")
+                self.setStatus(
+                    translate(
+                        "medconverter",
+                        "Open the SMESH module to see the newly created mesh.",
+                    ),
+                    color="#0000ff",
+                )
                 if use_tmp:
                     os.remove(settings.output_file)
 
@@ -278,7 +302,10 @@ def load_language(language="en"):
 
     # Load plugin translations
     translator = Q.QTranslator(qobject)
-    if translator.load("medconverter_msg_{}".format(language), osp.join(resources_path(), "medconverter")):
+    if translator.load(
+        "medconverter_msg_{}".format(language),
+        osp.join(resources_path(), "medconverter"),
+    ):
         Q.QApplication.instance().installTranslator(translator)
 
     return qobject

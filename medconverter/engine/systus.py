@@ -197,13 +197,23 @@ class MedConverterSystus(MedConverterMesh):
         id_groups = 1  # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()):
             group_e = groups_e_ids[name]
-            group_line = '%d %s 2 0 "PART_ID %d"  ""  "" %s' % (id_groups, name, id_groups, " ".join(map(str, group_e)))
+            group_line = '%d %s 2 0 "PART_ID %d"  ""  "" %s' % (
+                id_groups,
+                name,
+                id_groups,
+                " ".join(map(str, group_e)),
+            )
             id_groups += 1
             groups_lines.append(group_line)
 
         for name in sorted(groups_n_ids.keys()):
             group_n = groups_n_ids[name]
-            group_line = '%d %s 1 0 "COLLECTOR_ID %d"  ""  "" %s' % (id_groups, name, id_groups, " ".join(map(str, group_n)))
+            group_line = '%d %s 1 0 "COLLECTOR_ID %d"  ""  "" %s' % (
+                id_groups,
+                name,
+                id_groups,
+                " ".join(map(str, group_n)),
+            )
             id_groups += 1
             groups_lines.append(group_line)
 
@@ -225,8 +235,15 @@ END_INFORMATIONS
             *[time.strftime("%y%m%d %H%M%S"), self.mesh_name, nb_nodes, nb_elements]
         )
 
-        txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n" % (nb_nodes, self.space_dim, "\n".join(nodes_lines))
-        txt_elements = "BEGIN_ELEMENTS %d\n%s\nEND_ELEMENTS\n" % (nb_elements, "\n".join(elements_lines))
+        txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n" % (
+            nb_nodes,
+            self.space_dim,
+            "\n".join(nodes_lines),
+        )
+        txt_elements = "BEGIN_ELEMENTS %d\n%s\nEND_ELEMENTS\n" % (
+            nb_elements,
+            "\n".join(elements_lines),
+        )
         txt_groups = "BEGIN_GROUPS %d\n%s\nEND_GROUPS\n" % (nb_groups, "\n".join(groups_lines)) if groups_lines else ""
         self.systusmesh = "".join((txt_header, txt_nodes, txt_elements, txt_groups))
         toc = time.perf_counter()

@@ -135,7 +135,14 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), outfile)
 
-    convert_engine(filename, input_format, outfile, output_format, output_comm, verbose=(DEBUG == 1))
+    convert_engine(
+        filename,
+        input_format,
+        outfile,
+        output_format,
+        output_comm,
+        verbose=(DEBUG == 1),
+    )
 
     utest.assertTrue(osp.isfile(outfile))
     if output_format is Fmt.Ansys:
@@ -150,7 +157,17 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     return mesh
 
 
-def standard_test_conversion(utest, filename, input_format, output_format, nbcells, nbnodes, cellstypes, nbcellsgrps, nbnodesgrps):
+def standard_test_conversion(
+    utest,
+    filename,
+    input_format,
+    output_format,
+    nbcells,
+    nbnodes,
+    cellstypes,
+    nbcellsgrps,
+    nbnodesgrps,
+):
     """Function to check a mesh conversion.
 
     Arguments:
@@ -214,11 +231,17 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile)
             idx = int(cell.split("_")[0].strip("ID"))
             cell_type = "NORM_%s" % cell.split("_")[1]
             refe_cells_types.append(cell_type)
-            utest.assertEqual(MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)), cell_type)
+            utest.assertEqual(
+                MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)),
+                cell_type,
+            )
             utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
 
     utest.assertSetEqual(set(convertedcellstypes), set(refe_cells_types))
 
     for lev, item in refe["GROUPS"].items():
         for name, values in item.items():
-            utest.assertListEqual(mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS], values)
+            utest.assertListEqual(
+                mesh.getGroupArr(int(lev), name).getValues()[:MAX_ELTS_CHECK_GROUPS],
+                values,
+            )

@@ -268,8 +268,15 @@ class MedConverterZset(MedConverterMesh):
 
         tic = time.perf_counter()
         txt_header = "***geometry\n"
-        txt_nodes = "**node\n%d %d\n%s\n" % (nb_nodes, self.space_dim, "\n".join(nodes_lines))
-        txt_elements = "**element\n%d\n%s\n***group\n" % (nb_elements, "\n".join(elements_lines))
+        txt_nodes = "**node\n%d %d\n%s\n" % (
+            nb_nodes,
+            self.space_dim,
+            "\n".join(nodes_lines),
+        )
+        txt_elements = "**element\n%d\n%s\n***group\n" % (
+            nb_elements,
+            "\n".join(elements_lines),
+        )
         txt_groups = "\n".join(groups_lines)
         txt_footer = "\n***return"
         self.zsetmesh = "".join((txt_header, txt_nodes, txt_elements, txt_groups, txt_footer))

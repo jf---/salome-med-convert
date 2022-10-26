@@ -59,7 +59,16 @@ def rotate(heading, attitude, bank):
 
 
 class AnsysCell:
-    def __init__(self, elem_type=None, elem_id=None, elem_nodes=None, sec_id=None, elem_rep=None, elem_const=None, elem_tension=None):
+    def __init__(
+        self,
+        elem_type=None,
+        elem_id=None,
+        elem_nodes=None,
+        sec_id=None,
+        elem_rep=None,
+        elem_const=None,
+        elem_tension=None,
+    ):
         self.id = elem_id
         if elem_nodes is not None:
             self.nodes = elem_nodes
@@ -717,7 +726,7 @@ class MedConverterAnsys(MedConverterMesh):
 
                     if sspline[1] in ("S", "A") and sspline[2] == "TYPE":
                         if len(sspline) == 6:
-                            for i in range(int(sspline[4]), int(sspline[5])+1):
+                            for i in range(int(sspline[4]), int(sspline[5]) + 1):
                                 Esel.append(i)
                         else:
                             Esel.append(int(sspline[4]))
@@ -830,7 +839,7 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
         logger.debug(" -> nodes: %d (parsed in %0.4f seconds)" % (len(self.nodes), time_nodes))
         logger.debug(" -> cells: %d (parsed in %0.4f seconds)" % (nb_total_cells, time_cell))
-        logger.debug(" -> groups: %d (parsed in %0.4f seconds)" % (len(Groups) +len(CMELEM), time_groups))
+        logger.debug(" -> groups: %d (parsed in %0.4f seconds)" % (len(Groups) + len(CMELEM), time_groups))
 
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
@@ -876,7 +885,16 @@ class MedConverterAnsys(MedConverterMesh):
             elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
 
             if element_ansys_type == 200:
-                element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys), ElemOpt[cell.type][1])))
+                element_ansys_type = "_".join(
+                    map(
+                        str,
+                        (
+                            element_ansys_type,
+                            len(elements_nodes_ansys),
+                            ElemOpt[cell.type][1],
+                        ),
+                    )
+                )
             else:
                 element_ansys_type = "_".join(map(str, (element_ansys_type, len(elements_nodes_ansys))))
 
@@ -1038,7 +1056,20 @@ class MedConverterAnsys(MedConverterMesh):
         logger.debug(" Load %d groups (in %0.4f seconds)" % (len(Groups) + len(CMELEM), toc - tic))
 
         # Recuperation des informations de la mise en donnees pour la creation du fichier de commandes
-        self._structural_data_read = (groupsName, nodes, Orien_coque, Orien_poutre, Ang_vrille_poutre, const, Rep, Sect, RealConst, epais, tension_init, rep_global)
+        self._structural_data_read = (
+            groupsName,
+            nodes,
+            Orien_coque,
+            Orien_poutre,
+            Ang_vrille_poutre,
+            const,
+            Rep,
+            Sect,
+            RealConst,
+            epais,
+            tension_init,
+            rep_global,
+        )
 
     def getCoor(self, line, firstStr, longFloat):
         # le premier decimal commence a la colonne firstStrg
@@ -1288,7 +1319,14 @@ class MedConverterAnsys(MedConverterMesh):
                     orientation.append("{:>35}_F(GROUP_MA='{}', ".format(" ", rname))
                 if rep_global == 0 and len(sname) > 4:
                     k = int(sname[4])
-                    if Sect[int(sname[3])].subtype in ("I", "L", "T", "Z", "CHAN", "HATS"):
+                    if Sect[int(sname[3])].subtype in (
+                        "I",
+                        "L",
+                        "T",
+                        "Z",
+                        "CHAN",
+                        "HATS",
+                    ):
                         name = Sect[int(sname[3])].subtype + "_" + str(int(sname[3]))
                         tag_sect = "CARA_{}.EXTR_TABLE().values()['ALPHA'][0]".format(name)
                         orientation.append("CARA='ANGL_VRIL', VALE={} + {},),\n".format(ang_vril_poutre[k], tag_sect))
@@ -1383,7 +1421,16 @@ class MedConverterAnsys(MedConverterMesh):
                 elif sname[4] == "M4":
                     f.write("CARA='M_T_D_N', VALE={0}, ".format(const[idx][0]))
                 elif sname[4] == "M3":
-                    f.write("CARA='M_TR_N', VALE=({0}, {1}, {2}, {3}, {4}, {5} ".format(const[idx][0], const[idx][0], const[idx][0], const[idx][1], const[idx][1], const[idx][1]))
+                    f.write(
+                        "CARA='M_TR_N', VALE=({0}, {1}, {2}, {3}, {4}, {5} ".format(
+                            const[idx][0],
+                            const[idx][0],
+                            const[idx][0],
+                            const[idx][1],
+                            const[idx][1],
+                            const[idx][1],
+                        )
+                    )
                 if rep_global == 0 or int(sname[2]) == rep_global:
                     f.write("REPERE='GLOBAL'),\n")
                 else:
@@ -1478,7 +1525,14 @@ class MedConverterAnsys(MedConverterMesh):
             groupname = sorted(group_name)
 
             for k in Sect:
-                if Sect[k].type == "BEAM" and Sect[k].subtype in ["I", "L", "CHAN", "HATS", "T", "Z"]:
+                if Sect[k].type == "BEAM" and Sect[k].subtype in [
+                    "I",
+                    "L",
+                    "CHAN",
+                    "HATS",
+                    "T",
+                    "Z",
+                ]:
                     self.geometrie(Sect[k].data, Sect[k].subtype, k, filename_med)
                     name = Sect[k].subtype + "_" + str(k)
                     f.write("{0}=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{1}')\n\n".format("MA_CARA_" + str(k), name))
@@ -1757,7 +1811,12 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
             Rect4 = geompy.MakeFaceHW(data[8], data[3], 1)
             geompy.TranslateDXDYDZ(Rect4, data[0] + data[2] - data[7] - data[8] / 2, data[3] / 2, 0)
             Rect5 = geompy.MakeFaceHW(data[1], data[5], 1)
-            geompy.TranslateDXDYDZ(Rect5, data[0] + data[2] - data[7] - data[8] + data[1] / 2, data[4] / 2, 0)
+            geompy.TranslateDXDYDZ(
+                Rect5,
+                data[0] + data[2] - data[7] - data[8] + data[1] / 2,
+                data[4] / 2,
+                0,
+            )
 
             Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
             Fuse2 = geompy.MakeFuse(Fuse1, Rect3, True, True)
@@ -1785,12 +1844,22 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
 
         geom_group_node = geompy.CreateGroup(Section, geompy.ShapeType["VERTEX"])
         node = geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])
-        geompy.AddObject(geom_group_node, geompy.GetSubShapeID(Section, geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])[0]))
+        geompy.AddObject(
+            geom_group_node,
+            geompy.GetSubShapeID(Section, geompy.SubShapeAll(Section, geompy.ShapeType["VERTEX"])[0]),
+        )
 
         mesh_group_node = mesh.GroupOnGeom(geom_group_node, group_node_name)
 
         try:
-            mesh.ExportMED(medfile, auto_groups=0, minor=40, overwrite=0, meshPart=None, autoDimension=1)
+            mesh.ExportMED(
+                medfile,
+                auto_groups=0,
+                minor=40,
+                overwrite=0,
+                meshPart=None,
+                autoDimension=1,
+            )
             pass
         except:
             msg = "ExportMED() failed. Invalid file name?"

@@ -66,7 +66,23 @@ class TestSimple(unittest.TestCase):
             Fmt.Systus,
             17,
             61,
-            ["POINT1", "SEG2", "SEG3", "TETRA4", "PYRA5", "PENTA6", "HEXA8", "TETRA10", "PYRA13", "PENTA15", "HEXA20", "TRI3", "QUAD4", "QUAD8", "TRI6"],
+            [
+                "POINT1",
+                "SEG2",
+                "SEG3",
+                "TETRA4",
+                "PYRA5",
+                "PENTA6",
+                "HEXA8",
+                "TETRA10",
+                "PYRA13",
+                "PENTA15",
+                "HEXA20",
+                "TRI3",
+                "QUAD4",
+                "QUAD8",
+                "TRI6",
+            ],
             7,
             2,
         )
@@ -417,7 +433,30 @@ class TestSimple(unittest.TestCase):
         filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
 
         standard_test_conversion(
-            self, filename, Fmt.Salome, Fmt.Zset, 16, 61, ["SEG2", "SEG3", "TETRA4", "PYRA5", "PENTA6", "HEXA8", "TETRA10", "PYRA13", "PENTA15", "HEXA20", "TRI3", "QUAD4", "QUAD8", "TRI6"], 6, 2
+            self,
+            filename,
+            Fmt.Salome,
+            Fmt.Zset,
+            16,
+            61,
+            [
+                "SEG2",
+                "SEG3",
+                "TETRA4",
+                "PYRA5",
+                "PENTA6",
+                "HEXA8",
+                "TETRA10",
+                "PYRA13",
+                "PENTA15",
+                "HEXA20",
+                "TRI3",
+                "QUAD4",
+                "QUAD8",
+                "TRI6",
+            ],
+            6,
+            2,
         )
 
     def test_aster_multi(self):
