@@ -797,7 +797,7 @@ class MedConverterAnsys(MedConverterMesh):
                     if sspline[1].strip() == "R5.0":
                         val = [float(i) for i in sspline[5:]]
                         ncsy = int(sspline[3])
-                        typ = ssppline[2]
+                        typ = sspline[2]
                     else:
                         val = [float(i) for i in sspline[3:]]
                         ncsy = int(sspline[1])
