@@ -86,15 +86,15 @@ class MedConverterAster(MedConverterMesh):
         for line, spline in mail_parser:
 
             if not "FINSF" in spline[0]:
-                if flag["NODES"] is 1:
+                if flag["NODES"] == 1:
                     NODES.append(spline)
-                elif flag["ELEMENTS"] is 1:
+                elif flag["ELEMENTS"] == 1:
                     for i in spline:
                         ELEMENTS[etype].append(i)
-                elif flag["GROUPS_N"] is 1:
+                elif flag["GROUPS_N"] == 1:
                     for i in spline:
                         GROUPS_N[grp_name].append(i)
-                elif flag["GROUPS_M"] is 1:
+                elif flag["GROUPS_M"] == 1:
                     for i in spline:
                         GROUPS_M[grp_name].append(i)
 

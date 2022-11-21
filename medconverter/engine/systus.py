@@ -66,11 +66,11 @@ class MedConverterSystus(MedConverterMesh):
 
             for line in f:
 
-                if flag["NODES"] is 1:
+                if flag["NODES"] == 1:
                     NODES.append(line)
-                elif flag["ELEMENTS"] is 1:
+                elif flag["ELEMENTS"] == 1:
                     ELEMENTS.append(line)
-                elif flag["GROUPS"] is 1:
+                elif flag["GROUPS"] == 1:
                     GROUPS.append(line)
 
                 if "BEGIN_NODES" in line:
