@@ -638,16 +638,17 @@ class MedConverterAnsys(MedConverterMesh):
     @staticmethod
     def convert_ansys_to_med(filename_ansys, filename_med, output_comm, verbose=False):
 
+        convert = output_comm is not None
         tic = time.perf_counter()
         c = MedConverterAnsys()
         c.verbose = verbose
-        c.read_ansys_mesh(filename_ansys, output_comm is not None)
+        c.read_ansys_mesh(filename_ansys, convert)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
-        if output_comm is not None:
+        if convert:
             c.convert_ansys_data(filename_ansys, output_comm, filename_med)
 
     @staticmethod
@@ -887,7 +888,7 @@ class MedConverterAnsys(MedConverterMesh):
             element_ansys_test = str(element_ansys_type) + "_" + str(len(cell.nodes))
             if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
                 nb_nodes = len(cell.nodes) - 1
-                logger.debug("Présence de noeuds orphelins")
+                # logger.debug("Présence de noeuds orphelins")
             else:
                 nb_nodes = len(cell.nodes)
 
@@ -949,176 +950,193 @@ class MedConverterAnsys(MedConverterMesh):
 
             # define new groups - really usefull ?
             namegroupelem = element_group
-            # Récupération des caractéristiques des éléments discrets
-            if (
-                dicoKeyword[element_group[4:]] == "DISCRET"
-                or dicoKeyword[element_group[4:]] == "DISCRET_2D"
-            ):
-                const_index = np.where((const == RealConst[cell.const][0:]).all(axis=1))
-                if len(const_index[0]) > 0:
-                    const_id = const_index[0][0]
-                else:
-                    const_id = len(const)
-                    const = np.append(const, [RealConst[cell.const][0:]], axis=0)
-                if str(ElemAnsys[cell.type]) in ("21", "166") and cell.type in ElemOpt:
-                    namegroupelem = (
-                        namegroupelem
-                        + "-"
-                        + str(cell.rep)
-                        + "-"
-                        + str(const_id)
-                        + "-M"
-                        + str(ElemOpt[cell.type][1])
-                    )
-                elif (
-                    str(ElemAnsys[cell.type]) in ("21", "166")
-                    and cell.type not in ElemOpt
+            if convert:
+                # Récupération des caractéristiques des éléments discrets
+                if (
+                    dicoKeyword[element_group[4:]] == "DISCRET"
+                    or dicoKeyword[element_group[4:]] == "DISCRET_2D"
                 ):
-                    namegroupelem = (
-                        namegroupelem
-                        + "-"
-                        + str(cell.rep)
-                        + "-"
-                        + str(const_id)
-                        + "-M0"
+                    const_index = np.where(
+                        (const == RealConst[cell.const][0:]).all(axis=1)
                     )
-                elif str(ElemAnsys[cell.type]) == "14":
-                    if cell.type in ElemOpt:
-                        if ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 1:
-                            namegroupelem = (
-                                namegroupelem
-                                + "-"
-                                + str(cell.rep)
-                                + "-"
-                                + str(const_id)
-                                + "-Kx"
-                            )
-                        elif ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 2:
-                            namegroupelem = (
-                                namegroupelem
-                                + "-"
-                                + str(cell.rep)
-                                + "-"
-                                + str(const_id)
-                                + "-Ky"
-                            )
-                        elif ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 3:
-                            namegroupelem = (
-                                namegroupelem
-                                + "-"
-                                + str(cell.rep)
-                                + "-"
-                                + str(const_id)
-                                + "-Kz"
-                            )
+                    if len(const_index[0]) > 0:
+                        const_id = const_index[0][0]
                     else:
+                        const_id = len(const)
+                        const = np.append(const, [RealConst[cell.const][0:]], axis=0)
+                    if (
+                        str(ElemAnsys[cell.type]) in ("21", "166")
+                        and cell.type in ElemOpt
+                    ):
                         namegroupelem = (
                             namegroupelem
                             + "-"
                             + str(cell.rep)
                             + "-"
                             + str(const_id)
-                            + "-KxKyKz"
+                            + "-M"
+                            + str(ElemOpt[cell.type][1])
                         )
+                    elif (
+                        str(ElemAnsys[cell.type]) in ("21", "166")
+                        and cell.type not in ElemOpt
+                    ):
+                        namegroupelem = (
+                            namegroupelem
+                            + "-"
+                            + str(cell.rep)
+                            + "-"
+                            + str(const_id)
+                            + "-M0"
+                        )
+                    elif str(ElemAnsys[cell.type]) == "14":
+                        if cell.type in ElemOpt:
+                            if (
+                                ElemOpt[cell.type][0] == 2
+                                and ElemOpt[cell.type][1] == 1
+                            ):
+                                namegroupelem = (
+                                    namegroupelem
+                                    + "-"
+                                    + str(cell.rep)
+                                    + "-"
+                                    + str(const_id)
+                                    + "-Kx"
+                                )
+                            elif (
+                                ElemOpt[cell.type][0] == 2
+                                and ElemOpt[cell.type][1] == 2
+                            ):
+                                namegroupelem = (
+                                    namegroupelem
+                                    + "-"
+                                    + str(cell.rep)
+                                    + "-"
+                                    + str(const_id)
+                                    + "-Ky"
+                                )
+                            elif (
+                                ElemOpt[cell.type][0] == 2
+                                and ElemOpt[cell.type][1] == 3
+                            ):
+                                namegroupelem = (
+                                    namegroupelem
+                                    + "-"
+                                    + str(cell.rep)
+                                    + "-"
+                                    + str(const_id)
+                                    + "-Kz"
+                                )
+                        else:
+                            namegroupelem = (
+                                namegroupelem
+                                + "-"
+                                + str(cell.rep)
+                                + "-"
+                                + str(const_id)
+                                + "-KxKyKz"
+                            )
 
-            # Calcul des axes X et Y du plan tangent des éléments coque
-            if dicoKeyword[element_group[4:]] == "COQUE":
-                namegroupelem = namegroupelem + "-" + str(cell.rep)
-                i = cell.sec
-                if len(RealConst) > 0:
-                    epais_index_real = np.where((epais == RealConst[cell.const][0]))
-                if i in Sect and Sect[i].type == "SHELL":
-                    epais_index = np.where((epais == Sect[i].data[0]))
-                    if len(epais_index[0]) > 0:
-                        id_orien = epais_index[0][0]
+                # Calcul des axes X et Y du plan tangent des éléments coque
+                if dicoKeyword[element_group[4:]] == "COQUE":
+                    namegroupelem = namegroupelem + "-" + str(cell.rep)
+                    i = cell.sec
+                    if len(RealConst) > 0:
+                        epais_index_real = np.where((epais == RealConst[cell.const][0]))
+                    if i in Sect and Sect[i].type == "SHELL":
+                        epais_index = np.where((epais == Sect[i].data[0]))
+                        if len(epais_index[0]) > 0:
+                            id_orien = epais_index[0][0]
+                        else:
+                            id_epais = len(epais)
+                            epais = np.append(epais, Sect[i].data[0])
+                    elif len(epais_index_real[0]) > 0:
+                        id_epais = epais_index_real[0][0]
                     else:
                         id_epais = len(epais)
-                        epais = np.append(epais, Sect[i].data[0])
-                elif len(epais_index_real[0]) > 0:
-                    id_epais = epais_index_real[0][0]
-                else:
-                    id_epais = len(epais)
-                    epais = np.append(epais, RealConst[cell.const][0])
+                        epais = np.append(epais, RealConst[cell.const][0])
 
-                namegroupelem = namegroupelem + "-" + str(id_epais)
+                    namegroupelem = namegroupelem + "-" + str(id_epais)
 
-                if cell.rep == 0 or cell.rep == rep_global:
+                    if cell.rep == 0 or cell.rep == rep_global:
 
-                    x1 = nodes[cell.nodes[1]]
-                    o1 = nodes[cell.nodes[0]]
-                    y1 = nodes[cell.nodes[2]]
+                        x1 = nodes[cell.nodes[1]]
+                        o1 = nodes[cell.nodes[0]]
+                        y1 = nodes[cell.nodes[2]]
 
-                    xx = x1[0] - o1[0]
-                    xy = x1[1] - o1[1]
-                    xz = x1[2] - o1[2]
-                    yx = y1[0] - o1[0]
-                    yy = y1[1] - o1[1]
-                    yz = y1[2] - o1[2]
-                    x = np.array([xx, xy, xz])
-                    y = np.array([yx, yy, yz])
+                        xx = x1[0] - o1[0]
+                        xy = x1[1] - o1[1]
+                        xz = x1[2] - o1[2]
+                        yx = y1[0] - o1[0]
+                        yy = y1[1] - o1[1]
+                        yz = y1[2] - o1[2]
+                        x = np.array([xx, xy, xz])
+                        y = np.array([yx, yy, yz])
 
-                    z = np.cross(x, y)
+                        z = np.cross(x, y)
 
-                    vale_c = np.around(np.add(x, z), decimals=0)
+                        vale_c = np.around(np.add(x, z), decimals=0)
 
-                    index_orien = np.where((Orien_coque == vale_c).all(axis=1))
-                    index2_orien = np.where(
-                        (np.cross(Orien_coque[1:], vale_c) == [[0.0, 0.0, 0.0]]).all(
-                            axis=1
+                        index_orien = np.where((Orien_coque == vale_c).all(axis=1))
+                        index2_orien = np.where(
+                            (
+                                np.cross(Orien_coque[1:], vale_c) == [[0.0, 0.0, 0.0]]
+                            ).all(axis=1)
                         )
+                        if len(index_orien[0]) > 0:
+                            id_orien = index_orien[0][0]
+                        elif len(index2_orien[0]) > 0:
+                            id_orien = index2_orien[0][0]
+                        else:
+                            id_orien = len(Orien_coque)
+                            Orien_coque = np.append(Orien_coque, [vale_c], axis=0)
+
+                        namegroupelem = namegroupelem + "-" + str(id_orien)
+
+                # Orientation des poutres à partir du noeud optionnel
+                elif dicoKeyword[element_group[4:]] == "POUTRE":
+                    namegroupelem = (
+                        namegroupelem + "-" + str(cell.rep) + "-" + str(cell.sec)
                     )
-                    if len(index_orien[0]) > 0:
-                        id_orien = index_orien[0][0]
-                    elif len(index2_orien[0]) > 0:
-                        id_orien = index2_orien[0][0]
-                    else:
-                        id_orien = len(Orien_coque)
-                        Orien_coque = np.append(Orien_coque, [vale_c], axis=0)
 
-                    namegroupelem = namegroupelem + "-" + str(id_orien)
+                    if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
+                        I = np.array(nodes[cell.nodes[0]])
+                        J = np.array(nodes[cell.nodes[1]])
+                        L = np.array(nodes[cell.nodes[-1]])
 
-            # Orientation des poutres à partir du noeud optionnel
-            elif dicoKeyword[element_group[4:]] == "POUTRE":
-                namegroupelem = (
-                    namegroupelem + "-" + str(cell.rep) + "-" + str(cell.sec)
-                )
+                        PL = np.dot(L - I, J - I) / np.dot(J - I, J - I) * (J - I)
+                        r, theta, phi = cart2sp(*(J - I))
+                        R = rotate(theta, phi, 0)
 
-                if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
-                    I = np.array(nodes[cell.nodes[0]])
-                    J = np.array(nodes[cell.nodes[1]])
-                    L = np.array(nodes[cell.nodes[-1]])
+                        z_glob_proj = R.dot((0, 0, 1))
+                        z_loc = L - PL
 
-                    PL = np.dot(L - I, J - I) / np.dot(J - I, J - I) * (J - I)
-                    r, theta, phi = cart2sp(*(J - I))
-                    R = rotate(theta, phi, 0)
+                        unit_z_glob_proj = z_glob_proj / np.linalg.norm(z_glob_proj)
+                        unit_z_loc = z_loc / np.linalg.norm(z_loc)
+                        angle = np.degrees(
+                            np.arccos(np.dot(unit_z_glob_proj, unit_z_loc))
+                        )
 
-                    z_glob_proj = R.dot((0, 0, 1))
-                    z_loc = L - PL
+                        id_orien = len(Ang_vrille_poutre)
+                        Ang_vrille_poutre.append(angle)
 
-                    unit_z_glob_proj = z_glob_proj / np.linalg.norm(z_glob_proj)
-                    unit_z_loc = z_loc / np.linalg.norm(z_loc)
-                    angle = np.degrees(np.arccos(np.dot(unit_z_glob_proj, unit_z_loc)))
+                        namegroupelem = namegroupelem + "-" + str(id_orien)
 
-                    id_orien = len(Ang_vrille_poutre)
-                    Ang_vrille_poutre.append(angle)
+                elif dicoKeyword[element_group[4:]] == "BARRE":
+                    namegroupelem = namegroupelem + "-" + str(cell.sec)
 
-                    namegroupelem = namegroupelem + "-" + str(id_orien)
+                elif dicoKeyword[element_group[4:]] == "CABLE":
+                    namegroupelem = (
+                        namegroupelem
+                        + "-"
+                        + str(cell.sec)
+                        + "-"
+                        + str(tension_init[tension[cell.id]])
+                    )
+                elif dicoKeyword[element_group[4:]] == "MASSIF":
+                    namegroupelem = namegroupelem + "-" + str(cell.rep)
 
-            elif dicoKeyword[element_group[4:]] == "BARRE":
-                namegroupelem = namegroupelem + "-" + str(cell.sec)
-
-            elif dicoKeyword[element_group[4:]] == "CABLE":
-                namegroupelem = (
-                    namegroupelem
-                    + "-"
-                    + str(cell.sec)
-                    + "-"
-                    + str(tension_init[tension[cell.id]])
-                )
-
-            elif dicoKeyword[element_group[4:]] == "MASSIF":
-                namegroupelem = namegroupelem + "-" + str(cell.rep)
-
+            # add group
             if namegroupelem in GROUPSMODELE:
                 GROUPSMODELE[namegroupelem].append(cell.id)
             else:

@@ -426,6 +426,8 @@ class CellsTypeConverter:
             # SURF156
             ("156_2", "SEG2"),
             # SURF154
+            ("154_3", "TRI3"),
+            ("154_6", "TRI6"),
             ("154_4", "QUAD4"),
             ("154_8", "QUAD8"),
             # SHELL157
