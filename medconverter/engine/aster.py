@@ -105,7 +105,7 @@ class MedConverterAster(MedConverterMesh):
             elif any(i in (spline[0],) for i in CellsTypeConverter._aster_to_med.keys()):
                 flag["ELEMENTS"] = 1
                 etype = spline[0]
-                ELEMENTS[etype] = []
+                ELEMENTS.setdefault(etype, [])
 
             elif "GROUP_NO" in spline[0]:
                 flag["GROUPS_N"] = 1
@@ -152,7 +152,7 @@ class MedConverterAster(MedConverterMesh):
         c_renum = ConnectivityRenumberer("ASTER")
 
         tic = time.perf_counter()
-        nb_elements = 1
+        nb_elements = 0
         for element_aster_type, cells in ELEMENTS.items():
             for spline in cells:
                 idx_element_aster = spline[0]
@@ -169,16 +169,20 @@ class MedConverterAster(MedConverterMesh):
 
         # Les groups
         tic = time.perf_counter()
-        nb_groups = 1
+        nb_groups = 0
         for group_name, values in GROUPS_N.items():
             self.add_group_nodes(group_name, values)
             nb_groups += 1
+        toc = time.perf_counter()
+        logger.debug(" Load %d groups of nodes (in %0.4f seconds)" % (nb_groups, toc - tic))
+
+        tic = time.perf_counter()
+        nb_groups = 0
         for group_name, values in GROUPS_M.items():
             self.add_group_cells(group_name, values)
             nb_groups += 1
-
         toc = time.perf_counter()
-        logger.debug(" Load %d groups (in %0.4f seconds)" % (nb_groups, toc - tic))
+        logger.debug(" Load %d groups of cells (in %0.4f seconds)" % (nb_groups, toc - tic))
 
     def write_aster_mesh(self, filename):
         raise NotImplementedError()
