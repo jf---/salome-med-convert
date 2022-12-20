@@ -131,28 +131,44 @@ def convert(
     """
 
     if input_format == Fmt.Systus and output_format == Fmt.Salome:
-        MedConverterSystus.convert_systus_to_med(input_file, output_file, output_comm, verbose)
+        MedConverterSystus.convert_systus_to_med(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Salome and output_format == Fmt.Systus:
-        MedConverterSystus.convert_med_to_systus(input_file, output_file, output_comm, verbose)
+        MedConverterSystus.convert_med_to_systus(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Abaqus and output_format == Fmt.Salome:
-        MedConverterAbaqus.convert_abaqus_to_med(input_file, output_file, output_comm, verbose)
+        MedConverterAbaqus.convert_abaqus_to_med(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Ansys and output_format == Fmt.Salome:
-        MedConverterAnsys.convert_ansys_to_med(input_file, output_file, output_comm, verbose)
+        MedConverterAnsys.convert_ansys_to_med(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Zset and output_format == Fmt.Salome:
-        MedConverterZset.convert_zset_to_med(input_file, output_file, output_comm, verbose)
+        MedConverterZset.convert_zset_to_med(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Salome and output_format == Fmt.Zset:
-        MedConverterZset.convert_med_to_zset(input_file, output_file, output_comm, verbose)
+        MedConverterZset.convert_med_to_zset(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Aster and output_format == Fmt.Salome:
-        MedConverterAster.convert_aster_to_med(input_file, output_file, output_comm, verbose)
+        MedConverterAster.convert_aster_to_med(
+            input_file, output_file, output_comm, verbose
+        )
 
     elif input_format == Fmt.Salome and output_format == Fmt.Aster:
-        MedConverterAster.convert_med_to_aster(input_file, output_file, output_comm, verbose)
+        MedConverterAster.convert_med_to_aster(
+            input_file, output_file, output_comm, verbose
+        )
 
     else:
         raise ValueError("Unsupported format conversion!")

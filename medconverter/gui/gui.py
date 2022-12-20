@@ -95,7 +95,9 @@ class MainDialog(BASE, FORM):
         Arguments:
             text (str): Text to be shown.
         """
-        self.statusText.setText("<font color='{1}'><i>{0}</i></font>".format(text, color))
+        self.statusText.setText(
+            "<font color='{1}'><i>{0}</i></font>".format(text, color)
+        )
 
     def from_settings(self, settings):
         """
@@ -156,7 +158,11 @@ class MainDialog(BASE, FORM):
         settings.dump(sys.stdout)
 
         verbose = int(os.getenv("DEBUG", 0))
-        output_comm = settings.output_comm if (self.commands_groupbox.isEnabled() and self.outCommCheckBox.isChecked()) else None
+        output_comm = (
+            settings.output_comm
+            if (self.commands_groupbox.isEnabled() and self.outCommCheckBox.isChecked())
+            else None
+        )
 
         is_ok, err = convert(
             settings.input_file,
@@ -189,7 +195,9 @@ class MainDialog(BASE, FORM):
             mbox = Q.QMessageBox()
             mbox.setWindowTitle(translate("medconverter", "Error"))
             mbox.setIcon(Q.QMessageBox.Critical)
-            mbox.setText(translate("medconverter", "Conversion Failed.\n{0}").format(err))
+            mbox.setText(
+                translate("medconverter", "Conversion Failed.\n{0}").format(err)
+            )
             mbox.setDetailedText("".join(traceback.format_tb(err.__traceback__)))
             mbox.exec_()
 
@@ -217,14 +225,20 @@ class MainDialog(BASE, FORM):
         settings = self.to_settings()
 
         if settings.input_format == Fmt.Null:
-            self.setStatus(translate("medconverter", "Please select the input mesh format."))
+            self.setStatus(
+                translate("medconverter", "Please select the input mesh format.")
+            )
             return False
 
         if not settings.input_file:
-            self.setStatus(translate("medconverter", "Please select the input mesh file."))
+            self.setStatus(
+                translate("medconverter", "Please select the input mesh file.")
+            )
             return False
         if not (self.outFileCheckBox.isChecked() or self.smeshCheckBox.isChecked()):
-            self.setStatus(translate("medconverter", "Please select at least one output type."))
+            self.setStatus(
+                translate("medconverter", "Please select at least one output type.")
+            )
             return False
         if self.outFileCheckBox.isChecked() and not settings.output_file:
             self.setStatus(translate("medconverter", "Please select the output file."))
@@ -243,7 +257,10 @@ class MainDialog(BASE, FORM):
 
         settings = self.to_settings()
         ext = Fmt.extensions(settings.input_format)
-        filters.append("%s (%s)" % (Fmt.name(settings.input_format), " ".join(("*%s" % i for i in ext))))
+        filters.append(
+            "%s (%s)"
+            % (Fmt.name(settings.input_format), " ".join(("*%s" % i for i in ext)))
+        )
         filters.append("All files (*)")
 
         suffix = ""
@@ -259,7 +276,10 @@ class MainDialog(BASE, FORM):
 
         settings = self.to_settings()
         ext = Fmt.extensions(settings.output_format)
-        filters.append("%s (%s)" % (Fmt.name(settings.output_format), " ".join(("*%s" % i for i in ext))))
+        filters.append(
+            "%s (%s)"
+            % (Fmt.name(settings.output_format), " ".join(("*%s" % i for i in ext)))
+        )
         filters.append("All files (*)")
 
         suffix = ""

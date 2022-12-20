@@ -151,12 +151,18 @@ class ConnectivityRenumberer:
 
     def external_to_medcoupling(self, medcoupling_type, nodes):
         try:
-            return tuple(nodes[self._connectivity_external_to_med[medcoupling_type][i]] for i in self._connectivity_external_to_med[medcoupling_type])
+            return tuple(
+                nodes[self._connectivity_external_to_med[medcoupling_type][i]]
+                for i in self._connectivity_external_to_med[medcoupling_type]
+            )
         except KeyError:
             raise MedConverterError("Unsupported element type %s" % medcoupling_type)
 
     def medcoupling_to_external(self, medcoupling_type, nodes):
         try:
-            return tuple(nodes[self._connectivity_med_to_external[medcoupling_type][i]] for i in self._connectivity_med_to_external[medcoupling_type])
+            return tuple(
+                nodes[self._connectivity_med_to_external[medcoupling_type][i]]
+                for i in self._connectivity_med_to_external[medcoupling_type]
+            )
         except KeyError:
             raise MedConverterError("Unsupported element type %s" % medcoupling_type)

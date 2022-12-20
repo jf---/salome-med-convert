@@ -663,7 +663,9 @@ class CellsTypeConverter:
         dim, stype, nb_nodes = systus_type[0], systus_type[1], systus_type[-2:]
 
         if not stype in ("0", "1", "2", "3"):
-            raise MedConverterError("Cannot convert {} type '{}'".format(*(self.code.title(), systus_type)))
+            raise MedConverterError(
+                "Cannot convert {} type '{}'".format(*(self.code.title(), systus_type))
+            )
 
         return self._to_mc("0".join((dim, nb_nodes)))
 
@@ -672,13 +674,17 @@ class CellsTypeConverter:
         try:
             return self._external_to_medcoupling[external_type]
         except KeyError:
-            raise MedConverterError("{} type '{}' unknown.".format(*(self.code.title(), external_type)))
+            raise MedConverterError(
+                "{} type '{}' unknown.".format(*(self.code.title(), external_type))
+            )
 
     def _to_ext(self, medcoupling_type):
         try:
             return self._medcoupling_to_external[medcoupling_type]
         except KeyError:
-            raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+            raise MedConverterError(
+                "MedCoupling type '{}' unknown.".format(medcoupling_type)
+            )
 
 
 class GroupCellsTypeConverter(CellsTypeConverter):

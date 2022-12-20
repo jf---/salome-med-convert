@@ -35,7 +35,10 @@ DEBUG = int(os.getenv("DEBUG", 0))
 try:
     from medcoupling import *
 except ImportError:
-    sys.stderr.write("Please read the README file to execute the unittests " "inside SALOME environment.")
+    sys.stderr.write(
+        "Please read the README file to execute the unittests "
+        "inside SALOME environment."
+    )
     raise
 
 
@@ -129,7 +132,9 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     utest.assertTrue(osp.isfile(filename), filename)
 
     wdir = tmpdir if DEBUG != 1 else os.getcwd()
-    outfile = osp.join(wdir, osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0])
+    outfile = osp.join(
+        wdir, osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0]
+    )
     output_comm = osp.join(wdir, "%s.comm" % osp.splitext(osp.basename(filename))[0])
 
     if DEBUG != 1:
@@ -151,7 +156,9 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     if output_format is Fmt.Salome:
         mesh = MEDFileUMesh(outfile)
     else:
-        convert_engine(outfile, output_format, "%s.med" % outfile, Fmt.Salome, verbose=(DEBUG == 1))
+        convert_engine(
+            outfile, output_format, "%s.med" % outfile, Fmt.Salome, verbose=(DEBUG == 1)
+        )
         mesh = MEDFileUMesh("%s.med" % outfile)
 
     return mesh
@@ -181,10 +188,18 @@ def standard_test_conversion(
     mesh = base_test_conversion(utest, filename, input_format, output_format)
     utest.assertTrue(isinstance(mesh, MEDFileUMesh))
 
-    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i).strip("NORM_") for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
-    total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
+    convertedcellstypes = [
+        MEDCouplingUMesh.GetReprOfGeometricType(i).strip("NORM_")
+        for lev in mesh.getNonEmptyLevels()
+        for i in mesh.getGeoTypesAtLevel(lev)
+    ]
+    total_nb_of_cells = sum(
+        mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels()
+    )
 
-    total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
+    total_nb_of_cells_groups = sum(
+        len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels()
+    )
 
     utest.assertEqual(total_nb_of_cells, nbcells)
     utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
@@ -211,15 +226,25 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile)
     with open(jsonfile) as f:
         refe = json.load(f)
 
-    total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
-    convertedcellstypes = [MEDCouplingUMesh.GetReprOfGeometricType(i) for lev in mesh.getNonEmptyLevels() for i in mesh.getGeoTypesAtLevel(lev)]
-    total_nb_of_cells_groups = sum(len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels())
+    total_nb_of_cells = sum(
+        mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels()
+    )
+    convertedcellstypes = [
+        MEDCouplingUMesh.GetReprOfGeometricType(i)
+        for lev in mesh.getNonEmptyLevels()
+        for i in mesh.getGeoTypesAtLevel(lev)
+    ]
+    total_nb_of_cells_groups = sum(
+        len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels()
+    )
 
     utest.assertEqual(total_nb_of_cells, refe["NB_CELLS"])
     utest.assertEqual(total_nb_of_cells_groups, refe["NB_GRP_CELLS"])
     utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), refe["NB_GRP_NODES"])
     utest.assertEqual(mesh.getNumberOfNodes(), refe["NB_NODES"])
-    utest.assertSetEqual(set(mesh.getNonEmptyLevels()), set(map(int, refe["CELLS"].keys())))
+    utest.assertSetEqual(
+        set(mesh.getNonEmptyLevels()), set(map(int, refe["CELLS"].keys()))
+    )
 
     for n, coords in refe["NODES"].items():
         for c1, c2 in zip(mesh.getCoords()[int(n)].getValues(), coords):
@@ -232,7 +257,9 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile)
             cell_type = "NORM_%s" % cell.split("_")[1]
             refe_cells_types.append(cell_type)
             utest.assertEqual(
-                MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)),
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    mesh[int(lev)].getTypeOfCell(idx)
+                ),
                 cell_type,
             )
             utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)

@@ -37,11 +37,18 @@ def get_last_public_changeset():
 
     hgid, phase = subprocess.check_output(["hg", "phase"]).strip().decode().split(": ")
     while phase != "public":
-        hgid, phase = subprocess.check_output(["hg", "phase", "%d" % (int(hgid) - 1)]).strip().decode().split(": ")
+        hgid, phase = (
+            subprocess.check_output(["hg", "phase", "%d" % (int(hgid) - 1)])
+            .strip()
+            .decode()
+            .split(": ")
+        )
         last_changeset_is_public = False
         local_changes = True
 
-    last_public_changeset = subprocess.check_output(["hg", "id", "-i", "-r %s" % hgid]).strip().decode()
+    last_public_changeset = (
+        subprocess.check_output(["hg", "id", "-i", "-r %s" % hgid]).strip().decode()
+    )
     return last_public_changeset, last_changeset_is_public, local_changes
 
 

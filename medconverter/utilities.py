@@ -174,8 +174,12 @@ def create_test_json_file(medfilename, jsonfilename):
     testvalues["CELLS"] = {}
     testvalues["GROUPS"] = {}
     testvalues["NB_NODES"] = mm.getNumberOfNodes()
-    testvalues["NB_CELLS"] = sum(mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels())
-    testvalues["NB_GRP_CELLS"] = sum(len(mm.getGroupsOnSpecifiedLev(lev)) for lev in mm.getNonEmptyLevels())
+    testvalues["NB_CELLS"] = sum(
+        mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels()
+    )
+    testvalues["NB_GRP_CELLS"] = sum(
+        len(mm.getGroupsOnSpecifiedLev(lev)) for lev in mm.getNonEmptyLevels()
+    )
     testvalues["NB_GRP_NODES"] = len(mm.getGroupsOnSpecifiedLev(1))
 
     tested_nodes = []
@@ -185,22 +189,30 @@ def create_test_json_file(medfilename, jsonfilename):
         mesh_lev = mm[lev]
         types_at_level = mesh_lev.getAllGeoTypesSorted()
         for medcoupling_cell_type in types_at_level:
-            cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
+            cells_by_type = mesh_lev.giveCellsWithType(
+                medcoupling_cell_type
+            ).getValues()
             cell = random.choice(cells_by_type)
             cell_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-            cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(medcoupling_cell_type).strip("NORM_")
+            cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(
+                medcoupling_cell_type
+            ).strip("NORM_")
             cell_code = "ID%d_%s" % (cell, cell_type)
             testvalues["CELLS"][lev][cell_code] = cell_nodes_med
             for i in cell_nodes_med:
                 tested_nodes.append(i)
 
         for group in mm.getGroupsOnSpecifiedLev(lev):
-            testvalues["GROUPS"][lev][group] = mm.getGroupArr(lev, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
+            testvalues["GROUPS"][lev][group] = mm.getGroupArr(lev, group).getValues()[
+                :MAX_ELTS_CHECK_GROUPS
+            ]
 
     if len(mm.getGroupsOnSpecifiedLev(1)) > 0:
         testvalues["GROUPS"][1] = {}
         for group in mm.getGroupsOnSpecifiedLev(1):
-            testvalues["GROUPS"][1][group] = mm.getGroupArr(1, group).getValues()[:MAX_ELTS_CHECK_GROUPS]
+            testvalues["GROUPS"][1][group] = mm.getGroupArr(1, group).getValues()[
+                :MAX_ELTS_CHECK_GROUPS
+            ]
 
     for n in set(tested_nodes):
         testvalues["NODES"][n] = mm.getCoords()[n].getValues()

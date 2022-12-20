@@ -53,15 +53,23 @@ class TestPerf(unittest.TestCase):
     def test_abaqus_hoj(self):
         testname = "ABAQUS_HOJ"
         folder = "ABAQUS_HOJ"
-        filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_Ad_E_Full_ELSE_BE_DAMP.txt"))
+        filename = get_datafile_path(
+            "%s/%s" % (folder, "ABAQUS_Ad_E_Full_ELSE_BE_DAMP.txt")
+        )
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_ASSEMBLY.txt"))
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_MASS_Ad_FULL.txt"))
-        filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_MATERIAL_SEISMIC.txt"))
+        filename = get_datafile_path(
+            "%s/%s" % (folder, "ABAQUS_HOJ_MATERIAL_SEISMIC.txt")
+        )
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_PART.txt"))
-        filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_Seismic_Spring_Gen_BE_Full_Emb_assembly.txt"))
+        filename = get_datafile_path(
+            "%s/%s" % (folder, "ABAQUS_HOJ_Seismic_Spring_Gen_BE_Full_Emb_assembly.txt")
+        )
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_v07_sets.txt"))
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_Spectra.txt"))
-        filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_Ad_E_Full_RS_Y_BE.inp"))
+        filename = get_datafile_path(
+            "%s/%s" % (folder, "ABAQUS_HOJ_Ad_E_Full_RS_Y_BE.inp")
+        )
         jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 

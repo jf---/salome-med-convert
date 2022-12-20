@@ -17,7 +17,9 @@ SYSTUS_CELLS_SHIFT = 1  # La numérotation SYSTUS des élements démarre à 1
 
 class MedConverterSystus(MedConverterMesh):
     @staticmethod
-    def convert_systus_to_med(filename_systus, filename_med, output_comm, verbose=False):
+    def convert_systus_to_med(
+        filename_systus, filename_med, output_comm, verbose=False
+    ):
 
         tic = time.perf_counter()
         c = MedConverterSystus()
@@ -29,7 +31,9 @@ class MedConverterSystus(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_systus(filename_med, filename_systus, output_comm, verbose=False):
+    def convert_med_to_systus(
+        filename_med, filename_systus, output_comm, verbose=False
+    ):
 
         tic = time.perf_counter()
         c = MedConverterSystus()
@@ -57,7 +61,9 @@ class MedConverterSystus(MedConverterMesh):
         with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
             type_systus, num_systus = next(f).split()[:2]
             if not (type_systus in ("1VSD",) and num_systus in ("0",)):
-                msg = "Cannot convert SYSTUS mesh tagged '{}' '{}'. Supported SYSTUS mesh must be tagged '1VSD' '0'.".format(type_systus, num_systus)
+                msg = "Cannot convert SYSTUS mesh tagged '{}' '{}'. Supported SYSTUS mesh must be tagged '1VSD' '0'.".format(
+                    type_systus, num_systus
+                )
                 raise MedConverterError(msg)
 
             # Lecture du nom du maillage si disponible
@@ -90,7 +96,9 @@ class MedConverterSystus(MedConverterMesh):
                     flag["GROUPS"] = 0
 
         toc = time.perf_counter()
-        logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
+        logger.debug(
+            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
+        )
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
@@ -115,13 +123,21 @@ class MedConverterSystus(MedConverterMesh):
             element_systus_type = "%04d" % int(spline[1])
             elements_nodes_systus = tuple(map(int, spline[5:]))
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
-            element_nodes_med = c_renum.external_to_medcoupling(element_medcoupling_type, elements_nodes_systus)
+            element_medcoupling_type = e_conv.external_to_medcoupling(
+                element_systus_type
+            )
+            element_nodes_med = c_renum.external_to_medcoupling(
+                element_medcoupling_type, elements_nodes_systus
+            )
 
-            self.add_cell(idx_element_systus, element_medcoupling_type, element_nodes_med)
+            self.add_cell(
+                idx_element_systus, element_medcoupling_type, element_nodes_med
+            )
 
         toc = time.perf_counter()
-        logger.debug(" Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 1, toc - tic))
+        logger.debug(
+            " Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 1, toc - tic)
+        )
 
         tic = time.perf_counter()
         # Les groups
@@ -136,14 +152,18 @@ class MedConverterSystus(MedConverterMesh):
             else:
                 self.add_group_cells(group_name, values)
         toc = time.perf_counter()
-        logger.debug(" Load %d groups (in %0.4f seconds)" % (len(GROUPS) - 1, toc - tic))
+        logger.debug(
+            " Load %d groups (in %0.4f seconds)" % (len(GROUPS) - 1, toc - tic)
+        )
 
     def write_systus_mesh(self, filename):
         tic = time.perf_counter()
         with open(filename, "w") as f:
             f.write(self.systusmesh)
         toc = time.perf_counter()
-        logger.debug("Write SYSTUS mesh file : %s (in %0.4f seconds)" % (filename, toc - tic))
+        logger.debug(
+            "Write SYSTUS mesh file : %s (in %0.4f seconds)" % (filename, toc - tic)
+        )
 
     def create_systus_mesh(self):
         self.systusmesh = None
@@ -161,7 +181,10 @@ class MedConverterSystus(MedConverterMesh):
         # Noeuds
         tic = time.perf_counter()
         nb_nodes = len(self.nodes)
-        nodes_lines = ("%d 0 0 0 0 0 " % (i + SYSTUS_NODES_SHIFT) + " ".join(map(repr, node)) for i, node in enumerate(self.nodes))
+        nodes_lines = (
+            "%d 0 0 0 0 0 " % (i + SYSTUS_NODES_SHIFT) + " ".join(map(repr, node))
+            for i, node in enumerate(self.nodes)
+        )
         toc = time.perf_counter()
         logger.debug(" Add %d nodes (in %0.4f seconds)" % (nb_nodes, toc - tic))
 
@@ -178,8 +201,13 @@ class MedConverterSystus(MedConverterMesh):
         for j, (medcoupling_type, element_nodes_med) in self.cells_continuous.items():
             systus_type = e_conv.medcoupling_to_external(medcoupling_type)
             element_nodes_med = [i + SYSTUS_NODES_SHIFT for i in element_nodes_med]
-            element_nodes_asc = c_renum.medcoupling_to_external(medcoupling_type, element_nodes_med)
-            elements_lines.append("%d %s 0 0 0 " % (j + SYSTUS_CELLS_SHIFT, systus_type) + " ".join(map(str, element_nodes_asc)))
+            element_nodes_asc = c_renum.medcoupling_to_external(
+                medcoupling_type, element_nodes_med
+            )
+            elements_lines.append(
+                "%d %s 0 0 0 " % (j + SYSTUS_CELLS_SHIFT, systus_type)
+                + " ".join(map(str, element_nodes_asc))
+            )
 
         nb_elements = len(self.cells_continuous)
         toc = time.perf_counter()
@@ -242,7 +270,11 @@ END_INFORMATIONS
             nb_elements,
             "\n".join(elements_lines),
         )
-        txt_groups = "BEGIN_GROUPS %d\n%s\nEND_GROUPS\n" % (nb_groups, "\n".join(groups_lines)) if groups_lines else ""
+        txt_groups = (
+            "BEGIN_GROUPS %d\n%s\nEND_GROUPS\n" % (nb_groups, "\n".join(groups_lines))
+            if groups_lines
+            else ""
+        )
         self.systusmesh = "".join((txt_header, txt_nodes, txt_elements, txt_groups))
         toc = time.perf_counter()
         logger.debug(" Assembly file (in %0.4f seconds)" % (toc - tic))
