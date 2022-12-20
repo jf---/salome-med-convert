@@ -110,8 +110,6 @@ LU-14-DECE-2020 16:07:33
  HEXA8   
  M11      N5       N6       N7       N8       N4       N3       N2      
           N1      
- M12      N5       N4       N1       N8       N12      N11      N14     
-          N15     
  FINSF
  %
  TETRA10 
@@ -119,6 +117,11 @@ LU-14-DECE-2020 16:07:33
           N50      N47      N36     
  FINSF
  %
+ HEXA8   
+ M12      N5       N4       N1       N8       N12      N11      N14     
+          N15     
+ FINSF
+ % 
  PYRAM13 
  M14      N21      N20      N16      N17      N24      N42      N50     
           N43      N44      N45      N46      N47      N48     
