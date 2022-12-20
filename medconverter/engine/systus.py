@@ -177,7 +177,7 @@ class MedConverterSystus(MedConverterMesh):
         tic = time.perf_counter()
         for j, (medcoupling_type, element_nodes_med) in self.cells_continuous.items():
             systus_type = e_conv.medcoupling_to_external(medcoupling_type)
-            element_nodes_med = SYSTUS_CELLS_SHIFT + medcoupling.DataArrayInt(element_nodes_med)
+            element_nodes_med = [i + SYSTUS_NODES_SHIFT for i in element_nodes_med]
             element_nodes_asc = c_renum.medcoupling_to_external(medcoupling_type, element_nodes_med)
             elements_lines.append("%d %s 0 0 0 " % (j + SYSTUS_CELLS_SHIFT, systus_type) + " ".join(map(str, element_nodes_asc)))
 
@@ -187,12 +187,10 @@ class MedConverterSystus(MedConverterMesh):
 
         tic = time.perf_counter()
         for group, values in self.groups_e_continuous.items():
-            ids = SYSTUS_CELLS_SHIFT + medcoupling.DataArrayInt(values)
-            groups_e_ids[group] = ids.getValues()
+            groups_e_ids[group] = [i + SYSTUS_CELLS_SHIFT for i in values]
 
         for group, values in self.groups_n.items():
-            ids = SYSTUS_NODES_SHIFT + medcoupling.DataArrayInt(values)
-            groups_n_ids[group] = ids.getValues()
+            groups_n_ids[group] = [i + SYSTUS_NODES_SHIFT for i in values]
 
         id_groups = 1  # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()):

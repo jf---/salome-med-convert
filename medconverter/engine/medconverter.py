@@ -190,7 +190,7 @@ class MedConverterMesh:
 
             for group, values in self.groups_e[dim].items():
                 if group in self.groups_e_continuous:
-                    for v in values():
+                    for v in values:
                         self.groups_e_continuous[group].append(cells_shift + v)
                 else:
                     self.groups_e_continuous[group] = [cells_shift + v for v in values]
