@@ -82,6 +82,7 @@ MODS = [
 ]
 SCRIPTS = [
     "bin/medconverter",
+    "bin/medconverter_makejson",
 ]
 
 DATA = [

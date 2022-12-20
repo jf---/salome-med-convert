@@ -91,7 +91,7 @@ class ConnectivityRenumberer:
         "SEG2": range(2),
         "SEG3": [0, 2, 1],
         "TRI3": range(3),
-        "TRI6": [0, 3, 1, 4, 2, 5],
+        "TRI6": [2, 5, 0, 3, 1, 4],
         "QUAD4": [0, 1, 2, 3],
         "QUAD8": [0, 4, 1, 5, 2, 6, 3, 7],
         "TETRA4": [1, 3, 0, 2],

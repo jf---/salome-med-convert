@@ -34,44 +34,17 @@ class TestSimple(unittest.TestCase):
         print("%s in %.3f sec" % (test_name, t))
 
     def test_backward_aster_multi(self):
-        filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
+        filename = osp.join(data_path(), "SALOME_MULTI_DONN1_WITH0D.med")
         jsonfile = osp.join(data_path(), "json", "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Salome, Fmt.Aster, jsonfile)
 
     def test_backward_zset_multi(self):
-        filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
-        jsonfile = osp.join(data_path(), "json", "ZSET_MULTI.json")
-        # deep_test_conversion(self, filename, Fmt.Salome, Fmt.Zset, jsonfile)
-
-        standard_test_conversion(
-            self,
-            filename,
-            Fmt.Salome,
-            Fmt.Zset,
-            16,
-            61,
-            [
-                "SEG2",
-                "SEG3",
-                "TETRA4",
-                "PYRA5",
-                "PENTA6",
-                "HEXA8",
-                "TETRA10",
-                "PYRA13",
-                "PENTA15",
-                "HEXA20",
-                "TRI3",
-                "QUAD4",
-                "QUAD8",
-                "TRI6",
-            ],
-            6,
-            2,
-        )
+        filename = osp.join(data_path(), "SALOME_MULTI_DONN1_WITHOUT0D.med")
+        jsonfile = osp.join(data_path(), "json", "MESH_MULTI_WITHOUT0D.json")
+        deep_test_conversion(self, filename, Fmt.Salome, Fmt.Zset, jsonfile)
 
     def test_backward_systus_multi(self):
-        filename = osp.join(data_path(), "SALOME_MULTI_DONN1.med")
+        filename = osp.join(data_path(), "SALOME_MULTI_DONN1_WITH0D.med")
         jsonfile = osp.join(data_path(), "json", "MESH_MULTI_WITH0D.json")
         deep_test_conversion(self, filename, Fmt.Salome, Fmt.Systus, jsonfile)
 

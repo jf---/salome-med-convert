@@ -262,7 +262,9 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile)
                 ),
                 cell_type,
             )
-            utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values)
+            utest.assertListEqual(
+                mesh[int(lev)].getNodeIdsOfCell(idx), values, msg=cell
+            )
 
     utest.assertSetEqual(set(convertedcellstypes), set(refe_cells_types))
 
