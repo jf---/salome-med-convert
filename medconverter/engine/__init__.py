@@ -151,6 +151,9 @@ def convert(
     elif input_format == Fmt.Aster and output_format == Fmt.Salome:
         MedConverterAster.convert_aster_to_med(input_file, output_file, output_comm, verbose)
 
+    elif input_format == Fmt.Salome and output_format == Fmt.Aster:
+        MedConverterAster.convert_med_to_aster(input_file, output_file, output_comm, verbose)
+
     else:
         raise ValueError("Unsupported format conversion!")
 
