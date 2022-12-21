@@ -129,7 +129,7 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
         print("Test skipped", end="\n")
         return
 
-    utest.assertTrue(osp.isfile(filename), filename)
+    utest.assertTrue(osp.isfile(filename), msg=filename)
 
     wdir = tmpdir if DEBUG != 1 else os.getcwd()
     outfile = osp.join(
@@ -138,7 +138,7 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
     output_comm = osp.join(wdir, "%s.comm" % osp.splitext(osp.basename(filename))[0])
 
     if DEBUG != 1:
-        utest.assertFalse(osp.isfile(outfile), outfile)
+        utest.assertFalse(osp.isfile(outfile), msg=outfile)
 
     convert_engine(
         filename,
@@ -149,9 +149,9 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format):
         verbose=(DEBUG == 1),
     )
 
-    utest.assertTrue(osp.isfile(outfile))
+    utest.assertTrue(osp.isfile(outfile), msg=outfile)
     if output_format is Fmt.Ansys:
-        utest.assertTrue(osp.isfile(output_comm))
+        utest.assertTrue(osp.isfile(output_comm), msg=output_comm)
 
     if output_format is Fmt.Salome:
         mesh = MEDFileUMesh(outfile)
@@ -180,9 +180,14 @@ def standard_test_conversion(
     Arguments:
        utest (*unittest.TestCase*): Test object.
        filename (str): Input mesh file.
-       input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
-       nbcells (int): Expected number of cells of dimension 0.
+       input_format (str) : Type of input mesh
+       output_format (str) : Type of output mesh
+       nbcells (int): Expected number of cells.
        nbnodes (int): Expected number of nodes.
+       cellstypes (int): Expected types of cells.
+       nbcellsgrps (int): Expected number of groups of cells.
+       nbnodesgrps (int): Expected number of groups of nodes.
+
     """
 
     mesh = base_test_conversion(utest, filename, input_format, output_format)
@@ -216,8 +221,8 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile)
         utest (*unittest.TestCase*): Test object.
         filename (str): Input mesh file.
         input_format (str) : Type of input mesh (SYSTUS or ABAQUS)
-        nbcells (int): Expected number of cells of dimension 0.
-        nbnodes (int): Expected number of nodes.
+        output_format (str) : Type of output mesh
+        jsonfile (str) : The json file containing the reference values
     """
 
     mesh = base_test_conversion(utest, filename, input_format, output_format)

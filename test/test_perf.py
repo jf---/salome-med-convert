@@ -19,7 +19,7 @@ import time
 import unittest
 import os.path as osp
 
-from utils_test import standard_test_conversion, get_datafile_path, deep_test_conversion
+from utils_test import get_datafile_path, deep_test_conversion
 from medconverter.engine import Fmt
 from medconverter.utilities import data_path
 

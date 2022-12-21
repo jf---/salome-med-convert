@@ -20,7 +20,7 @@ import unittest
 import os.path as osp
 
 from medconverter.utilities import data_path
-from utils_test import standard_test_conversion, deep_test_conversion
+from utils_test import deep_test_conversion
 from medconverter.engine import Fmt
 
 
