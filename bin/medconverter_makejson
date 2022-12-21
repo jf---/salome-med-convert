@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# coding=utf-8
+
+"""Main start-up point of *medconverter* plugin's standalone application."""
+
+import argparse
+import sys
+import signal
+
+from medconverter.utilities import create_test_json_file
+
+# Tell SIGINT to perform its default function.
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(usage=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("medfile", action="store", help="Input MED file")
+    parser.add_argument("jsonfile", action="store", help="JSON test file")
+
+    args = parser.parse_args()
+
+    create_test_json_file(args.medfile, args.jsonfile)
+
+    sys.exit(0)
