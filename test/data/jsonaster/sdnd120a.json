@@ -1,0 +1,58 @@
+{
+ "CELLS": {
+  "0": {
+   "ID0_SEG2": [
+    0,
+    1
+   ]
+  }
+ },
+ "GROUPS": {
+  "0": {
+   "GROUP_MA_RESSORTS": [
+    0,
+    1
+   ]
+  },
+  "1": {
+   "GROUP_NO_ENCBICHO": [
+    0,
+    3
+   ],
+   "GROUP_NO_MASSES1": [
+    1
+   ],
+   "GROUP_NO_MASSES2": [
+    2
+   ],
+   "NO1": [
+    0
+   ],
+   "NO11": [
+    3
+   ],
+   "NO12": [
+    2
+   ],
+   "NO2": [
+    1
+   ]
+  }
+ },
+ "NB_CELLS": 2,
+ "NB_GRP_CELLS": 1,
+ "NB_GRP_NODES": 7,
+ "NB_NODES": 4,
+ "NODES": {
+  "0": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "1": [
+   0.1,
+   0.0,
+   0.0
+  ]
+ }
+}

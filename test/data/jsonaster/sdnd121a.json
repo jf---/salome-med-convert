@@ -1,0 +1,32 @@
+{
+ "CELLS": {
+  "0": {
+   "ID0_POINT1": [
+    0
+   ]
+  }
+ },
+ "GROUPS": {
+  "0": {
+   "M_PATIN": [
+    0
+   ]
+  },
+  "1": {
+   "N_PATIN": [
+    0
+   ]
+  }
+ },
+ "NB_CELLS": 1,
+ "NB_GRP_CELLS": 1,
+ "NB_GRP_NODES": 1,
+ "NB_NODES": 1,
+ "NODES": {
+  "0": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ }
+}

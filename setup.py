@@ -94,6 +94,8 @@ DATA = [
     ("share/salome/resources/test", glob("test/*.py")),
     ("share/salome/resources/test/data", glob("test/data/*.*")),
     ("share/salome/resources/test/data/json", glob("test/data/json/*.json")),
+    ("share/salome/resources/test/data/jsonaster", glob("test/data/jsonaster/*.json")),
+    ("share/salome/resources/test/data/meshaster", glob("test/data/meshaster/*.mail")),
     ("share/doc/salome/gui/medconverter/html", glob("doc/*.html")),
 ]
 
