@@ -81,6 +81,7 @@ class MedConverterAster(MedConverterMesh):
         NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
 
         flag = {"NODES": 0, "ELEMENTS": 0, "GROUPS_N": 0, "GROUPS_M": 0}
+        open_flag = lambda x: any(i != 0 for i in x.values())
 
         tic = time.perf_counter()
 
@@ -104,18 +105,20 @@ class MedConverterAster(MedConverterMesh):
                     for i in spline:
                         GROUPS_M[grp_name].append(i)
 
-            if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")):
+            if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")) and not open_flag(
+                flag
+            ):
                 flag["NODES"] = 1
                 self.space_dim = int(spline[0].strip("COOR_").strip("D"))
 
             elif any(
                 i in (spline[0],) for i in CellsTypeConverter._aster_to_med.keys()
-            ):
+            ) and not open_flag(flag):
                 flag["ELEMENTS"] = 1
                 etype = spline[0]
                 ELEMENTS.setdefault(etype, [])
 
-            elif "GROUP_NO" in spline[0]:
+            elif "GROUP_NO" in spline[0] and not open_flag(flag):
                 flag["GROUPS_N"] = 1
                 if any("NOM" in i for i in spline):
                     grp_name = (
@@ -125,7 +128,7 @@ class MedConverterAster(MedConverterMesh):
                     grp_name = next(mail_parser)[0]
                 GROUPS_N[grp_name] = []
 
-            elif "GROUP_MA" in spline[0]:
+            elif "GROUP_MA" in spline[0] and not open_flag(flag):
                 flag["GROUPS_M"] = 1
                 if any("NOM" in i for i in spline):
                     grp_name = (
