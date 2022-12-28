@@ -47,119 +47,105 @@ class MedConverterAster(MedConverterMesh):
         super(MedConverterAster, self).__init__()
         self.astermesh = None
 
-    def _slow_parser(self, filename):
-        # Pour lire des fichiers .mail assez vieux...
-        skip = "NBOBJ NBLIGE NBLIGT NUMIN NUMAX AUTEUR DATE".split()
-        re_dbl_fort = re.compile(r"(\d*\.\d+)[dD]([-+]?\d+)")
-
-        with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
-            for line in f:
-                line = line.partition("%")[0].strip()
-                if any(j in line for j in skip):
-                    for k in skip:
-                        line = line.partition(k)[0].strip()
-                line = line.upper()
-                line = re_dbl_fort.sub(r"\1E\2", line)
-                spline = line.split()
-                if len(spline) > 0:
-                    yield line, spline
-
-    def _fast_parser(self, filename):
-        # Pour lire des fichiers .mail exportés par un IMPR_RESU
-        with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
-            for line in f:
-                line = line.partition("%")[0].strip()
-                spline = line.split()
-                if len(spline) > 0:
-                    yield line, spline
-
-    def read_aster_mesh(self, filename, parse_fast=True):
+    def read_aster_mesh(self, filename):
         logger.debug("Read ASTER mesh.")
 
         self._reset_structures()
 
-        NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
+        def zip_line(line):
+            # Restituer la ligne sans champs et les champs à part
+            spline = line.split()
+            fields = dict(
+                i.split("=") for i in spline if ("=" in i and len(i.split("=")) == 2)
+            )
+            zipped = " ".join((i for i in spline if "=" not in i)).strip()
+            return zipped, fields
 
-        flag = {"NODES": 0, "ELEMENTS": 0, "GROUPS_N": 0, "GROUPS_M": 0}
-        open_flag = lambda x: any(i != 0 for i in x.values())
+        def zip_block(block):
+            strip = {" =": "=", "= ": "="}
+            # Supprimer l'ensemble des espaces avant et après le =
+            # Afin d'identifier les champs
+            while any(key in block for key in strip.keys()):
+                for k, sk in strip.items():
+                    block = block.replace(k, sk)
+            lines = (line for line in block.split("\n") if len(line) > 0)
+
+            fields = {}
+            zipped_lines = []
+            for item in lines:
+                zipped, flds = zip_line(item)
+                if len(zipped) > 0:
+                    zipped_lines.append(zipped)
+                fields.update(flds)
+
+            block_name = zipped_lines[0]
+            block_body = " ".join(zipped_lines[1:]).split()
+            return block_name, block_body, fields
+
+        def remove_comments_and_split(fstream):
+            comment = "%"
+            txt = "\n".join(line.partition(comment)[0].strip() for line in fstream)
+            return txt.split("FINSF")
 
         tic = time.perf_counter()
 
-        self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
-
-        mail_parser = (
-            self._fast_parser(filename) if parse_fast else self._slow_parser(filename)
+        with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
+            mesh_blocks = remove_comments_and_split(f)
+        toc = time.perf_counter()
+        logger.debug(
+            " File name : %s (splitted in %0.4f seconds)" % (filename, toc - tic)
         )
-        for line, spline in mail_parser:
 
-            if not "FINSF" in spline[0]:
-                if flag["NODES"] == 1:
-                    NODES.append(spline)
-                elif flag["ELEMENTS"] == 1:
-                    for i in spline:
-                        ELEMENTS[etype].append(i)
-                elif flag["GROUPS_N"] == 1:
-                    for i in spline:
-                        GROUPS_N[grp_name].append(i)
-                elif flag["GROUPS_M"] == 1:
-                    for i in spline:
-                        GROUPS_M[grp_name].append(i)
+        tic = time.perf_counter()
+        NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
 
-            if any(i in (spline[0],) for i in ("COOR_2D", "COOR_3D")) and not open_flag(
-                flag
-            ):
-                flag["NODES"] = 1
-                self.space_dim = int(spline[0].strip("COOR_").strip("D"))
+        self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
+        for block in mesh_blocks:
 
-            elif any(
-                i in (spline[0],) for i in CellsTypeConverter._aster_to_med.keys()
-            ) and not open_flag(flag):
-                flag["ELEMENTS"] = 1
-                etype = spline[0]
+            bname, bbody, bfields = zip_block(block)
+
+            if bname in ("COOR_3D", "COOR_2D"):
+                self.space_dim = int(bname.strip("COOR_").strip("D"))
+                NODES = list(chunks(bbody, self.space_dim + 1))
+
+            elif bname in ("GROUP_MA",):
+                if "NOM" in bfields:
+                    grp_name = bfields["NOM"]
+                    GROUPS_M[grp_name] = bbody
+                else:
+                    grp_name = bbody[0]
+                    GROUPS_M[grp_name] = bbody[1:]
+
+            elif bname in ("GROUP_NO",):
+                if "NOM" in bfields:
+                    grp_name = bfields["NOM"]
+                    GROUPS_N[grp_name] = bbody
+                else:
+                    grp_name = bbody[0]
+                    GROUPS_N[grp_name] = bbody[1:]
+
+            elif bname in CellsTypeConverter._aster_to_med.keys():
+                etype = bname
+                nb_nodes = int(re.findall(r"\d+", etype)[0])
                 ELEMENTS.setdefault(etype, [])
-
-            elif "GROUP_NO" in spline[0] and not open_flag(flag):
-                flag["GROUPS_N"] = 1
-                if any("NOM" in i for i in spline):
-                    grp_name = (
-                        line.partition("NOM")[-1].partition("=")[-1].strip().split()[0]
-                    )
-                else:
-                    grp_name = next(mail_parser)[0]
-                GROUPS_N[grp_name] = []
-
-            elif "GROUP_MA" in spline[0] and not open_flag(flag):
-                flag["GROUPS_M"] = 1
-                if any("NOM" in i for i in spline):
-                    grp_name = (
-                        line.partition("NOM")[-1].partition("=")[-1].strip().split()[0]
-                    )
-                else:
-                    grp_name = next(mail_parser)[0]
-                GROUPS_M[grp_name] = []
-
-            elif "FINSF" in spline[0]:
-                flag["NODES"] = 0
-                flag["ELEMENTS"] = 0
-                flag["GROUPS_N"] = 0
-                flag["GROUPS_M"] = 0
-
-        for etype, values in ELEMENTS.items():
-            nb_nodes = int(re.findall(r"\d+", etype)[0])
-            ELEMENTS[etype] = list(chunks(values, 1 + nb_nodes))
+                ELEMENTS[etype].extend(list(chunks(bbody, 1 + nb_nodes)))
+            else:
+                pass
 
         toc = time.perf_counter()
         logger.debug(
-            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
+            " Mesh name : %s (parsed in %0.4f seconds)" % (self.mesh_name, toc - tic)
         )
-        logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
         # Les noeuds
+        strip_fortran_notation = lambda s: s.replace("d", "e").replace("D", "E")
         tic = time.perf_counter()
         for spline in NODES:
             idx_aster = spline[0]
-            coords = tuple(map(float, spline[-self.space_dim :]))
+            coords = tuple(
+                float(strip_fortran_notation(c)) for c in spline[-self.space_dim :]
+            )
             self.add_node(idx_aster, coords)
         toc = time.perf_counter()
         logger.debug(" Load %d nodes (in %0.4f seconds)" % (len(NODES), toc - tic))
