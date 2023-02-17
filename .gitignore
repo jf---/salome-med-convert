@@ -1,0 +1,3 @@
+install
+*.pyc
+medconverter/version.py
