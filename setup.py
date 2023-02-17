@@ -30,26 +30,19 @@ def get_prefix(argv):
 
 
 def get_last_public_changeset():
-    last_changeset = subprocess.check_output(["hg", "id", "-i"]).strip().decode()
 
-    local_changes = True if "+" in last_changeset else False
-    last_changeset_is_public = True
-
-    hgid, phase = subprocess.check_output(["hg", "phase"]).strip().decode().split(": ")
-    while phase != "public":
-        hgid, phase = (
-            subprocess.check_output(["hg", "phase", "%d" % (int(hgid) - 1)])
-            .strip()
-            .decode()
-            .split(": ")
-        )
-        last_changeset_is_public = False
-        local_changes = True
-
-    last_public_changeset = (
-        subprocess.check_output(["hg", "id", "-i", "-r %s" % hgid]).strip().decode()
+    last_changeset = (
+        subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).strip().decode()
     )
-    return last_public_changeset, last_changeset_is_public, local_changes
+    last_public_changeset = (
+        subprocess.check_output(["git", "rev-parse", "--short", "origin"]).strip().decode()
+    )
+    has_uncommited = (
+        subprocess.check_output(["git", "status", "--porcelain"]).strip().decode() != ""
+    )
+    last_changeset_is_public = last_changeset == last_public_changeset
+
+    return last_public_changeset, last_changeset_is_public or has_uncommited
 
 
 class InstallLibSalome(install_lib):
@@ -77,13 +70,8 @@ class InstallLibSalome(install_lib):
 
 
 PKGS = ["medconverter", "medconverter.engine", "medconverter.gui"]
-MODS = [
-    "salome_plugins",
-]
-SCRIPTS = [
-    "bin/medconverter",
-    "bin/medconverter_makejson",
-]
+MODS = ["salome_plugins"]
+SCRIPTS = ["bin/medconverter", "bin/medconverter_makejson"]
 
 DATA = [
     ("bin/salome/test", glob("bin/salome/test/CTestTestfile.cmake")),
@@ -113,7 +101,7 @@ export PATH=${SALOMEMECA_MEDCONVERTER_ROOT_DIR}/bin/:${PATH}
 """
 
 __version__ = "1.0"
-__hgrevid__, last_one_is_public, local_changes = get_last_public_changeset()
+__hgrevid__, local_changes = get_last_public_changeset()
 __release__ = "%s-%s%s" % (__version__, __hgrevid__, "-dev" if local_changes else "")
 
 with open(os.sep.join(["medconverter", "version.py"]), "w") as f:
@@ -127,9 +115,7 @@ __release__ = '{}'
         )
     )
 
-cmdclass = {
-    "install_lib": InstallLibSalome,
-}
+cmdclass = {"install_lib": InstallLibSalome}
 
 setup(
     name="medconverter",
