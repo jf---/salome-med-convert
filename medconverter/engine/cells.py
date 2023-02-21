@@ -284,9 +284,15 @@ class CellsTypeConverter:
             ("14_2", "SEG2"),
             # PIPE16
             ("16_2", "SEG2"),
+            ("16_3", "SEG3"),
+            # PIPE18
+            ("18_2", "SEG2"),
+            ("18_3", "SEG3"),
             # PLANE25
             ("25_4", "QUAD4"),
             ("25_3", "TRI3"),
+            # MATRIX27
+            ("27_2", "SEG2"),
             # FLUID29
             ("29_4", "QUAD4"),
             ("29_3", "TRI3"),
