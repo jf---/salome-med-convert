@@ -225,6 +225,11 @@ dicoMod = {
     "14_0": "MDI-DIS_T",
     "14_2": "MDD-2D_DIS_T",
     "16": "MPO-POU_D_T",
+    "16_2": "NAN-undefined",
+    "16_3": "NAN-undefined",
+    "18": "MPO-POU_D_T",
+    "18_2": "NAN-undefined",
+    "18_3": "NAN-undefined",
     "21": "MDI-DIS_TR",
     "21_0": "MDI-DIS_TR",
     "21_2": "MDI-DIS_T",
@@ -233,6 +238,7 @@ dicoMod = {
     "25": "MMA-AXIS",
     "25_3": "MMA-AXIS",
     "25_4": "MMA-D_PLAN",
+    "27": "NAN-undefined",
     "29_3": "MMA-AXIS",
     "29": "MMA-D_PLAN_HHM",
     "30": "AMA-3D",
@@ -464,8 +470,10 @@ dicoOpt = {
     "13": 1,
     "14": 3,
     "16": None,
+    "18": None,
     "21": 3,
     "25": None,
+    "27": None,
     "29": None,
     "30": None,
     "31": None,
@@ -886,7 +894,14 @@ class MedConverterAnsys(MedConverterMesh):
             element_ansys_type = ElemAnsys[cell.type]
             # some trick for few cells (remove last node)
             element_ansys_test = str(element_ansys_type) + "_" + str(len(cell.nodes))
-            if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
+            if element_ansys_test in (
+                "16_3",
+                "18_3",
+                "188_3",
+                "189_4",
+                "288_3",
+                "289_4",
+            ):
                 nb_nodes = len(cell.nodes) - 1
                 # logger.debug("Présence de noeuds orphelins")
             else:
@@ -964,10 +979,7 @@ class MedConverterAnsys(MedConverterMesh):
                     else:
                         const_id = len(const)
                         const = np.append(const, [RealConst[cell.const][0:]], axis=0)
-                    if (
-                        str(ElemAnsys[cell.type]) in ("21", "166")
-                        and cell.type in ElemOpt
-                    ):
+                    if ElemAnsys[cell.type] in (21, 166) and cell.type in ElemOpt:
                         namegroupelem = (
                             namegroupelem
                             + "-"
@@ -977,10 +989,7 @@ class MedConverterAnsys(MedConverterMesh):
                             + "-M"
                             + str(ElemOpt[cell.type][1])
                         )
-                    elif (
-                        str(ElemAnsys[cell.type]) in ("21", "166")
-                        and cell.type not in ElemOpt
-                    ):
+                    elif ElemAnsys[cell.type] in (21, 166) and cell.type not in ElemOpt:
                         namegroupelem = (
                             namegroupelem
                             + "-"
@@ -989,7 +998,7 @@ class MedConverterAnsys(MedConverterMesh):
                             + str(const_id)
                             + "-M0"
                         )
-                    elif str(ElemAnsys[cell.type]) == "14":
+                    elif ElemAnsys[cell.type] == 14:
                         if cell.type in ElemOpt:
                             if (
                                 ElemOpt[cell.type][0] == 2
