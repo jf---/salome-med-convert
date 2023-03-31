@@ -138,10 +138,13 @@
        </item>
        <item>
         <widget class="QTabWidget" name="tabWidget">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <widget class="QWidget" name="tab_mesh">
+         <widget class="QWidget" name="mesh_tab">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -224,7 +227,10 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_cmd">
+         <widget class="QWidget" name="commands_tab">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <attribute name="title">
            <string>Command</string>
           </attribute>
@@ -290,7 +296,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_advanced">
+         <widget class="QWidget" name="advanced_tab">
           <attribute name="title">
            <string>Advanced</string>
           </attribute>
