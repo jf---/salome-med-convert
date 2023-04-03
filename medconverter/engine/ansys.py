@@ -55,9 +55,7 @@ def rotate(heading, attitude, bank):
     m21 = sh * sa * cb + ch * sb
     m22 = -sh * sa * sb + ch * cb
 
-    return np.around(
-        np.asarray([[m00, m01, m02], [m10, m11, m12], [m20, m21, m22]]), 12
-    )
+    return np.around(np.asarray([[m00, m01, m02], [m10, m11, m12], [m20, m21, m22]]), 12)
 
 
 class AnsysCell:
@@ -83,14 +81,10 @@ class AnsysCell:
         self.tension = elem_tension
 
     def __repr__(self):
-        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
+        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(self.id, self.type, self.nodes)
 
     def __str__(self):
-        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
+        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(self.id, self.type, self.nodes)
 
 
 class AnsysGroup:
@@ -660,7 +654,7 @@ class MedConverterAnsys(MedConverterMesh):
             c.convert_ansys_data(filename_ansys, output_comm, filename_med)
 
     @staticmethod
-    def convert_med_to_ansys(filename_med, filename_ansys, output_comm, verbose=False):
+    def convert_med_to_ansys(filename_med, filename_ansys, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAnsys()
@@ -680,18 +674,8 @@ class MedConverterAnsys(MedConverterMesh):
 
         self._reset_structures()
         Cells, Groups, groupsName, title = [], [], [], None
-        nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len, = (
-            0,
-            0,
-            0,
-            0,
-            0,
-        )
-        time_nodes, time_cell, time_groups, = (
-            0.0,
-            0.0,
-            0.0,
-        )
+        nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len = (0, 0, 0, 0, 0)
+        time_nodes, time_cell, time_groups = (0.0, 0.0, 0.0)
         Esel = []
         ElemEntities = {}
         ElemAnsys = {}
@@ -865,18 +849,11 @@ class MedConverterAnsys(MedConverterMesh):
         self.mesh_name = title or osp.splitext(osp.split(filename)[-1])[0]
 
         toc = time.perf_counter()
+        logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
+        logger.debug(" -> nodes: %d (parsed in %0.4f seconds)" % (len(self.nodes), time_nodes))
+        logger.debug(" -> cells: %d (parsed in %0.4f seconds)" % (nb_total_cells, time_cell))
         logger.debug(
-            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
-        )
-        logger.debug(
-            " -> nodes: %d (parsed in %0.4f seconds)" % (len(self.nodes), time_nodes)
-        )
-        logger.debug(
-            " -> cells: %d (parsed in %0.4f seconds)" % (nb_total_cells, time_cell)
-        )
-        logger.debug(
-            " -> groups: %d (parsed in %0.4f seconds)"
-            % (len(Groups) + len(CMELEM), time_groups)
+            " -> groups: %d (parsed in %0.4f seconds)" % (len(Groups) + len(CMELEM), time_groups)
         )
 
         logger.debug(" Mesh name : %s" % self.mesh_name)
@@ -894,14 +871,7 @@ class MedConverterAnsys(MedConverterMesh):
             element_ansys_type = ElemAnsys[cell.type]
             # some trick for few cells (remove last node)
             element_ansys_test = str(element_ansys_type) + "_" + str(len(cell.nodes))
-            if element_ansys_test in (
-                "16_3",
-                "18_3",
-                "188_3",
-                "189_4",
-                "288_3",
-                "289_4",
-            ):
+            if element_ansys_test in ("16_3", "18_3", "188_3", "189_4", "288_3", "289_4"):
                 nb_nodes = len(cell.nodes) - 1
                 # logger.debug("Présence de noeuds orphelins")
             else:
@@ -909,27 +879,18 @@ class MedConverterAnsys(MedConverterMesh):
 
             if "189" in element_ansys_test and convert == True:
                 nb_nodes = nb_nodes - 1
-                logger.debug(
-                    "Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2"
-                )
+                logger.debug("Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2")
                 del cell.nodes[2]
 
             # add cell in medcoupling format
-            if (
-                cell.type in ElemOpt
-                and ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)]
-            ):
-                element_group_type = (
-                    str(element_ansys_type) + "_" + str(ElemOpt[cell.type][1])
-                )
+            if cell.type in ElemOpt and ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)]:
+                element_group_type = str(element_ansys_type) + "_" + str(ElemOpt[cell.type][1])
             else:
                 element_group_type = str(element_ansys_type)
             if nb_nodes == 3:
                 element_group_type = element_group_type + "_" + str(nb_nodes)
             if element_group_type == "180":
-                element_group_type = (
-                    element_group_type + "_" + str(Sect[cell.sec].option)
-                )
+                element_group_type = element_group_type + "_" + str(Sect[cell.sec].option)
             try:
                 element_group = dicoMod[element_group_type]
             except (ValueError, TypeError):
@@ -940,23 +901,14 @@ class MedConverterAnsys(MedConverterMesh):
 
             if element_ansys_type == 200:
                 element_ansys_type = "_".join(
-                    map(
-                        str,
-                        (
-                            element_ansys_type,
-                            len(elements_nodes_ansys),
-                            ElemOpt[cell.type][1],
-                        ),
-                    )
+                    map(str, (element_ansys_type, len(elements_nodes_ansys), ElemOpt[cell.type][1]))
                 )
             else:
                 element_ansys_type = "_".join(
                     map(str, (element_ansys_type, len(elements_nodes_ansys)))
                 )
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(
-                element_ansys_type
-            )
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_ansys_type)
             element_nodes_med = c_renum.external_to_medcoupling(
                 element_medcoupling_type, elements_nodes_ansys
             )
@@ -971,9 +923,7 @@ class MedConverterAnsys(MedConverterMesh):
                     dicoKeyword[element_group[4:]] == "DISCRET"
                     or dicoKeyword[element_group[4:]] == "DISCRET_2D"
                 ):
-                    const_index = np.where(
-                        (const == RealConst[cell.const][0:]).all(axis=1)
-                    )
+                    const_index = np.where((const == RealConst[cell.const][0:]).all(axis=1))
                     if len(const_index[0]) > 0:
                         const_id = const_index[0][0]
                     else:
@@ -991,19 +941,11 @@ class MedConverterAnsys(MedConverterMesh):
                         )
                     elif ElemAnsys[cell.type] in (21, 166) and cell.type not in ElemOpt:
                         namegroupelem = (
-                            namegroupelem
-                            + "-"
-                            + str(cell.rep)
-                            + "-"
-                            + str(const_id)
-                            + "-M0"
+                            namegroupelem + "-" + str(cell.rep) + "-" + str(const_id) + "-M0"
                         )
                     elif ElemAnsys[cell.type] == 14:
                         if cell.type in ElemOpt:
-                            if (
-                                ElemOpt[cell.type][0] == 2
-                                and ElemOpt[cell.type][1] == 1
-                            ):
+                            if ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 1:
                                 namegroupelem = (
                                     namegroupelem
                                     + "-"
@@ -1012,10 +954,7 @@ class MedConverterAnsys(MedConverterMesh):
                                     + str(const_id)
                                     + "-Kx"
                                 )
-                            elif (
-                                ElemOpt[cell.type][0] == 2
-                                and ElemOpt[cell.type][1] == 2
-                            ):
+                            elif ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 2:
                                 namegroupelem = (
                                     namegroupelem
                                     + "-"
@@ -1024,10 +963,7 @@ class MedConverterAnsys(MedConverterMesh):
                                     + str(const_id)
                                     + "-Ky"
                                 )
-                            elif (
-                                ElemOpt[cell.type][0] == 2
-                                and ElemOpt[cell.type][1] == 3
-                            ):
+                            elif ElemOpt[cell.type][0] == 2 and ElemOpt[cell.type][1] == 3:
                                 namegroupelem = (
                                     namegroupelem
                                     + "-"
@@ -1088,9 +1024,7 @@ class MedConverterAnsys(MedConverterMesh):
 
                         index_orien = np.where((Orien_coque == vale_c).all(axis=1))
                         index2_orien = np.where(
-                            (
-                                np.cross(Orien_coque[1:], vale_c) == [[0.0, 0.0, 0.0]]
-                            ).all(axis=1)
+                            (np.cross(Orien_coque[1:], vale_c) == [[0.0, 0.0, 0.0]]).all(axis=1)
                         )
                         if len(index_orien[0]) > 0:
                             id_orien = index_orien[0][0]
@@ -1104,9 +1038,7 @@ class MedConverterAnsys(MedConverterMesh):
 
                 # Orientation des poutres à partir du noeud optionnel
                 elif dicoKeyword[element_group[4:]] == "POUTRE":
-                    namegroupelem = (
-                        namegroupelem + "-" + str(cell.rep) + "-" + str(cell.sec)
-                    )
+                    namegroupelem = namegroupelem + "-" + str(cell.rep) + "-" + str(cell.sec)
 
                     if element_ansys_test in ("188_3", "189_4", "288_3", "289_4"):
                         I = np.array(nodes[cell.nodes[0]])
@@ -1122,9 +1054,7 @@ class MedConverterAnsys(MedConverterMesh):
 
                         unit_z_glob_proj = z_glob_proj / np.linalg.norm(z_glob_proj)
                         unit_z_loc = z_loc / np.linalg.norm(z_loc)
-                        angle = np.degrees(
-                            np.arccos(np.dot(unit_z_glob_proj, unit_z_loc))
-                        )
+                        angle = np.degrees(np.arccos(np.dot(unit_z_glob_proj, unit_z_loc)))
 
                         id_orien = len(Ang_vrille_poutre)
                         Ang_vrille_poutre.append(angle)
@@ -1185,10 +1115,7 @@ class MedConverterAnsys(MedConverterMesh):
             self.add_group_cells(rname, GROUPSMODELE[group])
 
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d groups (in %0.4f seconds)"
-            % (len(Groups) + len(CMELEM), toc - tic)
-        )
+        logger.debug(" Load %d groups (in %0.4f seconds)" % (len(Groups) + len(CMELEM), toc - tic))
 
         # Recuperation des informations de la mise en donnees pour la creation du fichier de commandes
         self._structural_data_read = (
@@ -1209,9 +1136,7 @@ class MedConverterAnsys(MedConverterMesh):
     def getCoor(self, line, firstStr, longFloat):
         # le premier decimal commence a la colonne firstStrg
         rline = line.rstrip()[firstStr:]
-        elems = [
-            float(rline[i : i + longFloat]) for i in range(0, len(rline), longFloat)
-        ]
+        elems = [float(rline[i : i + longFloat]) for i in range(0, len(rline), longFloat)]
 
         nbElem = len(elems)
 
@@ -1245,9 +1170,7 @@ class MedConverterAnsys(MedConverterMesh):
             elif strip_line.startswith("-1"):
                 break
             else:
-                enum = [
-                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
-                ]
+                enum = [int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)]
                 assert len(enum) <= nbElem
 
                 if l_new_cell:
@@ -1282,9 +1205,7 @@ class MedConverterAnsys(MedConverterMesh):
             if strip_line.startswith("("):
                 nbElem, LongInt = self.cell_format(strip_line)
             else:
-                elems += [
-                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
-                ]
+                elems += [int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)]
 
                 if len(elems) == nb_elem:
                     Groups.append(AnsysGroup(gname, gtype, elems))
@@ -1492,18 +1413,9 @@ class MedConverterAnsys(MedConverterMesh):
                     orientation.append("{:>35}_F(GROUP_MA='{}', ".format(" ", rname))
                 if rep_global == 0 and len(sname) > 4:
                     k = int(sname[4])
-                    if Sect[int(sname[3])].subtype in (
-                        "I",
-                        "L",
-                        "T",
-                        "Z",
-                        "CHAN",
-                        "HATS",
-                    ):
+                    if Sect[int(sname[3])].subtype in ("I", "L", "T", "Z", "CHAN", "HATS"):
                         name = Sect[int(sname[3])].subtype + "_" + str(int(sname[3]))
-                        tag_sect = "CARA_{}.EXTR_TABLE().values()['ALPHA'][0]".format(
-                            name
-                        )
+                        tag_sect = "CARA_{}.EXTR_TABLE().values()['ALPHA'][0]".format(name)
                         orientation.append(
                             "CARA='ANGL_VRIL', VALE={} + {},),\n".format(
                                 ang_vril_poutre[k], tag_sect
@@ -1514,9 +1426,7 @@ class MedConverterAnsys(MedConverterMesh):
                             "CARA='ANGL_VRIL', VALE={},),\n".format(ang_vril_poutre[k])
                         )
 
-                elif i in Rep and (
-                    Rep[i].type == "LOCAL" or Rep[i] == "CLOCAL" or i == rep_global
-                ):
+                elif i in Rep and (Rep[i].type == "LOCAL" or Rep[i] == "CLOCAL" or i == rep_global):
                     orientation.append(
                         "CARA='ANGL_VRIL', VALE={},),\n".format(Rep[i].getRep(nodes)[1])
                     )
@@ -1538,17 +1448,11 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write("{:>31}_F(GROUP_MA='{}', ".format(" ", rname))
                 idx = int(sname[3])
                 if sname[4] == "Kx":
-                    f.write(
-                        "CARA='K_T_D_L', VALE={}, ".format((const[idx][0], 0.0, 0.0))
-                    )
+                    f.write("CARA='K_T_D_L', VALE={}, ".format((const[idx][0], 0.0, 0.0)))
                 elif sname[4] == "Ky":
-                    f.write(
-                        "CARA='K_T_D_L', VALE={}, ".format((0.0, const[idx][0], 0.0))
-                    )
+                    f.write("CARA='K_T_D_L', VALE={}, ".format((0.0, const[idx][0], 0.0)))
                 elif sname[4] == "Kz":
-                    f.write(
-                        "CARA='K_T_D_L', VALE={}, ".format((0.0, 0.0, const[idx][0]))
-                    )
+                    f.write("CARA='K_T_D_L', VALE={}, ".format((0.0, 0.0, const[idx][0])))
                 elif sname[4] == "KxKyKz":
                     f.write(
                         "CARA='K_T_D_L', VALE={}, ".format(
@@ -1593,17 +1497,13 @@ class MedConverterAnsys(MedConverterMesh):
                         orientation.append("_F(GROUP_MA='{}' ,".format(rname))
                         flag[7] = True
                     else:
-                        orientation.append(
-                            "{:>34}_F(GROUP_MA='{}' ,".format(" ", rname)
-                        )
+                        orientation.append("{:>34}_F(GROUP_MA='{}' ,".format(" ", rname))
                     i = int(sname[2])
                     if i in Rep and (
                         Rep[i].type == "LOCAL" or Rep[i] == "CLOCAL" or i == rep_global
                     ):
                         orientation.append(
-                            "CARA='ANGL_NAUT', VALE={},),\n".format(
-                                Rep[i].getRep(nodes)
-                            )
+                            "CARA='ANGL_NAUT', VALE={},),\n".format(Rep[i].getRep(nodes))
                         )
                     elif i in Rep and (Rep[i].type == "CS"):
                         orientation.append(
@@ -1622,13 +1522,9 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write("{0:>35}_F(GROUP_MA='{1}', ".format(" ", rname))
                 idx = int(sname[3])
                 if sname[4] == "Kx":
-                    f.write(
-                        "CARA='K_T_D_L', VALE=({0}, {1}), ".format(const[idx][0], 0.0)
-                    )
+                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format(const[idx][0], 0.0))
                 elif sname[4] == "Ky":
-                    f.write(
-                        "CARA='K_T_D_L', VALE=({0}, {1}), ".format(0.0, const[idx][0])
-                    )
+                    f.write("CARA='K_T_D_L', VALE=({0}, {1}), ".format(0.0, const[idx][0]))
                 elif sname[4] == "M4":
                     f.write("CARA='M_T_D_N', VALE={0}, ".format(const[idx][0]))
                 elif sname[4] == "M3":
@@ -1650,17 +1546,13 @@ class MedConverterAnsys(MedConverterMesh):
                         orientation.append("_F(GROUP_MA='{}', ".format(rname))
                         flag[7] = True
                     else:
-                        orientation.append(
-                            "{0:>35}_F(GROUP_MA='{1}', ".format(" ", rname)
-                        )
+                        orientation.append("{0:>35}_F(GROUP_MA='{1}', ".format(" ", rname))
                     i = int(sname[2])
                     if i in Rep and (
                         Rep[i].type == "LOCAL" or Rep[i] == "CLOCAL" or i == rep_global
                     ):
                         orientation.append(
-                            "CARA='ANGL_NAUT', VALE={},),\n".format(
-                                Rep[i].getRep(nodes)
-                            )
+                            "CARA='ANGL_NAUT', VALE={},),\n".format(Rep[i].getRep(nodes))
                         )
                     elif i in Rep and (Rep[i].type == "CS"):
                         orientation.append(
@@ -1676,11 +1568,7 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write("{0:>29}_F(GROUP_MA='{1}', ".format(" ", rname))
                 i = int(sname[2])
                 if i in Sect:
-                    f.write(
-                        "SECTION='GENERALE', CARA='A', VALE={}),\n".format(
-                            Sect[i].getAire()
-                        )
-                    )
+                    f.write("SECTION='GENERALE', CARA='A', VALE={}),\n".format(Sect[i].getAire()))
 
             elif dicoKeyword[sname[1]] is "CABLE":
                 if flag[5] == False:
@@ -1698,17 +1586,11 @@ class MedConverterAnsys(MedConverterMesh):
                     present = False
                     for c, v in tension_init.items():
                         if int(sname[3]) == v:
-                            f.write(
-                                "SECTION={0}, N_INIT={1}),\n".format(
-                                    Sect[i].getAire(), c
-                                )
-                            )
+                            f.write("SECTION={0}, N_INIT={1}),\n".format(Sect[i].getAire(), c))
                             present = True
                             break
                     if present == False:
-                        f.write(
-                            "SECTION={0}, N_INIT={1}),\n".format(Sect[i].getAire(), 0.0)
-                        )
+                        f.write("SECTION={0}, N_INIT={1}),\n".format(Sect[i].getAire(), 0.0))
 
             elif dicoKeyword[sname[1]] is "MASSIF":
                 i = int(sname[2])
@@ -1725,9 +1607,7 @@ class MedConverterAnsys(MedConverterMesh):
                     f.write(" ANGL_EULER=(0, 0, 0),)\n")
                 else:
                     if i in Rep and (
-                        Rep[i].type == "LOCAL"
-                        or Rep[i].type == "CLOCAL"
-                        or i == rep_global
+                        Rep[i].type == "LOCAL" or Rep[i].type == "CLOCAL" or i == rep_global
                     ):
                         f.write(" ANGL_EULER={},),\n".format(Rep[i].getRep(nodes)))
                     elif i in Rep and (Rep[i].type == "CS"):
@@ -1829,9 +1709,7 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         )
                     )
 
-            f.write(
-                "MA=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{0}')\n".format(self.mesh_name)
-            )
+            f.write("MA=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{0}')\n".format(self.mesh_name))
 
             for name in groupname:
 
@@ -1843,11 +1721,7 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                     coque = True
                 else:
                     if sname[0][0] == "M" and flag[0] == False:
-                        f.write(
-                            "MO_MECA=AFFE_MODELE(MAILLAGE=MA,\n{0:>20}AFFE=(\n".format(
-                                " "
-                            )
-                        )
+                        f.write("MO_MECA=AFFE_MODELE(MAILLAGE=MA,\n{0:>20}AFFE=(\n".format(" "))
                         flag[0] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n{0:>28}PHENOMENE='MECANIQUE',\
@@ -1866,11 +1740,7 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         meca_name.append(name)
 
                     elif sname[0][0] == "T" and flag[1] == False:
-                        f.write(
-                            "MO_THER = AFFE_MODELE(MAILLAGE=MA,\n{0:>15}AFFE=(\n".format(
-                                " "
-                            )
-                        )
+                        f.write("MO_THER = AFFE_MODELE(MAILLAGE=MA,\n{0:>15}AFFE=(\n".format(" "))
                         flag[1] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n{0:>28}PHENOMENE='THERMIQUE',\
@@ -1889,11 +1759,7 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         ther_name.append(name)
 
                     elif sname[0][0] == "A" and flag[2] == False:
-                        f.write(
-                            "MO_ACOU = AFFE_MODELE(MAILLAGE=MA,\n{0:>15}AFFE=(\n".format(
-                                " "
-                            )
-                        )
+                        f.write("MO_ACOU = AFFE_MODELE(MAILLAGE=MA,\n{0:>15}AFFE=(\n".format(" "))
                         flag[1] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n {0:>28}PHENOMENE='ACOUSTIQUE',\
@@ -2062,19 +1928,12 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
             Rect2 = geompy.MakeFaceHW(data[7], data[3], 1)
             geompy.TranslateDXDYDZ(Rect2, data[0] - data[7] / 2, data[3] / 2, 0)
             Rect3 = geompy.MakeFaceHW(data[2], data[6], 1)
-            geompy.TranslateDXDYDZ(
-                Rect3, data[0] + data[2] / 2 - data[7], data[3] - data[6] / 2, 0
-            )
+            geompy.TranslateDXDYDZ(Rect3, data[0] + data[2] / 2 - data[7], data[3] - data[6] / 2, 0)
             Rect4 = geompy.MakeFaceHW(data[8], data[3], 1)
-            geompy.TranslateDXDYDZ(
-                Rect4, data[0] + data[2] - data[7] - data[8] / 2, data[3] / 2, 0
-            )
+            geompy.TranslateDXDYDZ(Rect4, data[0] + data[2] - data[7] - data[8] / 2, data[3] / 2, 0)
             Rect5 = geompy.MakeFaceHW(data[1], data[5], 1)
             geompy.TranslateDXDYDZ(
-                Rect5,
-                data[0] + data[2] - data[7] - data[8] + data[1] / 2,
-                data[4] / 2,
-                0,
+                Rect5, data[0] + data[2] - data[7] - data[8] + data[1] / 2, data[4] / 2, 0
             )
 
             Fuse1 = geompy.MakeFuse(Rect1, Rect2, True, True)
@@ -2114,12 +1973,7 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
 
         try:
             mesh.ExportMED(
-                medfile,
-                auto_groups=0,
-                minor=40,
-                overwrite=0,
-                meshPart=None,
-                autoDimension=1,
+                medfile, auto_groups=0, minor=40, overwrite=0, meshPart=None, autoDimension=1
             )
             pass
         except:

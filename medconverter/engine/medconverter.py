@@ -139,11 +139,7 @@ class MedConverterMesh:
     def _check_group_name(self, name):
         MED_LNAME_SIZE = 80
         if len(name) > MED_LNAME_SIZE:
-            msg = "Group name '%s' is too long %d>%d" % (
-                name,
-                len(name),
-                MED_LNAME_SIZE,
-            )
+            msg = "Group name '%s' is too long %d>%d" % (name, len(name), MED_LNAME_SIZE)
             raise MedConverterError(msg)
 
     def add_node(self, idx, coords):
@@ -152,9 +148,7 @@ class MedConverterMesh:
 
     def add_cell(self, idx, medcoupling_cell_type, cell_nodes):
 
-        cell_dim = medcoupling.MEDCouplingUMesh.GetDimensionOfGeometricType(
-            medcoupling_cell_type
-        )
+        cell_dim = medcoupling.MEDCouplingUMesh.GetDimensionOfGeometricType(medcoupling_cell_type)
         cell_nodes_med = tuple(self._corresponding_nodes[k] for k in cell_nodes)
 
         key = "%dD" % cell_dim
@@ -169,9 +163,7 @@ class MedConverterMesh:
 
     def add_group_nodes(self, group_name, group_nodes):
         self._check_group_name(group_name)
-        self.groups_n[group_name] = tuple(
-            self._corresponding_nodes[k] for k in group_nodes
-        )
+        self.groups_n[group_name] = tuple(self._corresponding_nodes[k] for k in group_nodes)
 
     def add_group_cells(self, group_name, group_cells):
         self._check_group_name(group_name)
@@ -182,9 +174,7 @@ class MedConverterMesh:
                         self.groups_e[dim] = {}
                     if not group_name in self.groups_e[dim]:
                         self.groups_e[dim][group_name] = []
-                    self.groups_e[dim][group_name].append(
-                        self._corresponding_cells[dim][cell]
-                    )
+                    self.groups_e[dim][group_name].append(self._corresponding_cells[dim][cell])
 
     def _make_continuous(self):
 
@@ -193,13 +183,8 @@ class MedConverterMesh:
 
         cells_shift = 0  # Variable pour la creation d'une numérotation globale
         for dim in sorted(self.cells.keys())[::-1]:
-            for j, (medcoupling_cell_type, element_nodes_med) in enumerate(
-                self.cells[dim]
-            ):
-                self.cells_continuous[cells_shift + j] = (
-                    medcoupling_cell_type,
-                    element_nodes_med,
-                )
+            for j, (medcoupling_cell_type, element_nodes_med) in enumerate(self.cells[dim]):
+                self.cells_continuous[cells_shift + j] = (medcoupling_cell_type, element_nodes_med)
 
             for group, values in self.groups_e[dim].items():
                 if group in self.groups_e_continuous:
@@ -221,9 +206,7 @@ class MedConverterMesh:
         self.space_dim = self.medmesh.getSpaceDimension()
         toc = time.perf_counter()
 
-        logger.debug(
-            " File name : %s (loaded in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug(" File name : %s (loaded in %0.4f seconds)" % (filename, toc - tic))
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
@@ -244,14 +227,10 @@ class MedConverterMesh:
             j = 0  # Variable pour conter le nombre d'elements par niveau
             types_at_level = mesh_lev.getAllGeoTypesSorted()
             for medcoupling_cell_type in types_at_level:
-                cells_by_type = mesh_lev.giveCellsWithType(
-                    medcoupling_cell_type
-                ).getValues()
+                cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
                 for cell in cells_by_type:
                     element_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
-                    self.add_cell(
-                        cells_shift + j, medcoupling_cell_type, element_nodes_med
-                    )
+                    self.add_cell(cells_shift + j, medcoupling_cell_type, element_nodes_med)
                     self.cells_continuous[cells_shift + j] = (
                         medcoupling_cell_type,
                         element_nodes_med,
@@ -297,9 +276,7 @@ class MedConverterMesh:
         tic = time.perf_counter()
         self.medmesh.write(filename, 2)
         toc = time.perf_counter()
-        logger.debug(
-            "Write MED mesh file : %s (in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug("Write MED mesh file : %s (in %0.4f seconds)" % (filename, toc - tic))
 
     def create_med_mesh(self):
 
@@ -314,9 +291,7 @@ class MedConverterMesh:
             logger.debug(" Level : %d" % level)
 
             tic = time.perf_counter()
-            mesh_at_current_level = medcoupling.MEDCouplingUMesh(
-                self.mesh_name, int(dim[0])
-            )
+            mesh_at_current_level = medcoupling.MEDCouplingUMesh(self.mesh_name, int(dim[0]))
             mesh_at_current_level.setCoords(coords)
             number_of_elements_at_level = len(self.cells[dim])
             mesh_at_current_level.allocateCells(number_of_elements_at_level)
@@ -327,9 +302,7 @@ class MedConverterMesh:
             # Elements par niveau, avec renumerotation au passage
             for (medcoupling_type, element_nodes_med) in self.cells[dim]:
                 number_of_nodes_current_element = (
-                    medcoupling.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(
-                        medcoupling_type
-                    )
+                    medcoupling.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
                 )
                 mesh_at_current_level.insertNextCell(
                     medcoupling_type, number_of_nodes_current_element, element_nodes_med
@@ -341,8 +314,7 @@ class MedConverterMesh:
             self.medmesh.setMeshAtLevel(level, mesh_at_current_level)
             toc = time.perf_counter()
             logger.debug(
-                "  Add %d elements (in %0.4f seconds)"
-                % (number_of_elements_at_level, toc - tic)
+                "  Add %d elements (in %0.4f seconds)" % (number_of_elements_at_level, toc - tic)
             )
             tic = time.perf_counter()
 
@@ -372,15 +344,12 @@ class MedConverterMesh:
             group_medcoupling = medcoupling.DataArrayInt(group_nodes)
             group_medcoupling.setName(group_name.strip('"').strip("'"))
             groups_n_at_level.append(group_medcoupling)
-        self.medmesh.setGroupsAtLevel(
-            1, groups_n_at_level
-        )  # Groupes de noeuds au niveau 1
+        self.medmesh.setGroupsAtLevel(1, groups_n_at_level)  # Groupes de noeuds au niveau 1
         self.medmesh.setName(self.mesh_name)
         toc = time.perf_counter()
         logger.debug(" Level : 1")
         logger.debug(
-            "  Add %d groups of nodes (in %0.4f seconds)"
-            % (len(groups_n_at_level), toc - tic)
+            "  Add %d groups of nodes (in %0.4f seconds)" % (len(groups_n_at_level), toc - tic)
         )
 
         tic = time.perf_counter()

@@ -108,6 +108,7 @@ class MainDialog(BASE, FORM):
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
         self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
+        self.skipTypesEdit.setText(",".join(settings.skip_types))
 
     def to_settings(self):
         """
@@ -122,6 +123,7 @@ class MainDialog(BASE, FORM):
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
         settings.input_format = Fmt.get(self.inFormatBox.currentText())
+        settings.skip_types = self.skipTypesEdit.text().split(",")
 
         return settings
 
@@ -161,12 +163,19 @@ class MainDialog(BASE, FORM):
             else None
         )
 
+        skip_types = (
+            settings.skip_types
+            if (self.skipTypesCheckBox.isEnabled() and self.skipTypesCheckBox.isChecked())
+            else []
+        )
+
         is_ok, err = convert(
             settings.input_file,
             settings.input_format,
             settings.output_file,
             settings.output_format,
             output_comm,
+            skip_types,
             verbose,
         )
         self.setStatus("")
@@ -212,6 +221,10 @@ class MainDialog(BASE, FORM):
         self.outCommButton.setEnabled(enable_comm)
         self.outCommCheckBox.setEnabled(enable_comm)
         self.outCommLineEdit.setEnabled(enable_comm)
+
+        enable_skiptypes = settings.input_format in (Fmt.Systus,)
+        self.skipTypesCheckBox.setEnabled(enable_skiptypes)
+        self.skipTypesEdit.setEnabled(enable_skiptypes)
 
     def is_valid(self):
         """Tell if the settings are valid, the conversion can be launched.

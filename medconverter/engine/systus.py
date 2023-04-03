@@ -17,23 +17,19 @@ SYSTUS_CELLS_SHIFT = 1  # La numérotation SYSTUS des élements démarre à 1
 
 class MedConverterSystus(MedConverterMesh):
     @staticmethod
-    def convert_systus_to_med(
-        filename_systus, filename_med, output_comm, verbose=False
-    ):
+    def convert_systus_to_med(filename_systus, filename_med, skip_types, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterSystus()
         c.verbose = verbose
-        c.read_systus_mesh(filename_systus)
+        c.read_systus_mesh(filename_systus, skip_types)
         c.create_med_mesh()
         c.write_med_mesh(filename_med)
         toc = time.perf_counter()
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_systus(
-        filename_med, filename_systus, output_comm, verbose=False
-    ):
+    def convert_med_to_systus(filename_med, filename_systus, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterSystus()
@@ -48,7 +44,7 @@ class MedConverterSystus(MedConverterMesh):
         super(MedConverterSystus, self).__init__()
         self.systusmesh = None
 
-    def read_systus_mesh(self, filename):
+    def read_systus_mesh(self, filename, skip_types=[]):
         logger.debug("Read SYSTUS mesh.")
 
         self._reset_structures()
@@ -96,9 +92,7 @@ class MedConverterSystus(MedConverterMesh):
                     flag["GROUPS"] = 0
 
         toc = time.perf_counter()
-        logger.debug(
-            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
@@ -115,29 +109,33 @@ class MedConverterSystus(MedConverterMesh):
         # Les elements
         e_conv = CellsTypeConverter("SYSTUS")
         c_renum = ConnectivityRenumberer("SYSTUS")
+        skipped = 0
 
         tic = time.perf_counter()
         for line in ELEMENTS[:-1]:
             spline = line.split()
             idx_element_systus = int(spline[0])
             element_systus_type = "%04d" % int(spline[1])
+
+            # Skip some type of cells:
+            if element_systus_type in skip_types:
+                skipped += 1
+                continue
+
             elements_nodes_systus = tuple(map(int, spline[5:]))
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(
-                element_systus_type
-            )
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_systus_type)
             element_nodes_med = c_renum.external_to_medcoupling(
                 element_medcoupling_type, elements_nodes_systus
             )
 
-            self.add_cell(
-                idx_element_systus, element_medcoupling_type, element_nodes_med
-            )
+            self.add_cell(idx_element_systus, element_medcoupling_type, element_nodes_med)
 
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 1, toc - tic)
-        )
+
+        logger.debug(" Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 1 - skipped, toc - tic))
+        if skipped:
+            logger.debug(" Skip %d cells" % skipped)
 
         tic = time.perf_counter()
         # Les groups
@@ -152,18 +150,14 @@ class MedConverterSystus(MedConverterMesh):
             else:
                 self.add_group_cells(group_name, values)
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d groups (in %0.4f seconds)" % (len(GROUPS) - 1, toc - tic)
-        )
+        logger.debug(" Load %d groups (in %0.4f seconds)" % (len(GROUPS) - 1, toc - tic))
 
     def write_systus_mesh(self, filename):
         tic = time.perf_counter()
         with open(filename, "w") as f:
             f.write(self.systusmesh)
         toc = time.perf_counter()
-        logger.debug(
-            "Write SYSTUS mesh file : %s (in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug("Write SYSTUS mesh file : %s (in %0.4f seconds)" % (filename, toc - tic))
 
     def create_systus_mesh(self):
         self.systusmesh = None
@@ -201,9 +195,7 @@ class MedConverterSystus(MedConverterMesh):
         for j, (medcoupling_type, element_nodes_med) in self.cells_continuous.items():
             systus_type = e_conv.medcoupling_to_external(medcoupling_type)
             element_nodes_med = [i + SYSTUS_NODES_SHIFT for i in element_nodes_med]
-            element_nodes_asc = c_renum.medcoupling_to_external(
-                medcoupling_type, element_nodes_med
-            )
+            element_nodes_asc = c_renum.medcoupling_to_external(medcoupling_type, element_nodes_med)
             elements_lines.append(
                 "%d %s 0 0 0 " % (j + SYSTUS_CELLS_SHIFT, systus_type)
                 + " ".join(map(str, element_nodes_asc))

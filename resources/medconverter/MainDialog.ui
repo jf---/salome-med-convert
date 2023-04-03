@@ -324,6 +324,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of cell types ( comma separated ) to skip during conversion. &lt;/p&gt;&lt;p&gt;Types are specified in the origin format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
               </widget>
              </item>
             </layout>

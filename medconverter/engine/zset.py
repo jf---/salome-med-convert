@@ -19,7 +19,7 @@ ZSET_CELLS_SHIFT = 1  # La numérotation ZSET des élements démarre à 1
 
 class MedConverterZset(MedConverterMesh):
     @staticmethod
-    def convert_zset_to_med(filename_zset, filename_med, output_comm, verbose=False):
+    def convert_zset_to_med(filename_zset, filename_med, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterZset()
@@ -31,7 +31,7 @@ class MedConverterZset(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_zset(filename_med, filename_zset, output_comm, verbose=False):
+    def convert_med_to_zset(filename_med, filename_zset, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterZset()
@@ -85,9 +85,7 @@ class MedConverterZset(MedConverterMesh):
         nb_elements = int(ELEMENTS[0].split()[0])
         toc = time.perf_counter()
 
-        logger.debug(
-            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug(" File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic))
         logger.debug(" Mesh name : %s" % self.mesh_name)
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
@@ -121,9 +119,7 @@ class MedConverterZset(MedConverterMesh):
             self.add_cell(idx_element_zset, element_medcoupling_type, element_nodes_med)
 
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 2, toc - tic)
-        )
+        logger.debug(" Load %d cells (in %0.4f seconds)" % (len(ELEMENTS) - 2, toc - tic))
 
         # Les groupes
         tic = time.perf_counter()
@@ -155,9 +151,7 @@ class MedConverterZset(MedConverterMesh):
             values = (int(i) for line in items for i in line)
             self.add_group_cells(group_name, values)
         toc = time.perf_counter()
-        logger.debug(
-            " Add %d elset (in %0.4f seconds)" % (len(cells_groups), toc - tic)
-        )
+        logger.debug(" Add %d elset (in %0.4f seconds)" % (len(cells_groups), toc - tic))
 
         tic = time.perf_counter()
         faset = groups.get("faset", {})
@@ -174,9 +168,7 @@ class MedConverterZset(MedConverterMesh):
         logger.debug(" Add %d liset (in %0.4f seconds)" % (len(liset), toc - tic))
 
     def _add_bset(self, bset_name, bset_items, g_conv, c_renum):
-        max_idx_elements = max(
-            i for dim in self.corresponding_cells.values() for i in dim
-        )
+        max_idx_elements = max(i for dim in self.corresponding_cells.values() for i in dim)
         values = []
         for i, spline in enumerate((j for j in bset_items if bool(j))):
             idx_element_zset = max_idx_elements + i + 1
@@ -197,9 +189,7 @@ class MedConverterZset(MedConverterMesh):
         with open(filename, "w") as f:
             f.write(self.zsetmesh)
         toc = time.perf_counter()
-        logger.debug(
-            "Write ZSET mesh file : %s (in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug("Write ZSET mesh file : %s (in %0.4f seconds)" % (filename, toc - tic))
 
     def create_zset_mesh(self):
         self.zsetmesh = None
@@ -211,8 +201,7 @@ class MedConverterZset(MedConverterMesh):
         nb_nodes = len(self.nodes)
         frmt = " ".join(["{:.15e}"] * self.space_dim)
         nodes_lines = (
-            "%d " % (i + ZSET_NODES_SHIFT) + frmt.format(*node)
-            for i, node in enumerate(self.nodes)
+            "%d " % (i + ZSET_NODES_SHIFT) + frmt.format(*node) for i, node in enumerate(self.nodes)
         )
         toc = time.perf_counter()
         logger.debug(" Add %d nodes (in %0.4f seconds)" % (nb_nodes, toc - tic))
@@ -223,9 +212,7 @@ class MedConverterZset(MedConverterMesh):
 
         elements_lines = []
         tic = time.perf_counter()
-        for j, (medcoupling_type, element_nodes_med) in enumerate(
-            self.cells[self.max_dim_cells]
-        ):
+        for j, (medcoupling_type, element_nodes_med) in enumerate(self.cells[self.max_dim_cells]):
             zset_type = e_conv.medcoupling_to_external(medcoupling_type)
             element_nodes_med = [i + ZSET_NODES_SHIFT for i in element_nodes_med]
             element_nodes_geof = c_renum.medcoupling_to_external(
@@ -248,9 +235,7 @@ class MedConverterZset(MedConverterMesh):
             for chunck in chunks(ids, ZSET_MAX_LINE_SIZE):
                 groups_lines.append(" %s" % (" ".join(map(str, chunck))))
         toc = time.perf_counter()
-        logger.debug(
-            " Add %d nset (in %0.4f seconds)" % (len(self.groups_n), toc - tic)
-        )
+        logger.debug(" Add %d nset (in %0.4f seconds)" % (len(self.groups_n), toc - tic))
 
         tic = time.perf_counter()
         elset = self.groups_e.get(self.max_dim_cells, {})
@@ -274,9 +259,7 @@ class MedConverterZset(MedConverterMesh):
                 element_nodes_geof = c_renum.medcoupling_to_external(
                     medcoupling_type, element_nodes_med
                 )
-                groups_lines.append(
-                    "%s  " % zset_type + " ".join(map(str, element_nodes_geof))
-                )
+                groups_lines.append("%s  " % zset_type + " ".join(map(str, element_nodes_geof)))
             groups_lines.append("")
         toc = time.perf_counter()
         logger.debug(" Add %d liset (in %0.4f seconds)" % (len(liset), toc - tic))
@@ -293,28 +276,17 @@ class MedConverterZset(MedConverterMesh):
                 element_nodes_geof = c_renum.medcoupling_to_external(
                     medcoupling_type, element_nodes_med
                 )
-                groups_lines.append(
-                    "%s  " % zset_type + " ".join(map(str, element_nodes_geof))
-                )
+                groups_lines.append("%s  " % zset_type + " ".join(map(str, element_nodes_geof)))
             groups_lines.append("")
         toc = time.perf_counter()
         logger.debug(" Add %d faset (in %0.4f seconds)" % (len(faset), toc - tic))
 
         tic = time.perf_counter()
         txt_header = "***geometry\n"
-        txt_nodes = "**node\n%d %d\n%s\n" % (
-            nb_nodes,
-            self.space_dim,
-            "\n".join(nodes_lines),
-        )
-        txt_elements = "**element\n%d\n%s\n***group\n" % (
-            nb_elements,
-            "\n".join(elements_lines),
-        )
+        txt_nodes = "**node\n%d %d\n%s\n" % (nb_nodes, self.space_dim, "\n".join(nodes_lines))
+        txt_elements = "**element\n%d\n%s\n***group\n" % (nb_elements, "\n".join(elements_lines))
         txt_groups = "\n".join(groups_lines)
         txt_footer = "\n***return"
-        self.zsetmesh = "".join(
-            (txt_header, txt_nodes, txt_elements, txt_groups, txt_footer)
-        )
+        self.zsetmesh = "".join((txt_header, txt_nodes, txt_elements, txt_groups, txt_footer))
         toc = time.perf_counter()
         logger.debug(" Assembly file (in %0.4f seconds)" % (toc - tic))

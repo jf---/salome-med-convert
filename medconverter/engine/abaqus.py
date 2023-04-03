@@ -51,14 +51,10 @@ class AbaqusElement:
         self.multilevel = multilevel
 
     def __repr__(self):
-        return "<Element> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
+        return "<Element> Id: {0}, Type: {1}, Nodes: {2}".format(self.id, self.type, self.nodes)
 
     def __str__(self):
-        return "<Element> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
+        return "<Element> Id: {0}, Type: {1}, Nodes: {2}".format(self.id, self.type, self.nodes)
 
     def setId(self, elem_id):
         self.id = elem_id
@@ -127,12 +123,7 @@ class AbaqusSurface:
         # for the med conversion after and has no sense
         self.faces = {
             "TRI3": [3, ["B21", 2, [1, 2]], ["B21", 2, [2, 3]], ["B21", 2, [3, 1]]],
-            "TRI6": [
-                3,
-                ["B22", 3, [1, 2, 4]],
-                ["B22", 3, [2, 3, 5]],
-                ["B22", 3, [3, 1, 6]],
-            ],
+            "TRI6": [3, ["B22", 3, [1, 2, 4]], ["B22", 3, [2, 3, 5]], ["B22", 3, [3, 1, 6]]],
             "QUAD4": [
                 4,
                 ["B21", 2, [1, 2]],
@@ -407,9 +398,7 @@ class AbaqusMesh:
     def rotation(self, point, center, matrix_rotation):
         return matrix_rotation @ (np.array(point) - np.array(center)) + np.array(center)
 
-    def geometric_transfo(
-        self, point, translation=None, center=None, matrix_rotation=None
-    ):
+    def geometric_transfo(self, point, translation=None, center=None, matrix_rotation=None):
         if translation is not None:
             transla = self.translation(point, translation)
         else:
@@ -459,9 +448,7 @@ class AbaqusMesh:
         for elem in Elements:
             self.elemsOffset += 1
             if int(elem.getId()) in corresponding_elems:
-                raise KeyError(
-                    "Two elements with identical id: {0}".format(elem.getId())
-                )
+                raise KeyError("Two elements with identical id: {0}".format(elem.getId()))
             else:
                 corresponding_elems[int(elem.getId())] = self.elemsOffset
 
@@ -561,9 +548,7 @@ class AbaqusMesh:
 
                             if self.surfOffset in corresponding_elems:
                                 raise KeyError(
-                                    "Two elements with identical id: {0}".format(
-                                        self.surfOffset
-                                    )
+                                    "Two elements with identical id: {0}".format(self.surfOffset)
                                 )
                             else:
                                 corresponding_elems[self.surfOffset] = self.elemsOffset
@@ -573,9 +558,7 @@ class AbaqusMesh:
                         elemSurf.append(global_id)
 
                 if surfs.getName() in self.ElsetName:
-                    raise KeyError(
-                        "Two surfaces with identical name: {0}".format(surfs.getName())
-                    )
+                    raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
                 self.Elset.append(AbaqusGroup(surfs.getName(), "xxx", False, elemSurf))
             else:
                 logger.debug("Ignore SURFACE keyword")
@@ -613,13 +596,9 @@ class AbaqusMesh:
                     for nume in self.Numbering:
                         if subinstance == nume.getName():
                             if typeGrp == "NSET":
-                                global_id = self.getGlobalId(
-                                    nume.corresponding_nodes, local_id
-                                )
+                                global_id = self.getGlobalId(nume.corresponding_nodes, local_id)
                             elif typeGrp == "ELSET":
-                                global_id = self.getGlobalId(
-                                    nume.corresponding_elems, local_id
-                                )
+                                global_id = self.getGlobalId(nume.corresponding_elems, local_id)
                             else:
                                 raise RuntimeError("Unknown type of group")
 
@@ -662,15 +641,11 @@ class AbaqusMesh:
 
             if typeGrp == "NSET":
                 self.fuseCommonGroup(
-                    self.Nset,
-                    self.NsetName,
-                    AbaqusGroup(name, instance, False, list_item),
+                    self.Nset, self.NsetName, AbaqusGroup(name, instance, False, list_item)
                 )
             elif typeGrp == "ELSET":
                 self.fuseCommonGroup(
-                    self.Elset,
-                    self.ElsetName,
-                    AbaqusGroup(name, instance, False, list_item),
+                    self.Elset, self.ElsetName, AbaqusGroup(name, instance, False, list_item)
                 )
             else:
                 raise RuntimeError("Unknown type of group")
@@ -681,8 +656,7 @@ class AbaqusMesh:
         corresponding_nodes = self.addNodes(Entities.Nodes, translation, rotation_param)
         toc = time.perf_counter()
         logger.debug(
-            "-> Number of nodes : %d (in %0.4f seconds)"
-            % (len(Entities.Nodes), toc - tic)
+            "-> Number of nodes : %d (in %0.4f seconds)" % (len(Entities.Nodes), toc - tic)
         )
 
         tic = time.perf_counter()
@@ -690,16 +664,14 @@ class AbaqusMesh:
         self.addSurface(Entities.Surfaces, Entities.Elset, corresponding_elems)
         toc = time.perf_counter()
         logger.debug(
-            "-> Number of elements : %d (in %0.4f seconds)"
-            % (len(Entities.Elements), toc - tic)
+            "-> Number of elements : %d (in %0.4f seconds)" % (len(Entities.Elements), toc - tic)
         )
 
         tic = time.perf_counter()
         self.addGroups("NSET", Entities.Nset, corresponding_nodes)
         toc = time.perf_counter()
         logger.debug(
-            "-> Number of groups of nodes : %d (in %0.4f seconds)"
-            % (len(Entities.Nset), toc - tic)
+            "-> Number of groups of nodes : %d (in %0.4f seconds)" % (len(Entities.Nset), toc - tic)
         )
 
         tic = time.perf_counter()
@@ -770,9 +742,7 @@ class AbaqusMesh:
 
 class MedConverterAbaqus(MedConverterMesh):
     @staticmethod
-    def convert_abaqus_to_med(
-        filename_abaqus, filename_med, output_comm, verbose=False
-    ):
+    def convert_abaqus_to_med(filename_abaqus, filename_med, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAbaqus()
@@ -784,9 +754,7 @@ class MedConverterAbaqus(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_abaqus(
-        filename_med, filename_abaqus, output_comm, verbose=False
-    ):
+    def convert_med_to_abaqus(filename_med, filename_abaqus, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAbaqus()
@@ -871,16 +839,12 @@ class MedConverterAbaqus(MedConverterMesh):
             element_abaqus_type = elem.getType()
             elements_nodes_abaqus = tuple(map(int, elem.getNodes()))
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(
-                element_abaqus_type
-            )
+            element_medcoupling_type = e_conv.external_to_medcoupling(element_abaqus_type)
             element_nodes_med = c_renum.external_to_medcoupling(
                 element_medcoupling_type, elements_nodes_abaqus
             )
 
-            self.add_cell(
-                idx_element_abaqus, element_medcoupling_type, element_nodes_med
-            )
+            self.add_cell(idx_element_abaqus, element_medcoupling_type, element_nodes_med)
 
         # Les groups
         # Nodes' group
@@ -907,9 +871,7 @@ class MedConverterAbaqus(MedConverterMesh):
             # print(Entities.Nodes)
             self._read_data(file, Entities)
         elif self.line.upper().startswith("*ELEMENT"):
-            self._read_cells(
-                file, Entities.Elements, Entities.Elset, Entities.ElsetName
-            )
+            self._read_cells(file, Entities.Elements, Entities.Elset, Entities.ElsetName)
             # print("Cells")
             # print(Entities.Elements)
             self._read_data(file, Entities)
@@ -940,9 +902,7 @@ class MedConverterAbaqus(MedConverterMesh):
             self._read_data(file, Entities)
         elif self.line.upper().startswith("*NGEN"):
             raise RuntimeError("Keyword not supported: NGEN")
-        elif self.line.upper().startswith(
-            "*NFILL",
-        ):
+        elif self.line.upper().startswith("*NFILL"):
             raise RuntimeError("Keyword not supported: NFILL")
         elif self.line.upper().startswith("*NMAP"):
             raise RuntimeError("Keyword not supported: NMAP")
@@ -1124,9 +1084,7 @@ class MedConverterAbaqus(MedConverterMesh):
             self.line = file.readline()
             return
 
-        logger.debug(
-            "-> Reading Surface : %s (%s)" % (params_map["NAME"], params_map["TYPE"])
-        )
+        logger.debug("-> Reading Surface : %s (%s)" % (params_map["NAME"], params_map["TYPE"]))
 
         elem = []
         # loop on list of elements
@@ -1138,9 +1096,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
             elem.append(self._read_continuous_line(file, ","))
 
-        Surfaces.append(
-            AbaqusSurface(params_map["NAME"], params_map["TYPE"].upper(), elem)
-        )
+        Surfaces.append(AbaqusSurface(params_map["NAME"], params_map["TYPE"].upper(), elem))
 
     def _read_group(self, file, typyeGroup, Group, GroupName):
         # find type of element
@@ -1163,9 +1119,7 @@ class MedConverterAbaqus(MedConverterMesh):
         else:
             instance = ""
 
-        logger.debug(
-            "-> Reading Group: " + params_map[typyeGroup] + " (" + typyeGroup + ")"
-        )
+        logger.debug("-> Reading Group: " + params_map[typyeGroup] + " (" + typyeGroup + ")")
 
         list_item = []
         multilevel = False
@@ -1205,9 +1159,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
                         list_item += [
                             int(n)
-                            for n in range(
-                                int(entries[0]), int(entries[1]) + 1, int(entries[2])
-                            )
+                            for n in range(int(entries[0]), int(entries[1]) + 1, int(entries[2]))
                         ]
                     else:
                         # read directely list of elements
@@ -1320,15 +1272,13 @@ class MedConverterAbaqus(MedConverterMesh):
                 # read translation
                 if not self.line.strip().startswith("*"):
                     Instance.translation = [
-                        float(x.strip())
-                        for x in self.line.strip().rstrip(",").split(",")
+                        float(x.strip()) for x in self.line.strip().rstrip(",").split(",")
                     ]
                     assert len(Instance.translation) == 3
                     self.line = file.readline()
                     if not self.line.strip().startswith("*"):
                         Instance.rotation = [
-                            float(x.strip())
-                            for x in self.line.strip().rstrip(",").split(",")
+                            float(x.strip()) for x in self.line.strip().rstrip(",").split(",")
                         ]
                         assert len(Instance.rotation) == 7
                         self.line = file.readline()
@@ -1386,9 +1336,7 @@ class MedConverterAbaqus(MedConverterMesh):
     def _read_continuous_line(self, file, separator):
 
         # read the line
-        entries = [
-            x.strip() for x in self.line.strip().rstrip(separator).split(separator)
-        ]
+        entries = [x.strip() for x in self.line.strip().rstrip(separator).split(separator)]
 
         # more than one line to read
         if self.line.rstrip().endswith(separator):
