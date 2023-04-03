@@ -81,7 +81,7 @@ if __name__ == "__main__":
         "--dir",
         action="store_true",
         dest="usedir",
-        help="given path are directory ( loop over input items )",
+        help="given path are directories ( loop over input dir items )",
     )
 
     args = mainparser.parse_args()

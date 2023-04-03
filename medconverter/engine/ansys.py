@@ -640,7 +640,7 @@ class MedConverterAnsys(MedConverterMesh):
     @staticmethod
     def convert_ansys_to_med(filename_ansys, filename_med, output_comm, verbose=False):
 
-        convert = output_comm is not None
+        convert = output_comm != ""
         tic = time.perf_counter()
         c = MedConverterAnsys()
         c.verbose = verbose
