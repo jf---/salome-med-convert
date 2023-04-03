@@ -43,11 +43,7 @@ def main(verbose, test=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="increase verbosity"
-    )
-    parser.add_argument(
-        "test", nargs="*", metavar="TEST", help="test(s) to be executed"
-    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="increase verbosity")
+    parser.add_argument("test", nargs="*", metavar="TEST", help="test(s) to be executed")
     args = parser.parse_args()
     main(args.verbose, args.test)

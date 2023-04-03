@@ -674,7 +674,7 @@ class MedConverterAnsys(MedConverterMesh):
 
         self._reset_structures()
         Cells, Groups, groupsName, title = [], [], [], None
-        nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len = (0, 0, 0, 0, 0)
+        (nb_total_nodes, nb_total_cells, last_idx_sec, last_idx_rep, const_len) = (0, 0, 0, 0, 0)
         time_nodes, time_cell, time_groups = (0.0, 0.0, 0.0)
         Esel = []
         ElemEntities = {}
