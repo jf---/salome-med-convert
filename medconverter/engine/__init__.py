@@ -104,6 +104,13 @@ class Fmt:
             Fmt.Zset: (".geof",),
         }.get(format, "Unknown")
 
+    @staticmethod
+    def name_from_extension(ext):
+        for fmt in (Fmt.Salome, Fmt.Aster, Fmt.Systus, Fmt.Abaqus, Fmt.Ansys, Fmt.Zset):
+            if ext in Fmt.extensions(fmt):
+                return Fmt.name(fmt)
+        return "Unknown"
+
 
 def convert(
     input_file,

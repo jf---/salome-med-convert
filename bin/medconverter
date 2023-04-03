@@ -4,38 +4,118 @@
 """Main start-up point of *medconverter* plugin's standalone application."""
 
 import argparse
+import pathlib
+import os
+import os.path as osp
 import sys
 import signal
 
-from medconverter import Fmt, convert as convert_engine, start
+from medconverter import (
+    Fmt,
+    convert as convert_engine,
+    start,
+    supported_input_formats,
+    supported_output_formats,
+)
+from medconverter.utilities import create_test_json_file
 
 # Tell SIGINT to perform its default function.
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(usage=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-v", "--verbose", action="store_true", help="print more informations")
-    parser.add_argument("-i", "--input", action="store", dest="input", help="Filename of the mesh to be converted")
-    parser.add_argument("-o", "--output", action="store", dest="output", help="Path to write the MED file to")
-    parser.add_argument("-fi", "--input-format", action="store", dest="finput", help="Input format")
-    parser.add_argument("-fo", "--output-format", action="store", dest="foutput", help="Output format")
-    parser.add_argument("-co", "--output-command", action="store", dest="output_comm", help="Path to write the COMM file to", default=None)
 
-    args = parser.parse_args()
-    if not (args.input or args.output):
-        start()
+    metaparser = argparse.ArgumentParser(add_help=False)
+    metaparser.add_argument("-v", "--verbose", action="store_true", help="print more informations")
+
+    mainparser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    subparsers = mainparser.add_subparsers(help="medconverter functions", dest="command")
+    parser_gui = subparsers.add_parser("gui", help="open the GUI", parents=[metaparser])
+    parser_run = subparsers.add_parser(
+        "run",
+        help="execute the conversion",
+        description="file format is derived from file extension",
+        parents=[metaparser],
+    )
+    parser_json = subparsers.add_parser(
+        "json", help="create JSON file for test", description="input mesh in MED format"
+    )
+
+    parser_run.add_argument("input", action="store", help="input mesh path", type=str)
+    parser_run.add_argument("output", action="store", help="output mesh path", type=str)
+    parser_run.add_argument(
+        "--input-format",
+        action="store",
+        dest="finput",
+        help="input mesh format",
+        choices=[Fmt.name(i) for i in supported_input_formats()],
+    )
+    parser_run.add_argument(
+        "--output-format",
+        action="store",
+        dest="foutput",
+        help="output mesh format",
+        choices=[Fmt.name(i) for i in supported_output_formats()],
+    )
+    parser_run.add_argument(
+        "--skip-types",
+        nargs="*",
+        type=str,
+        dest="skip_types",
+        help="list of cell types (origin format) to skip",
+        default=[],
+    )
+    parser_run.add_argument(
+        "--output-command",
+        action="store",
+        dest="output_comm",
+        help="output command file path <code_aster>",
+        default="",
+    )
+
+    parser_json.add_argument("meshpath", action="store", help="input mesh path")
+    parser_json.add_argument("jsonpath", action="store", help="output json path")
+    parser_json.add_argument(
+        "--dir",
+        action="store_true",
+        dest="usedir",
+        help="given path are directory ( loop over input items )",
+    )
+
+    args = mainparser.parse_args()
+
+    if args.command in ("gui",):
+        start(verbose=args.verbose)
+    elif args.command in ("json",):
+        if args.usedir:
+            os.makedirs(args.jsonpath, exist_ok=True)
+            for item in os.listdir(args.meshpath):
+                fin = osp.join(args.meshpath, item)
+                fout = osp.join(args.jsonpath, "{}.json".format(osp.splitext(item)[0]))
+                create_test_json_file(fin, fout)
+        else:
+            create_test_json_file(args.meshpath, args.jsonpath)
+    elif args.command in ("run",):
+        auto_iformat = args.finput or Fmt.name_from_extension(osp.splitext(args.input)[-1])
+        if auto_iformat == "Unknown":
+            parser_run.error("Cannot derive the input format: use '--input-format'")
+        auto_oformat = args.foutput or Fmt.name_from_extension(osp.splitext(args.output)[-1])
+        if auto_oformat == "Unknown":
+            parser_run.error("Cannot derive the output format: use '--input-format'")
+
+        convert_engine(
+            args.input,
+            Fmt.get(auto_iformat),
+            args.output,
+            Fmt.get(auto_oformat),
+            args.output_comm,
+            args.skip_types,
+            verbose=args.verbose,
+        )
+
     else:
-
-        if not args.input:
-            parser.error("Missing input filename: use '--input'")
-        if not args.output:
-            parser.error("Missing output filename: use '--output'")
-
-        if args.finput and not args.foutput:
-            parser.error("Missing output format: use '--output-format'")
-        if args.foutput and not args.finput:
-            parser.error("Missing input format: use '--input-format'")
-
-        convert_engine(args.input, Fmt.get(args.finput), args.output, Fmt.get(args.foutput), args.output_comm, verbose=args.verbose)
+        mainparser.print_help()
 
     sys.exit(0)

@@ -88,6 +88,7 @@ class MainDialog(BASE, FORM):
 
         # Update state
         self.update_controls()
+        self.verbose = False
 
     def setStatus(self, text, color="#ff0000"):
         """Set the text of the status line.
@@ -156,7 +157,6 @@ class MainDialog(BASE, FORM):
             settings.output_file = tempfile.mkstemp(suffix=".med")[1]
         settings.dump(sys.stdout)
 
-        verbose = int(os.getenv("DEBUG", 0))
         output_comm = (
             settings.output_comm
             if (self.outCommCheckBox.isEnabled() and self.outCommCheckBox.isChecked())
@@ -176,7 +176,7 @@ class MainDialog(BASE, FORM):
             settings.output_format,
             output_comm,
             skip_types,
-            verbose,
+            bool(os.getenv("DEBUG", self.verbose)),
         )
         self.setStatus("")
 
@@ -332,7 +332,7 @@ def load_language(language="en"):
     return qobject
 
 
-def start(context=None):
+def start(context=None, verbose=False):
     """
     Show main window of *medconverter* plugin.
 
@@ -353,6 +353,7 @@ def start(context=None):
 
     translator = load_language(lang)
     main_window = MainDialog(parent)
+    main_window.verbose = verbose
     translator.setParent(main_window)
 
     main_window.exec_()

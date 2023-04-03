@@ -20,6 +20,6 @@ Implementation of *medconverter* plugin.
 """
 
 from .engine import Fmt, convert
-from .gui.gui import start
+from .gui.gui import start, supported_input_formats, supported_output_formats
 
 from .version import __version__, __hgrevid__, __release__
