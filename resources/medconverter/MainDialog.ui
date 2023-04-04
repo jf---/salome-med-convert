@@ -302,6 +302,29 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
+            <widget class="QLabel" name="warnAdvancedLabel">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="text">
+              <string>Advanced options may lead to unexpected results</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_9">
              <item>
               <widget class="QCheckBox" name="skipTypesCheckBox">
@@ -325,7 +348,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of cell types ( comma separated ) to skip during conversion. &lt;/p&gt;&lt;p&gt;Types are specified in the origin format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>List of cell types ( comma separated ) ignored during conversion. Types are given in the input mesh format.</string>
                </property>
               </widget>
              </item>
