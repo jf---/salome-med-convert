@@ -105,8 +105,12 @@ class Fmt:
         }.get(format, "Unknown")
 
     @staticmethod
-    def name_from_extension(ext):
-        for fmt in (Fmt.Salome, Fmt.Aster, Fmt.Systus, Fmt.Abaqus, Fmt.Ansys, Fmt.Zset):
+    def all():
+        return (Fmt.Salome, Fmt.Aster, Fmt.Systus, Fmt.Abaqus, Fmt.Ansys, Fmt.Zset)
+
+    @classmethod
+    def name_from_extension(cls, ext):
+        for fmt in cls.all():
             if ext in Fmt.extensions(fmt):
                 return Fmt.name(fmt)
         return "Unknown"
