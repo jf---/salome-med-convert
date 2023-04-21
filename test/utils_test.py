@@ -112,7 +112,9 @@ def tempdir(func):
 
 
 @tempdir
-def base_test_conversion(tmpdir, utest, filename, input_format, output_format, skip_types=[]):
+def base_test_conversion(
+    tmpdir, utest, filename, input_format, output_format, commtest=True, skip_types=[]
+):
     """Base function to check a mesh conversion.
 
     In debug mode (DEBUG environment variable set to 1) the result med files
@@ -134,7 +136,11 @@ def base_test_conversion(tmpdir, utest, filename, input_format, output_format, s
     outfile = osp.join(
         wdir, osp.splitext(osp.basename(filename))[0] + Fmt.extensions(output_format)[0]
     )
-    output_comm = osp.join(wdir, "%s.comm" % osp.splitext(osp.basename(filename))[0])
+
+    if commtest:
+        output_comm = osp.join(wdir, "%s.comm" % osp.splitext(osp.basename(filename))[0])
+    else:
+        output_comm = ""
 
     if DEBUG != 1:
         utest.assertFalse(osp.isfile(outfile), msg=outfile)
@@ -216,7 +222,9 @@ def standard_test_conversion(
     utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
 
 
-def deep_test_conversion(utest, filename, input_format, output_format, jsonfile, skip_types=[]):
+def deep_test_conversion(
+    utest, filename, input_format, output_format, jsonfile, commtest=True, skip_types=[]
+):
 
     """Function to deep check a mesh conversion.
 
@@ -228,7 +236,7 @@ def deep_test_conversion(utest, filename, input_format, output_format, jsonfile,
         jsonfile (str) : The json file containing the reference values
     """
 
-    mesh = base_test_conversion(utest, filename, input_format, output_format, skip_types)
+    mesh = base_test_conversion(utest, filename, input_format, output_format, commtest, skip_types)
     utest.assertTrue(isinstance(mesh, MEDFileUMesh))
 
     with open(jsonfile) as f:
