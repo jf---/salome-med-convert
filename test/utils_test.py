@@ -28,7 +28,7 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 
 from medconverter.engine import Fmt, convert as convert_engine
-from medconverter.utilities import MAX_ELTS_CHECK_GROUPS
+from medconverter.utilities import MAX_ELTS_CHECK_GROUPS, create_test_json_file
 
 DEBUG = int(os.getenv("DEBUG", 0))
 
@@ -172,54 +172,16 @@ def base_test_conversion(
         )
         mesh = MEDFileUMesh("%s.med" % outfile)
 
+    make_json = DEBUG == 1
+    if make_json:
+        jname = "%s.json" % (osp.splitext(osp.split(filename)[-1])[0])
+        jpath = osp.join("/", "tmp", "_medconverter_json")
+        os.makedirs(jpath, exist_ok=True)
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            mesh.write(f.name, 2)
+            create_test_json_file(f.name, osp.join(jpath, jname))
+
     return mesh
-
-
-def standard_test_conversion(
-    utest,
-    filename,
-    input_format,
-    output_format,
-    nbcells,
-    nbnodes,
-    cellstypes,
-    nbcellsgrps,
-    nbnodesgrps,
-):
-    """Function to check a mesh conversion.
-
-    Arguments:
-       utest (*unittest.TestCase*): Test object.
-       filename (str): Input mesh file.
-       input_format (str) : Type of input mesh
-       output_format (str) : Type of output mesh
-       nbcells (int): Expected number of cells.
-       nbnodes (int): Expected number of nodes.
-       cellstypes (int): Expected types of cells.
-       nbcellsgrps (int): Expected number of groups of cells.
-       nbnodesgrps (int): Expected number of groups of nodes.
-
-    """
-
-    mesh = base_test_conversion(utest, filename, input_format, output_format)
-    utest.assertTrue(isinstance(mesh, MEDFileUMesh))
-
-    convertedcellstypes = [
-        MEDCouplingUMesh.GetReprOfGeometricType(i).strip("NORM_")
-        for lev in mesh.getNonEmptyLevels()
-        for i in mesh.getGeoTypesAtLevel(lev)
-    ]
-    total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
-
-    total_nb_of_cells_groups = sum(
-        len(mesh.getGroupsOnSpecifiedLev(lev)) for lev in mesh.getNonEmptyLevels()
-    )
-
-    utest.assertEqual(total_nb_of_cells, nbcells)
-    utest.assertEqual(mesh.getNumberOfNodes(), nbnodes)
-    utest.assertSetEqual(set(convertedcellstypes), set(cellstypes))
-    utest.assertEqual(total_nb_of_cells_groups, nbcellsgrps)
-    utest.assertEqual(len(mesh.getGroupsOnSpecifiedLev(1)), nbnodesgrps)
 
 
 def deep_test_conversion(
