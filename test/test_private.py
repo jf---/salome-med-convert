@@ -157,7 +157,7 @@ class TestPrivate(unittest.TestCase):
         testname = "ANSYS_CPP_N4"
         filename = get_datafile_path("%s.cdb" % testname)
         jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
-        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile, commtest=False)
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ salome shell -- make
 In stand-alone mode:
 
 ``` bash
-./bin/medconverter
+medconverter gui
 ```
 
 or in a SALOME graphical session:
@@ -47,10 +47,10 @@ SALOME_PLUGINS_PATH=$(pwd) salome
 Example:
 
 ``` bash
-./bin/medconverter -i test/data/MOTIF_DONN1.ASC -o /tmp/motif.med -fi SYSTUS -fo SALOME
+medconverter run test/data/MOTIF_DONN1.ASC /tmp/motif.med
 ```
 
-See `./bin/medconverter --help` for the available arguments.
+See `medconverter run --help` for the available arguments.
 
 
 # Testing

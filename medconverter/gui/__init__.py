@@ -28,7 +28,7 @@ def supported_input_formats():
 
 
 def supported_output_formats():
-    return (Fmt.Salome,)
+    return (Fmt.Salome, Fmt.Systus, Fmt.Zset, Fmt.Aster)
 
 
 def convert(*args):
@@ -45,4 +45,4 @@ def convert(*args):
 def startGUIfromSalome(context=None):
     from .gui import start
 
-    start(context)
+    start(context=context)

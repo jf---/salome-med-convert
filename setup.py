@@ -71,7 +71,7 @@ class InstallLibSalome(install_lib):
 
 PKGS = ["medconverter", "medconverter.engine", "medconverter.gui"]
 MODS = ["salome_plugins"]
-SCRIPTS = ["bin/medconverter", "bin/medconverter_makejson"]
+SCRIPTS = ["bin/medconverter"]
 
 DATA = [
     ("bin/salome/test", glob("bin/salome/test/CTestTestfile.cmake")),

@@ -88,6 +88,7 @@ class MainDialog(BASE, FORM):
 
         # Update state
         self.update_controls()
+        self.verbose = False
 
     def setStatus(self, text, color="#ff0000"):
         """Set the text of the status line.
@@ -95,9 +96,7 @@ class MainDialog(BASE, FORM):
         Arguments:
             text (str): Text to be shown.
         """
-        self.statusText.setText(
-            "<font color='{1}'><i>{0}</i></font>".format(text, color)
-        )
+        self.statusText.setText("<font color='{1}'><i>{0}</i></font>".format(text, color))
 
     def from_settings(self, settings):
         """
@@ -110,6 +109,7 @@ class MainDialog(BASE, FORM):
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
         self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
+        self.skipTypesEdit.setText(",".join(settings.skip_types))
 
     def to_settings(self):
         """
@@ -124,6 +124,7 @@ class MainDialog(BASE, FORM):
         settings.output_file = self.outFileLineEdit.text()
         settings.input_file = self.inFileLineEdit.text()
         settings.input_format = Fmt.get(self.inFormatBox.currentText())
+        settings.skip_types = self.skipTypesEdit.text().split(",")
 
         return settings
 
@@ -143,8 +144,7 @@ class MainDialog(BASE, FORM):
     def launch(self):
         """Called when user clicks *Apply* button."""
         self.setStatus(
-            translate("medconverter", "Converting mesh, please wait..."),
-            color="#0000ff",
+            translate("medconverter", "Converting mesh, please wait..."), color="#0000ff"
         )
         QtCore.QTimer.singleShot(50, self.do_convert)
 
@@ -157,11 +157,16 @@ class MainDialog(BASE, FORM):
             settings.output_file = tempfile.mkstemp(suffix=".med")[1]
         settings.dump(sys.stdout)
 
-        verbose = int(os.getenv("DEBUG", 0))
         output_comm = (
             settings.output_comm
-            if (self.commands_groupbox.isEnabled() and self.outCommCheckBox.isChecked())
+            if (self.outCommCheckBox.isEnabled() and self.outCommCheckBox.isChecked())
             else None
+        )
+
+        skip_types = (
+            settings.skip_types
+            if (self.skipTypesCheckBox.isEnabled() and self.skipTypesCheckBox.isChecked())
+            else []
         )
 
         is_ok, err = convert(
@@ -170,7 +175,8 @@ class MainDialog(BASE, FORM):
             settings.output_file,
             settings.output_format,
             output_comm,
-            verbose,
+            skip_types,
+            bool(os.getenv("DEBUG", self.verbose)),
         )
         self.setStatus("")
 
@@ -179,8 +185,7 @@ class MainDialog(BASE, FORM):
                 publish_meshes(settings.output_file)
                 self.setStatus(
                     translate(
-                        "medconverter",
-                        "Open the SMESH module to see the newly created mesh.",
+                        "medconverter", "Open the SMESH module to see the newly created mesh."
                     ),
                     color="#0000ff",
                 )
@@ -195,9 +200,7 @@ class MainDialog(BASE, FORM):
             mbox = Q.QMessageBox()
             mbox.setWindowTitle(translate("medconverter", "Error"))
             mbox.setIcon(Q.QMessageBox.Critical)
-            mbox.setText(
-                translate("medconverter", "Conversion Failed.\n{0}").format(err)
-            )
+            mbox.setText(translate("medconverter", "Conversion Failed.\n{0}").format(err))
             mbox.setDetailedText("".join(traceback.format_tb(err.__traceback__)))
             mbox.exec_()
 
@@ -214,7 +217,14 @@ class MainDialog(BASE, FORM):
 
         # Command file output only for ansys
         settings = self.to_settings()
-        self.commands_groupbox.setEnabled(settings.input_format in (Fmt.Ansys,))
+        enable_comm = settings.input_format in (Fmt.Ansys,)
+        self.outCommButton.setEnabled(enable_comm)
+        self.outCommCheckBox.setEnabled(enable_comm)
+        self.outCommLineEdit.setEnabled(enable_comm)
+
+        enable_skiptypes = settings.input_format in (Fmt.Systus,)
+        self.skipTypesCheckBox.setEnabled(enable_skiptypes)
+        self.skipTypesEdit.setEnabled(enable_skiptypes)
 
     def is_valid(self):
         """Tell if the settings are valid, the conversion can be launched.
@@ -225,20 +235,14 @@ class MainDialog(BASE, FORM):
         settings = self.to_settings()
 
         if settings.input_format == Fmt.Null:
-            self.setStatus(
-                translate("medconverter", "Please select the input mesh format.")
-            )
+            self.setStatus(translate("medconverter", "Please select the input mesh format."))
             return False
 
         if not settings.input_file:
-            self.setStatus(
-                translate("medconverter", "Please select the input mesh file.")
-            )
+            self.setStatus(translate("medconverter", "Please select the input mesh file."))
             return False
         if not (self.outFileCheckBox.isChecked() or self.smeshCheckBox.isChecked()):
-            self.setStatus(
-                translate("medconverter", "Please select at least one output type.")
-            )
+            self.setStatus(translate("medconverter", "Please select at least one output type."))
             return False
         if self.outFileCheckBox.isChecked() and not settings.output_file:
             self.setStatus(translate("medconverter", "Please select the output file."))
@@ -258,8 +262,7 @@ class MainDialog(BASE, FORM):
         settings = self.to_settings()
         ext = Fmt.extensions(settings.input_format)
         filters.append(
-            "%s (%s)"
-            % (Fmt.name(settings.input_format), " ".join(("*%s" % i for i in ext)))
+            "%s (%s)" % (Fmt.name(settings.input_format), " ".join(("*%s" % i for i in ext)))
         )
         filters.append("All files (*)")
 
@@ -277,8 +280,7 @@ class MainDialog(BASE, FORM):
         settings = self.to_settings()
         ext = Fmt.extensions(settings.output_format)
         filters.append(
-            "%s (%s)"
-            % (Fmt.name(settings.output_format), " ".join(("*%s" % i for i in ext)))
+            "%s (%s)" % (Fmt.name(settings.output_format), " ".join(("*%s" % i for i in ext)))
         )
         filters.append("All files (*)")
 
@@ -323,15 +325,14 @@ def load_language(language="en"):
     # Load plugin translations
     translator = Q.QTranslator(qobject)
     if translator.load(
-        "medconverter_msg_{}".format(language),
-        osp.join(resources_path(), "medconverter"),
+        "medconverter_msg_{}".format(language), osp.join(resources_path(), "medconverter")
     ):
         Q.QApplication.instance().installTranslator(translator)
 
     return qobject
 
 
-def start(context=None):
+def start(context=None, verbose=False):
     """
     Show main window of *medconverter* plugin.
 
@@ -352,6 +353,7 @@ def start(context=None):
 
     translator = load_language(lang)
     main_window = MainDialog(parent)
+    main_window.verbose = verbose
     translator.setParent(main_window)
 
     main_window.exec_()

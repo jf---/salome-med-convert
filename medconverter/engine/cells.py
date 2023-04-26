@@ -688,9 +688,7 @@ class CellsTypeConverter:
         try:
             return self._medcoupling_to_external[medcoupling_type]
         except KeyError:
-            raise MedConverterError(
-                "MedCoupling type '{}' unknown.".format(medcoupling_type)
-            )
+            raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
 
 
 class GroupCellsTypeConverter(CellsTypeConverter):

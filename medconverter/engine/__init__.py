@@ -100,12 +100,20 @@ class Fmt:
             Fmt.Aster: (".mail",),
             Fmt.Systus: (".ASC",),
             Fmt.Abaqus: (".inp",),
-            Fmt.Ansys: (
-                ".CDB",
-                ".cdb",
-            ),
+            Fmt.Ansys: (".CDB", ".cdb"),
             Fmt.Zset: (".geof",),
         }.get(format, "Unknown")
+
+    @staticmethod
+    def all():
+        return (Fmt.Salome, Fmt.Aster, Fmt.Systus, Fmt.Abaqus, Fmt.Ansys, Fmt.Zset)
+
+    @classmethod
+    def name_from_extension(cls, ext):
+        for fmt in cls.all():
+            if ext in Fmt.extensions(fmt):
+                return Fmt.name(fmt)
+        return "Unknown"
 
 
 def convert(
@@ -114,6 +122,7 @@ def convert(
     output_file,
     output_format,
     output_comm=None,
+    skip_types=[],
     verbose=False,
 ):
     """Main entry point of the converter.
@@ -123,6 +132,8 @@ def convert(
         input_format (Fmt): Format of the input file.
         output_file (str): Path to the output file.
         output_format (Fmt): Format of the output file.
+        output_comm (str): The code_aster setup associated to the conversion.
+        skip_types (list[str]): List of cell types ( in origin format ) to skip.
         verbose (bool, optional) : Verbosity.
 
     Returns:
@@ -130,45 +141,36 @@ def convert(
 
     """
 
+    # SYSTUS -> MED
     if input_format == Fmt.Systus and output_format == Fmt.Salome:
-        MedConverterSystus.convert_systus_to_med(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterSystus.convert_systus_to_med(input_file, output_file, skip_types, verbose)
 
+    # MED -> SYSTUS
     elif input_format == Fmt.Salome and output_format == Fmt.Systus:
-        MedConverterSystus.convert_med_to_systus(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterSystus.convert_med_to_systus(input_file, output_file, verbose)
 
+    # ABAQUS -> MED
     elif input_format == Fmt.Abaqus and output_format == Fmt.Salome:
-        MedConverterAbaqus.convert_abaqus_to_med(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterAbaqus.convert_abaqus_to_med(input_file, output_file, verbose)
 
+    # ANSYS -> MED + COMM
     elif input_format == Fmt.Ansys and output_format == Fmt.Salome:
-        MedConverterAnsys.convert_ansys_to_med(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterAnsys.convert_ansys_to_med(input_file, output_file, output_comm, verbose)
 
+    # ZSET -> MED
     elif input_format == Fmt.Zset and output_format == Fmt.Salome:
-        MedConverterZset.convert_zset_to_med(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterZset.convert_zset_to_med(input_file, output_file, verbose)
 
+    # MED -> ZSET
     elif input_format == Fmt.Salome and output_format == Fmt.Zset:
-        MedConverterZset.convert_med_to_zset(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterZset.convert_med_to_zset(input_file, output_file, verbose)
 
+    # ASTER -> MED
     elif input_format == Fmt.Aster and output_format == Fmt.Salome:
-        MedConverterAster.convert_aster_to_med(
-            input_file, output_file, output_comm, verbose
-        )
-
+        MedConverterAster.convert_aster_to_med(input_file, output_file, verbose)
+    # MED -> ASTER
     elif input_format == Fmt.Salome and output_format == Fmt.Aster:
-        MedConverterAster.convert_med_to_aster(
-            input_file, output_file, output_comm, verbose
-        )
+        MedConverterAster.convert_med_to_aster(input_file, output_file, verbose)
 
     else:
         raise ValueError("Unsupported format conversion!")

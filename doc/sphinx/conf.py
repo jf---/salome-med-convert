@@ -258,13 +258,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (
-        master_doc,
-        "MedConverter.tex",
-        "MedConverter Documentation",
-        "EDF R\\&D",
-        "manual",
-    ),
+    (master_doc, "MedConverter.tex", "MedConverter Documentation", "EDF R\\&D", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -325,7 +319,7 @@ texinfo_documents = [
         "MedConverter",
         "One line description of project.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

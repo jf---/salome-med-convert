@@ -20,7 +20,7 @@ import unittest
 import os.path as osp
 
 from medconverter.utilities import data_path
-from utils_test import standard_test_conversion, deep_test_conversion
+from utils_test import deep_test_conversion
 from medconverter.engine import Fmt
 
 
@@ -37,6 +37,11 @@ class TestSimple(unittest.TestCase):
         filename = osp.join(data_path(), "SYSTUS_CARRE_DONN1.ASC")
         jsonfile = osp.join(data_path(), "json", "SYSTUS_CARRE_DONN1.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
+
+    def test_systus_error(self):
+        filename = osp.join(data_path(), "SYSTUS_CARRE_ERRORS_DONN1.ASC")
+        jsonfile = osp.join(data_path(), "json", "SYSTUS_CARRE_DONN1.json")
+        deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile, skip_types=["1902"])
 
     def test_systus_couronne(self):
         filename = osp.join(data_path(), "SYSTUS_COURONNE_DONN1.ASC")
@@ -60,9 +65,8 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_carre(self):
         filename = osp.join(data_path(), "ABAQUS_CARRE_1.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 4, ["QUAD4"], 3, 3
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CARRE_1.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_2cubesh20(self):
         filename = osp.join(data_path(), "ABAQUS_2CUBEH20.inp")
@@ -81,27 +85,23 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_cpe6(self):
         filename = osp.join(data_path(), "ABAQUS_CPE6.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 6, ["TRI6"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CPE6.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_cpe8(self):
         filename = osp.join(data_path(), "ABAQUS_CPE8.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 8, ["QUAD8"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CPE8.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_pyra5_1element(self):
         filename = osp.join(data_path(), "ABAQUS_PYRA5_1ELEMENT.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 5, ["PYRA5"], 0, 0
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_PYRA5_1ELEMENT.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_TET10(self):
         filename = osp.join(data_path(), "ABAQUS_TET10.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 10, ["TETRA10"], 0, 0
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_TET10.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_2CUBE(self):
         filename = osp.join(data_path(), "ABAQUS_2CUBE.inp")
@@ -110,9 +110,8 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_CUBE(self):
         filename = osp.join(data_path(), "ABAQUS_CUBE.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 8, ["HEXA8"], 2, 2
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CUBE.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_mixt_element(self):
         filename = osp.join(data_path(), "ABAQUS_MIXT_ELEMENT.inp")
@@ -121,27 +120,23 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_Beam_2(self):
         filename = osp.join(data_path(), "ABAQUS_BEAM2.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 2, ["SEG2"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_BEAM2.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_Beam_3(self):
         filename = osp.join(data_path(), "ABAQUS_BEAM3.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 3, ["SEG3"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_BEAM3.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_CPE3(self):
         filename = osp.join(data_path(), "ABAQUS_CPE3.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 3, ["TRI3"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CPE3.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_CPE4(self):
         filename = osp.join(data_path(), "ABAQUS_CPE4.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 4, ["QUAD4"], 1, 1
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_CPE4.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_PENTA6(self):
         filename = osp.join(data_path(), "ABAQUS_PENTA6.inp")
@@ -155,9 +150,8 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_PENTA15_1cell(self):
         filename = osp.join(data_path(), "ABAQUS_1EltPENTA15.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 15, ["PENTA15"], 1, 0
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_1EltPENTA15.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_PENTA15V(self):
         filename = osp.join(data_path(), "ABAQUS_PENTA15V.inp")
@@ -171,9 +165,8 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_TET4(self):
         filename = osp.join(data_path(), "ABAQUS_TET4.inp")
-        standard_test_conversion(
-            self, filename, Fmt.Abaqus, Fmt.Salome, 1, 4, ["TETRA4"], 2, 2
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_TET4.json")
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_BOLT(self):
         filename = osp.join(data_path(), "ABAQUS_BOLTPIPEFLANGE_3D.inp")
@@ -222,9 +215,7 @@ class TestSimple(unittest.TestCase):
 
     def test_abaqus_selfcontact(self):
         filename = osp.join(data_path(), "ABAQUS_SELFCONTACT_BUMP_XPL_CAX3.inp")
-        jsonfile = osp.join(
-            data_path(), "json", "ABAQUS_SELFCONTACT_BUMP_XPL_CAX3.json"
-        )
+        jsonfile = osp.join(data_path(), "json", "ABAQUS_SELFCONTACT_BUMP_XPL_CAX3.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_adapt1(self):

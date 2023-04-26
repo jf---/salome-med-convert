@@ -53,14 +53,7 @@ def resources_path():
     install_root = osp.abspath(osp.dirname(osp.dirname(__file__)))
     path = osp.abspath(
         osp.join(
-            install_root,
-            os.pardir,
-            os.pardir,
-            os.pardir,
-            os.pardir,
-            "share",
-            "salome",
-            "resources",
+            install_root, os.pardir, os.pardir, os.pardir, os.pardir, "share", "salome", "resources"
         )
     )
     if not osp.isdir(path):
@@ -174,9 +167,7 @@ def create_test_json_file(medfilename, jsonfilename):
     testvalues["CELLS"] = {}
     testvalues["GROUPS"] = {}
     testvalues["NB_NODES"] = mm.getNumberOfNodes()
-    testvalues["NB_CELLS"] = sum(
-        mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels()
-    )
+    testvalues["NB_CELLS"] = sum(mm.getNumberOfCellsAtLevel(lev) for lev in mm.getNonEmptyLevels())
     testvalues["NB_GRP_CELLS"] = sum(
         len(mm.getGroupsOnSpecifiedLev(lev)) for lev in mm.getNonEmptyLevels()
     )
@@ -189,9 +180,7 @@ def create_test_json_file(medfilename, jsonfilename):
         mesh_lev = mm[lev]
         types_at_level = mesh_lev.getAllGeoTypesSorted()
         for medcoupling_cell_type in types_at_level:
-            cells_by_type = mesh_lev.giveCellsWithType(
-                medcoupling_cell_type
-            ).getValues()
+            cells_by_type = mesh_lev.giveCellsWithType(medcoupling_cell_type).getValues()
             cell = random.choice(cells_by_type)
             cell_nodes_med = mesh_lev.getNodeIdsOfCell(cell)
             cell_type = medcoupling.MEDCouplingUMesh.GetReprOfGeometricType(

@@ -20,7 +20,7 @@ ASTER_CELLS_SHIFT = 1  # La numérotation ASTER des élements démarre à 1
 
 class MedConverterAster(MedConverterMesh):
     @staticmethod
-    def convert_aster_to_med(filename_aster, filename_med, output_comm, verbose=False):
+    def convert_aster_to_med(filename_aster, filename_med, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAster()
@@ -32,7 +32,7 @@ class MedConverterAster(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     @staticmethod
-    def convert_med_to_aster(filename_med, filename_aster, output_comm, verbose=False):
+    def convert_med_to_aster(filename_med, filename_aster, verbose=False):
 
         tic = time.perf_counter()
         c = MedConverterAster()
@@ -55,9 +55,7 @@ class MedConverterAster(MedConverterMesh):
         def zip_line(line):
             # Restituer la ligne sans champs et les champs à part
             spline = line.split()
-            fields = dict(
-                i.split("=") for i in spline if ("=" in i and len(i.split("=")) == 2)
-            )
+            fields = dict(i.split("=") for i in spline if ("=" in i and len(i.split("=")) == 2))
             zipped = " ".join((i for i in spline if "=" not in i)).strip()
             return zipped, fields
 
@@ -92,9 +90,7 @@ class MedConverterAster(MedConverterMesh):
         with open(filename, "r", encoding=self._get_file_encoding(filename)) as f:
             mesh_blocks = remove_comments_and_split(f)
         toc = time.perf_counter()
-        logger.debug(
-            " File name : %s (splitted in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug(" File name : %s (splitted in %0.4f seconds)" % (filename, toc - tic))
 
         tic = time.perf_counter()
         NODES, ELEMENTS, GROUPS_N, GROUPS_M = [], {}, {}, {}
@@ -133,9 +129,7 @@ class MedConverterAster(MedConverterMesh):
                 pass
 
         toc = time.perf_counter()
-        logger.debug(
-            " Mesh name : %s (parsed in %0.4f seconds)" % (self.mesh_name, toc - tic)
-        )
+        logger.debug(" Mesh name : %s (parsed in %0.4f seconds)" % (self.mesh_name, toc - tic))
         logger.debug(" Space Dimension : %d" % self.space_dim)
 
         # Les noeuds
@@ -143,9 +137,7 @@ class MedConverterAster(MedConverterMesh):
         tic = time.perf_counter()
         for spline in NODES:
             idx_aster = spline[0]
-            coords = tuple(
-                float(strip_fortran_notation(c)) for c in spline[-self.space_dim :]
-            )
+            coords = tuple(float(strip_fortran_notation(c)) for c in spline[-self.space_dim :])
             self.add_node(idx_aster, coords)
         toc = time.perf_counter()
         logger.debug(" Load %d nodes (in %0.4f seconds)" % (len(NODES), toc - tic))
@@ -161,16 +153,12 @@ class MedConverterAster(MedConverterMesh):
                 idx_element_aster = spline[0]
                 elements_nodes_aster = spline[1:]
 
-                element_medcoupling_type = e_conv.external_to_medcoupling(
-                    element_aster_type
-                )
+                element_medcoupling_type = e_conv.external_to_medcoupling(element_aster_type)
                 element_nodes_med = c_renum.external_to_medcoupling(
                     element_medcoupling_type, elements_nodes_aster
                 )
 
-                self.add_cell(
-                    idx_element_aster, element_medcoupling_type, element_nodes_med
-                )
+                self.add_cell(idx_element_aster, element_medcoupling_type, element_nodes_med)
                 nb_elements += 1
 
         toc = time.perf_counter()
@@ -183,9 +171,7 @@ class MedConverterAster(MedConverterMesh):
             self.add_group_nodes(group_name, values)
             nb_groups += 1
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d groups of nodes (in %0.4f seconds)" % (nb_groups, toc - tic)
-        )
+        logger.debug(" Load %d groups of nodes (in %0.4f seconds)" % (nb_groups, toc - tic))
 
         tic = time.perf_counter()
         nb_groups = 0
@@ -193,18 +179,14 @@ class MedConverterAster(MedConverterMesh):
             self.add_group_cells(group_name, values)
             nb_groups += 1
         toc = time.perf_counter()
-        logger.debug(
-            " Load %d groups of cells (in %0.4f seconds)" % (nb_groups, toc - tic)
-        )
+        logger.debug(" Load %d groups of cells (in %0.4f seconds)" % (nb_groups, toc - tic))
 
     def write_aster_mesh(self, filename):
         tic = time.perf_counter()
         with open(filename, "w") as f:
             f.write(self.astermesh)
         toc = time.perf_counter()
-        logger.debug(
-            "Write ASTER mesh file : %s (in %0.4f seconds)" % (filename, toc - tic)
-        )
+        logger.debug("Write ASTER mesh file : %s (in %0.4f seconds)" % (filename, toc - tic))
 
     def create_aster_mesh(self):
         ENDBLOCK = "FINSF\n%"
@@ -252,9 +234,7 @@ class MedConverterAster(MedConverterMesh):
             aster_type = e_conv.medcoupling_to_external(medcoupling_type)
             elements_lines.append(aster_type)
             for j, element_nodes_med in elements_by_type[medcoupling_type].items():
-                element_nodes_med = [
-                    "N%d" % (i + ASTER_NODES_SHIFT) for i in element_nodes_med
-                ]
+                element_nodes_med = ["N%d" % (i + ASTER_NODES_SHIFT) for i in element_nodes_med]
                 element_nodes_asc = c_renum.medcoupling_to_external(
                     medcoupling_type, element_nodes_med
                 )
@@ -294,16 +274,10 @@ class MedConverterAster(MedConverterMesh):
         # Entete du fichier
         txt_header = "TITRE\n%s\n%s" % (self.mesh_name, ENDBLOCK)
 
-        txt_nodes = "\nCOOR_%dD\n%s\n%s" % (
-            self.space_dim,
-            "\n".join(nodes_lines),
-            ENDBLOCK,
-        )
+        txt_nodes = "\nCOOR_%dD\n%s\n%s" % (self.space_dim, "\n".join(nodes_lines), ENDBLOCK)
         txt_elements = "\n%s\n" % ("\n".join(elements_lines),)
         txt_groups = "\n".join(groups_lines) if groups_lines else ""
 
-        self.astermesh = "".join(
-            (txt_header, txt_nodes, txt_elements, txt_groups, "\nFIN")
-        )
+        self.astermesh = "".join((txt_header, txt_nodes, txt_elements, txt_groups, "\nFIN"))
         toc = time.perf_counter()
         logger.debug(" Assembly file (in %0.4f seconds)" % (toc - tic))

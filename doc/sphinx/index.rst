@@ -18,7 +18,14 @@ Main function
 Mesh formats
 ------------
 .. autoclass:: medconverter.Fmt
-		  
+
+Advanced Options
+----------------
+.. toctree::
+   :maxdepth: 1
+	      
+   advanced_options
+   
 Tests
 -----
 .. toctree::

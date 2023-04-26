@@ -91,6 +91,19 @@ class Settings(object):
     def output_format(self, output_format):
         self._data["Output Format"] = output_format
 
+    @property
+    def skip_types(self):
+        """
+        str: Attribute that holds the cells types to be skipped.
+        Cell type is given in the origin format.
+        """
+        return self._data.get("Skip Types")
+
+    @skip_types.setter
+    def skip_types(self, skip_types):
+        assert isinstance(skip_types, (tuple, list))
+        self._data["Skip Types"] = skip_types
+
     def from_defaults(self):
         """
         Reset settings data to default values.
@@ -103,6 +116,7 @@ class Settings(object):
         self.output_file = ""
         self.output_format = Fmt.Salome
         self.output_comm = ""
+        self.skip_types = []
 
     def dump(self, stream):
         """
