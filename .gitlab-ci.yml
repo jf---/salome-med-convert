@@ -1,38 +1,26 @@
 include:
   - project: 'salomemeca/ci-templates'
-    file: 'build.yml'
-    ref: 'main'
-  - project: 'salomemeca/ci-templates'
-    file: 'upload.yml'
-    ref: 'main'
-  - project: 'salomemeca/ci-templates'
-    file: 'test.yml'
+    file: 'smeca2022-v9.8-s9-docker.yml'
     ref: 'main'
 
-stages: 
+
+variables:
+    RUNNER_TAGS: smeca2022-s9-yamm
+    # RUNNER_TAGS: smeca2022-s10-yamm
+
+stages:
    - build
-   - upload
    - test
 
 build:
-    extends: .build
+    extends: .smeca_build
     stage: build
     variables:
-        BUILD_BASE_DIR: '$CI_BUILDS_DIR/$CI_RUNNER_SHORT_TOKEN/$CI_CONCURRENT_ID/$CI_PROJECT_NAMESPACE'
-        GIT_CLONE_PATH: '$BUILD_BASE_DIR/dev/$CI_PROJECT_NAME'
         YAMM_SOFTWARE_NAME: 'SALOMEMECA_MEDCONVERTER'
 
 test:
-    extends: .test
+    extends: .smeca_test
     stage: test
     variables:
-        BUILD_BASE_DIR: '$CI_BUILDS_DIR/$CI_RUNNER_SHORT_TOKEN/$CI_CONCURRENT_ID/$CI_PROJECT_NAMESPACE'
-        GIT_CLONE_PATH: '$BUILD_BASE_DIR/dev/$CI_PROJECT_NAME'
+        DISPLAY: ':1'
         SALOME_TEST_LABEL: 'SMECA_MEDCONVERTER'
-
-upload:
-    extends: .upload
-    stage: upload
-    variables:
-        BUILD_BASE_DIR: '$CI_BUILDS_DIR/$CI_RUNNER_SHORT_TOKEN/$CI_CONCURRENT_ID/$CI_PROJECT_NAMESPACE'
-        GIT_CLONE_PATH: '$BUILD_BASE_DIR/dev/$CI_PROJECT_NAME'
