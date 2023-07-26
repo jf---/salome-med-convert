@@ -5,8 +5,8 @@ include:
 
 
 variables:
-    RUNNER_TAGS: smeca2022-s9-yamm
-    # RUNNER_TAGS: smeca2022-s10-yamm
+    # RUNNER_TAGS: smeca2022-s9-yamm
+    RUNNER_TAGS: smeca2022-s10-yamm
 
 stages:
    - build
