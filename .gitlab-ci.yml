@@ -1,12 +1,12 @@
 include:
   - project: 'salomemeca/ci-templates'
-    file: 'smeca2022-v9.8-s9-docker.yml'
+    file: smeca_main.yml
     ref: 'main'
 
-
 variables:
-    # RUNNER_TAGS: smeca2022-s9-yamm
-    RUNNER_TAGS: smeca2022-s10-yamm
+    # RUNNER_TAGS: vm_s10_n1    #psm-ci-smeca-s10-285-d.cmp.retd.edf.fr
+    RUNNER_TAGS: vm_s10_n2      #psm-ci-build-smeca-621-i.cmp.retd.edf.fr
+
 
 stages:
    - build
