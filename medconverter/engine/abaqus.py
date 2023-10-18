@@ -506,7 +506,14 @@ class AbaqusMesh:
                             )
             else:
                 nodes_elem = map(int, elem.getNodes())
-                list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
+                try:
+                    list_nodes = tuple(corresponding_nodes[k] for k in nodes_elem)
+                except KeyError:
+                    msg = "Element %s of type %s can not be converted (nodes not finded)" % (
+                        elem.getId(),
+                        elem.getType(),
+                    )
+                    raise MedConverterError(msg)
             elem_id = corresponding_elems[int(elem.getId())]
             self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
 
