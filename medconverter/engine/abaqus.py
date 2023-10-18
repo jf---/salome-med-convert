@@ -572,7 +572,6 @@ class AbaqusMesh:
             GroupsName[name] = len(Groups) - 1
 
     def getGlobalId(self, corresponding, local_id):
-
         if local_id in corresponding:
             global_id = corresponding[local_id]
         else:
@@ -651,7 +650,6 @@ class AbaqusMesh:
                 raise RuntimeError("Unknown type of group")
 
     def addFromEntities(self, Entities, translation=None, rotation_param=None):
-
         tic = time.perf_counter()
         corresponding_nodes = self.addNodes(Entities.Nodes, translation, rotation_param)
         toc = time.perf_counter()
@@ -689,7 +687,6 @@ class AbaqusMesh:
         self.Numbering.append(localNumbering)
 
     def addGroupsInRightPlace(self, Assembly):
-
         new_Nset = []
         for group in Assembly.Nset:
             instance_name = group.getInstance()
@@ -715,6 +712,16 @@ class AbaqusMesh:
         Assembly.Elset = new_Elset
 
     def assemble(self, Assembly):
+        if len(Assembly.Parts) > 0:
+            if len(Assembly.Instance) == 0:
+                # create an instance with all parts
+                for part in Assembly.Parts:
+                    Instance = AbaqusInstance()
+
+                    Instance.setName("Instance_" + part.getName())
+                    Instance.setPart(part)
+
+                    Assembly.addInstance(Instance)
 
         self.surfOffset = self._estimateNbElem(Assembly)
         self.addGroupsInRightPlace(Assembly)
@@ -743,7 +750,6 @@ class AbaqusMesh:
 class MedConverterAbaqus(MedConverterMesh):
     @staticmethod
     def convert_abaqus_to_med(filename_abaqus, filename_med, verbose=False):
-
         tic = time.perf_counter()
         c = MedConverterAbaqus()
         c.verbose = verbose
@@ -755,7 +761,6 @@ class MedConverterAbaqus(MedConverterMesh):
 
     @staticmethod
     def convert_med_to_abaqus(filename_med, filename_abaqus, verbose=False):
-
         tic = time.perf_counter()
         c = MedConverterAbaqus()
         c.verbose = verbose
@@ -1334,7 +1339,6 @@ class MedConverterAbaqus(MedConverterMesh):
 
     # read a string which are in more that one line. If terminates by separator
     def _read_continuous_line(self, file, separator):
-
         # read the line
         entries = [x.strip() for x in self.line.strip().rstrip(separator).split(separator)]
 
