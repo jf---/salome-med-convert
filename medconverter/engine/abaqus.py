@@ -255,6 +255,7 @@ class AbaqusPart:
         self.ElsetName = {}
         self.NsetName = {}
         self.Surfaces = []
+        self.Parts = []
 
     def setName(self, name):
         self.name = name
@@ -276,6 +277,7 @@ class AbaqusInstance:
         self.Surfaces = []
         self.translation = None
         self.rotation = None
+        self.Parts = []
 
     def setName(self, name):
         self.name = name
@@ -289,14 +291,27 @@ class AbaqusInstance:
     def getPartName(self):
         return self.PartName
 
+    def _addPart(self, Part):
+        self.Nodes += Part.Nodes
+        self.Elements += Part.Elements
+        self.Elset += Part.Elset
+        self.Nset += Part.Nset
+
+        def check_name(dic1, dic2):
+            for name in dic1.keys():
+                if name in dic2.keys():
+                    raise MedConverterError("Group %s already exists" % name)
+
+        check_name(Part.ElsetName, self.ElsetName)
+        self.ElsetName.update(Part.ElsetName)
+        check_name(Part.NsetName, self.NsetName)
+        self.NsetName.update(Part.NsetName)
+        for part in Part.Parts:
+            self._addPart(part)
+
     def setPart(self, Part):
         self.setPartName(Part.getName())
-        self.Nodes = Part.Nodes
-        self.Elements = Part.Elements
-        self.Elset = Part.Elset
-        self.Nset = Part.Nset
-        self.ElsetName = Part.ElsetName
-        self.NsetName = Part.NsetName
+        self._addPart(Part)
 
 
 class AbaqusAssembly:
