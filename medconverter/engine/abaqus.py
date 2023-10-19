@@ -36,7 +36,7 @@ class AbaqusNode:
 
     def getCoordinates(self):
         if len(self.coordinates) != 3:
-            raise RuntimeError("Coordinates have to have 3 elements")
+            raise MedConverterError("Coordinates have to have 3 items")
         return self.coordinates
 
 
@@ -344,7 +344,7 @@ class AbaqusAssembly:
             if name == part.getName():
                 return part
 
-        raise RuntimeError("Part nod found: " + name)
+        raise MedConverterError("Part nod found: " + name)
 
 
 class AbaqusNumbering:
@@ -444,7 +444,7 @@ class AbaqusMesh:
         corresponding_nodes = {}
         for idx, node in enumerate(Nodes):
             if int(node.getId()) in corresponding_nodes:
-                raise KeyError("Two nodes with identical id: {0}".format(node.getId()))
+                raise MedConverterError("Two nodes with identical id: {0}".format(node.getId()))
             else:
                 corresponding_nodes[int(node.getId())] = self.nodesOffset + idx
 
@@ -463,7 +463,7 @@ class AbaqusMesh:
         for elem in Elements:
             self.elemsOffset += 1
             if int(elem.getId()) in corresponding_elems:
-                raise KeyError("Two elements with identical id: {0}".format(elem.getId()))
+                raise MedConverterError("Two elements with identical id: {0}".format(elem.getId()))
             else:
                 corresponding_elems[int(elem.getId())] = self.elemsOffset
 
@@ -487,7 +487,7 @@ class AbaqusMesh:
                                 )
 
                                 if global_id is None:
-                                    raise RuntimeError(
+                                    raise MedConverterError(
                                         "Create Element: node %s is \
                                         not in the mesh"
                                         % node
@@ -499,7 +499,7 @@ class AbaqusMesh:
                                 break
 
                         if not l_find:
-                            raise RuntimeError(
+                            raise MedConverterError(
                                 "Create Element: node %s is \
                                     not in the mesh"
                                 % {node}
@@ -544,7 +544,7 @@ class AbaqusMesh:
                                     l_global_grp = False
                                     break
                         if not l_find:
-                            raise RuntimeError("Group not find")
+                            raise MedConverterError("Group not find")
 
                     if len(surf) == 1 or surf[1] in ("SPOS", "SNEG"):
                         l_create_elem = False
@@ -569,7 +569,7 @@ class AbaqusMesh:
                             )
 
                             if self.surfOffset in corresponding_elems:
-                                raise KeyError(
+                                raise MedConverterError(
                                     "Two elements with identical id: {0}".format(self.surfOffset)
                                 )
                             else:
@@ -580,7 +580,9 @@ class AbaqusMesh:
                         elemSurf.append(global_id)
 
                 if surfs.getName() in self.ElsetName:
-                    raise KeyError("Two surfaces with identical name: {0}".format(surfs.getName()))
+                    raise MedConverterError(
+                        "Two surfaces with identical name: {0}".format(surfs.getName())
+                    )
                 self.Elset.append(AbaqusGroup(surfs.getName(), "xxx", False, elemSurf))
             else:
                 logger.debug("Ignore SURFACE keyword")
@@ -621,10 +623,10 @@ class AbaqusMesh:
                             elif typeGrp == "ELSET":
                                 global_id = self.getGlobalId(nume.corresponding_elems, local_id)
                             else:
-                                raise RuntimeError("Unknown type of group")
+                                raise MedConverterError("Unknown type of group")
 
                             if global_id is None:
-                                raise RuntimeError(
+                                raise MedConverterError(
                                     "Create Group %s: element %s is \
                                     not in the mesh"
                                     % {name, k}
@@ -636,7 +638,7 @@ class AbaqusMesh:
                             break
 
                     if not l_find:
-                        raise RuntimeError(
+                        raise MedConverterError(
                             "Create Group %s: element %s is \
                                     not in the mesh"
                             % {name, k}
@@ -649,7 +651,7 @@ class AbaqusMesh:
                     if k in corresponding:
                         list_clean.append(k)
                     else:
-                        raise RuntimeError(
+                        raise MedConverterError(
                             "Create Group %s: element %s is \
                                     not in the mesh"
                             % {name, k}
@@ -658,7 +660,7 @@ class AbaqusMesh:
                 list_item = tuple(corresponding[k] for k in list_clean)
 
             if len(list_item) == 0:
-                raise RuntimeError("No items in group: " + name)
+                raise MedConverterError("No items in group: " + name)
 
             if typeGrp == "NSET":
                 self.fuseCommonGroup(
@@ -669,7 +671,7 @@ class AbaqusMesh:
                     self.Elset, self.ElsetName, AbaqusGroup(name, instance, False, list_item)
                 )
             else:
-                raise RuntimeError("Unknown type of group")
+                raise MedConverterError("Unknown type of group")
 
     def addFromEntities(self, Entities, translation=None, rotation_param=None):
         tic = time.perf_counter()
@@ -923,18 +925,18 @@ class MedConverterAbaqus(MedConverterMesh):
             self.nbAssembly += 1
 
             if self.nbAssembly > 1:
-                raise RuntimeError("Only one Assembly allowed")
+                raise MedConverterError("Only one Assembly allowed")
         elif self.line.upper().startswith("*SURFACE"):
             self._read_surfaces(file, Entities.Surfaces)
             self._read_data(file, Entities)
         elif self.line.upper().startswith("*NGEN"):
-            raise RuntimeError("Keyword not supported: NGEN")
+            raise MedConverterError("Keyword not supported: NGEN")
         elif self.line.upper().startswith("*NFILL"):
-            raise RuntimeError("Keyword not supported: NFILL")
+            raise MedConverterError("Keyword not supported: NFILL")
         elif self.line.upper().startswith("*NMAP"):
-            raise RuntimeError("Keyword not supported: NMAP")
+            raise MedConverterError("Keyword not supported: NMAP")
         elif self.line.upper().startswith("*NCOPY"):
-            raise RuntimeError("Keyword not supported: NCOPY")
+            raise MedConverterError("Keyword not supported: NCOPY")
 
     def _read_nodes(self, file, Nodes, Nset, NsetName):
         # get informations about nodes
@@ -1193,7 +1195,7 @@ class MedConverterAbaqus(MedConverterMesh):
                         list_item += [int(n) for n in entries]
 
         if len(list_item) == 0:
-            raise RuntimeError("No items for this group: " + params_map[typyeGroup])
+            raise MedConverterError("No items for this group: " + params_map[typyeGroup])
         # add group
         name = params_map[typyeGroup]
         if name in GroupName:
@@ -1251,7 +1253,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 break
 
         if not l_finish:
-            raise RuntimeError("Not Find: End Part")
+            raise MedConverterError("Not Find: End Part")
 
         Parts.append(Part)
 
@@ -1274,7 +1276,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 break
 
         if not l_finish:
-            raise RuntimeError("Not Find: End Assembly")
+            raise MedConverterError("Not Find: End Assembly")
 
     def _read_instance(self, file, Assembly):
         # get informations about part
@@ -1319,7 +1321,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 break
 
         if not l_finish:
-            raise RuntimeError("Not Find: End Instance")
+            raise MedConverterError("Not Find: End Instance")
 
         Assembly.addInstance(Instance)
 
@@ -1356,7 +1358,7 @@ class MedConverterAbaqus(MedConverterMesh):
             if key not in param_map:
                 msg += "%r not found in %r\n" % (key, word)
         if msg:
-            raise RuntimeError(msg)
+            raise MedConverterError(msg)
         return param_map
 
     # read a string which are in more that one line. If terminates by separator
