@@ -443,13 +443,13 @@ class AbaqusMesh:
 
         corresponding_nodes = {}
         for idx, node in enumerate(Nodes):
-            if int(node.getId()) in corresponding_nodes:
+            if node.getId() in corresponding_nodes:
                 raise MedConverterError("Two nodes with identical id: {0}".format(node.getId()))
             else:
-                corresponding_nodes[int(node.getId())] = self.nodesOffset + idx
+                corresponding_nodes[node.getId()] = self.nodesOffset + idx
 
             # add Node
-            node_id = corresponding_nodes[int(node.getId())]
+            node_id = corresponding_nodes[node.getId()]
             coor = node.getCoordinates()
             new_coor = self.geometric_transfo(coor, translation, center, mrot)
             self.Nodes.append(AbaqusNode(node_id, new_coor))
@@ -462,10 +462,10 @@ class AbaqusMesh:
         corresponding_elems = {}
         for elem in Elements:
             self.elemsOffset += 1
-            if int(elem.getId()) in corresponding_elems:
+            if elem.getId() in corresponding_elems:
                 raise MedConverterError("Two elements with identical id: {0}".format(elem.getId()))
             else:
-                corresponding_elems[int(elem.getId())] = self.elemsOffset
+                corresponding_elems[elem.getId()] = self.elemsOffset
 
             if elem.multilevel:
                 list_nodes = []
@@ -514,7 +514,7 @@ class AbaqusMesh:
                         elem.getType(),
                     )
                     raise MedConverterError(msg)
-            elem_id = corresponding_elems[int(elem.getId())]
+            elem_id = corresponding_elems[elem.getId()]
             self.Elements.append(AbaqusElement(elem.getType(), elem_id, list_nodes))
 
         return corresponding_elems
@@ -857,7 +857,7 @@ class MedConverterAbaqus(MedConverterMesh):
 
         # nodes of the mesh (collection of double)
         for node in mesh.Nodes:
-            self.add_node(int(node.getId()), node.getCoordinates())
+            self.add_node(node.getId(), node.getCoordinates())
 
         # Les elements, triés par dimension
         e_conv = CellsTypeConverter("ABAQUS")
@@ -988,7 +988,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 if l_process_line:
                     entries = self._read_continuous_line(file_to_read, ",")
                     # read id and coordinatines
-                    nid, x = entries[0], entries[1:]
+                    nid, x = int(entries[0]), entries[1:]
                     # fill with zero if not enougth coordinates
                     if len(x) < 3:
                         for i in range(0, 3 - len(x)):
@@ -1008,9 +1008,9 @@ class MedConverterAbaqus(MedConverterMesh):
         if create_nset:
             name = params_map["NSET"]
             if name in NsetName:
-                Nset[NsetName[name]].addGroup([int(n) for n in list_nodes])
+                Nset[NsetName[name]].addGroup(list_nodes)
             else:
-                Nset.append(AbaqusGroup(name, "", False, [int(n) for n in list_nodes]))
+                Nset.append(AbaqusGroup(name, "", False, list_nodes))
                 NsetName[name] = len(Nset) - 1
 
         if l_extern_file:
@@ -1073,7 +1073,7 @@ class MedConverterAbaqus(MedConverterMesh):
                 if l_process_line:
                     entries = self._read_continuous_line(file_to_read, ",")
                     # get id and list of nodes
-                    eid, nodes = entries[0], entries[1:]
+                    eid, nodes = int(entries[0]), entries[1:]
                     try:
                         index_nodes = [int(n) for n in nodes]
                     except:
@@ -1093,9 +1093,9 @@ class MedConverterAbaqus(MedConverterMesh):
             name = params_map["ELSET"]
 
             if name in ElsetName:
-                Elset[ElsetName[name]].addGroup([int(n) for n in list_elem])
+                Elset[ElsetName[name]].addGroup(list_elem)
             else:
-                Elset.append(AbaqusGroup(name, "", False, [int(n) for n in list_elem]))
+                Elset.append(AbaqusGroup(name, "", False, list_elem))
                 ElsetName[name] = len(Elset) - 1
 
         if l_extern_file:
