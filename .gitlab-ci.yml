@@ -10,6 +10,7 @@ variables:
 
 stages:
    - build
+   - container-singularity
    - test
 
 build:
@@ -17,6 +18,10 @@ build:
     stage: build
     variables:
         YAMM_SOFTWARE_NAME: 'SALOMEMECA_MEDCONVERTER'
+
+container-singularity:
+    extends: .smeca_singularity
+    stage: container-singularity
 
 test:
     extends: .smeca_test
