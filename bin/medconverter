@@ -4,7 +4,6 @@
 """Main start-up point of *medconverter* plugin's standalone application."""
 
 import argparse
-import pathlib
 import os
 import os.path as osp
 import sys
@@ -23,7 +22,6 @@ from medconverter.utilities import create_test_json_file
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 if __name__ == "__main__":
-
     metaparser = argparse.ArgumentParser(add_help=False)
     metaparser.add_argument("-v", "--verbose", action="store_true", help="print more informations")
 

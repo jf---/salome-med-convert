@@ -4,6 +4,7 @@
 ** PARTS
 **
 *Part, name=Maille1
+*Part, name=Maille1
 *Node, nset=allN
       1,           0.,           0.,           0.0
       2,           2.,          0.0,           0.
@@ -46,6 +47,7 @@
   1,    2
 *Elset, elset=_GE1
   1
+*End Part
 *End Part
 *
 *Part, name=Maille2
