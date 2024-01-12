@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import os.path as osp
 import unittest
 

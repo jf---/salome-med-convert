@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
-import os.path as osp
 from collections import OrderedDict
 import medcoupling
 
@@ -642,8 +640,8 @@ class CellsTypeConverter:
 
         try:
             data = getattr(self, "_{}_to_med".format(self.code))
-        except AttributeError:
-            raise MedConverterError("Unknown format '{}'".format(code))
+        except AttributeError as exc:
+            raise MedConverterError("Unknown format '{}'".format(code)) from exc
 
         assert set(data.values()) <= set(self._med_types)
         mdata = {i: getattr(medcoupling, "NORM_%s" % k) for i, k in data.items()}
@@ -679,16 +677,18 @@ class CellsTypeConverter:
     def _to_mc(self, external_type):
         try:
             return self._external_to_medcoupling[external_type]
-        except KeyError:
+        except KeyError as exc:
             raise MedConverterError(
                 "{} type '{}' unknown.".format(*(self.code.title(), external_type))
-            )
+            ) from exc
 
     def _to_ext(self, medcoupling_type):
         try:
             return self._medcoupling_to_external[medcoupling_type]
-        except KeyError:
-            raise MedConverterError("MedCoupling type '{}' unknown.".format(medcoupling_type))
+        except KeyError as exc:
+            raise MedConverterError(
+                "MedCoupling type '{}' unknown.".format(medcoupling_type)
+            ) from exc
 
 
 class GroupCellsTypeConverter(CellsTypeConverter):
@@ -710,4 +710,4 @@ class GroupCellsTypeConverter(CellsTypeConverter):
     )
 
     def __init__(self, code):
-        super(GroupCellsTypeConverter, self).__init__(code)
+        super().__init__(code)

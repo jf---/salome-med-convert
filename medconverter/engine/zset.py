@@ -3,12 +3,10 @@
 
 import time
 import os.path as osp
-import medcoupling
 
 from ..utilities import chunks
 from .logger import logger
 from .medconverter import MedConverterMesh
-from .errors import MedConverterError
 from .cells import CellsTypeConverter, GroupCellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
@@ -43,7 +41,7 @@ class MedConverterZset(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     def __init__(self):
-        super(MedConverterZset, self).__init__()
+        super().__init__()
         self.zsetmesh = None
 
     def read_zset_mesh(self, filename):

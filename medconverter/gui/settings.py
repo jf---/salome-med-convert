@@ -24,7 +24,7 @@ from ..utilities import translate
 from ..engine import Fmt
 
 
-class Settings(object):
+class Settings:
     """
     Class that stores settings data.
     """

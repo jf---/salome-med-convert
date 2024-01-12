@@ -23,7 +23,6 @@ import os
 import os.path as osp
 import sys
 from PyQt5 import Qt as Q
-from ..utilities import resources_path, docs_path
 
 
 def mandatory_suffix():

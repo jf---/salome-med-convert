@@ -23,13 +23,13 @@ import logging
 
 class MedConverterLogger:
     def __init__(self, level=logging.INFO):
-        logger = logging.getLogger("med_convert")
-        logger.setLevel(level)
+        internal_logger = logging.getLogger("med_convert")
+        internal_logger.setLevel(level)
         ch = logging.StreamHandler()
         formatter = logging.Formatter(" %(message)s")
         ch.setFormatter(formatter)
-        logger.addHandler(ch)
-        self._log = logger
+        internal_logger.addHandler(ch)
+        self._log = internal_logger
 
     # Methods for logging tasks
     def setLevel(self, level):

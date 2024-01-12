@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
-import os.path as osp
-import numpy as np
 from collections import OrderedDict
 import medcoupling
 
@@ -146,8 +143,8 @@ class ConnectivityRenumberer:
                 for i in sorted(tmp):
                     self._connectivity_external_to_med[elem_mc][i] = tmp[i]
 
-        except AttributeError:
-            raise MedConverterError("Unknown connectivity {}".format(code))
+        except AttributeError as exc:
+            raise MedConverterError("Unknown connectivity {}".format(code)) from exc
 
     def external_to_medcoupling(self, medcoupling_type, nodes):
         try:
@@ -155,8 +152,8 @@ class ConnectivityRenumberer:
                 nodes[self._connectivity_external_to_med[medcoupling_type][i]]
                 for i in self._connectivity_external_to_med[medcoupling_type]
             )
-        except KeyError:
-            raise MedConverterError("Unsupported element type %s" % medcoupling_type)
+        except KeyError as exc:
+            raise MedConverterError("Unsupported element type %s" % medcoupling_type) from exc
 
     def medcoupling_to_external(self, medcoupling_type, nodes):
         try:
@@ -164,5 +161,5 @@ class ConnectivityRenumberer:
                 nodes[self._connectivity_med_to_external[medcoupling_type][i]]
                 for i in self._connectivity_med_to_external[medcoupling_type]
             )
-        except KeyError:
-            raise MedConverterError("Unsupported element type %s" % medcoupling_type)
+        except KeyError as exc:
+            raise MedConverterError("Unsupported element type %s" % medcoupling_type) from exc

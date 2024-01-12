@@ -31,7 +31,7 @@ try:
     import salome
 
     try:
-        HAS_SALOME = True if salome.hasDesktop() is not None else False
+        HAS_SALOME = salome.hasDesktop() is not None
     except AttributeError:
         HAS_SALOME = False
 except ImportError:

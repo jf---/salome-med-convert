@@ -33,10 +33,10 @@ from medconverter.utilities import MAX_ELTS_CHECK_GROUPS, create_test_json_file
 DEBUG = int(os.getenv("DEBUG", 0))
 
 try:
-    from medcoupling import *
+    import medcoupling as medc
 except ImportError:
     sys.stderr.write(
-        "Please read the README file to execute the unittests " "inside SALOME environment."
+        "Please read the README file to execute the unittests inside SALOME environment."
     )
     raise
 
@@ -160,7 +160,7 @@ def base_test_conversion(
         utest.assertTrue(osp.isfile(output_comm), msg=output_comm)
 
     if output_format is Fmt.Salome:
-        mesh = MEDFileUMesh(outfile)
+        mesh = medc.MEDFileUMesh(outfile)
     else:
         convert_engine(
             outfile,
@@ -170,7 +170,7 @@ def base_test_conversion(
             skip_types=skip_types,
             verbose=(DEBUG == 1),
         )
-        mesh = MEDFileUMesh("%s.med" % outfile)
+        mesh = medc.MEDFileUMesh("%s.med" % outfile)
 
     make_json = DEBUG == 1
     if make_json:
@@ -199,14 +199,14 @@ def deep_test_conversion(
     """
 
     mesh = base_test_conversion(utest, filename, input_format, output_format, commtest, skip_types)
-    utest.assertTrue(isinstance(mesh, MEDFileUMesh))
+    utest.assertTrue(isinstance(mesh, medc.MEDFileUMesh))
 
     with open(jsonfile) as f:
         refe = json.load(f)
 
     total_nb_of_cells = sum(mesh.getNumberOfCellsAtLevel(lev) for lev in mesh.getNonEmptyLevels())
     convertedcellstypes = [
-        MEDCouplingUMesh.GetReprOfGeometricType(i)
+        medc.MEDCouplingUMesh.GetReprOfGeometricType(i)
         for lev in mesh.getNonEmptyLevels()
         for i in mesh.getGeoTypesAtLevel(lev)
     ]
@@ -231,7 +231,7 @@ def deep_test_conversion(
             cell_type = "NORM_%s" % cell.split("_")[1]
             refe_cells_types.append(cell_type)
             utest.assertEqual(
-                MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)),
+                medc.MEDCouplingUMesh.GetReprOfGeometricType(mesh[int(lev)].getTypeOfCell(idx)),
                 cell_type,
             )
             utest.assertListEqual(mesh[int(lev)].getNodeIdsOfCell(idx), values, msg=cell)

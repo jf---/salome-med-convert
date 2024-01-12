@@ -19,9 +19,9 @@ import time
 import unittest
 import os.path as osp
 
-from utils_test import get_datafile_path, deep_test_conversion
 from medconverter.engine import Fmt
 from medconverter.utilities import data_path
+from utils_test import get_datafile_path, deep_test_conversion
 
 
 class TestPrivate(unittest.TestCase):

@@ -15,14 +15,13 @@
 # along with this program; if not, you may download a copy of license
 # from https://www.gnu.org/licenses/gpl-3.0.
 
-import os
 import time
 import unittest
 import os.path as osp
 
 from medconverter.utilities import data_path
-from utils_test import deep_test_conversion
 from medconverter.engine import Fmt
+from utils_test import deep_test_conversion
 
 
 class TestSimple(unittest.TestCase):
