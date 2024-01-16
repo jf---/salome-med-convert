@@ -3,8 +3,6 @@
 
 import time
 import logging
-import os.path as osp
-import numpy as np
 from collections import OrderedDict
 import medcoupling
 
@@ -102,8 +100,8 @@ class MedConverterMesh:
         return {item: key for key, item in self._corresponding_nodes.items()}
 
     def _reset_structures(self):
-        self._mesh_name = None
-        self.space_dim = None
+        self._mesh_name = ""
+        self.space_dim = 0
         self.nodes = []
         self.cells = OrderedDict()  # Par niveau
         self.groups_e = OrderedDict()  # Par niveau
@@ -112,7 +110,7 @@ class MedConverterMesh:
         self.groups_e_continuous = OrderedDict()  # Numérotation globale
         self.cells_continuous = OrderedDict()  # Numérotation globale
 
-        self.medmesh = None
+        self.medmesh = ""
 
         self._corresponding_nodes = {}
         self._corresponding_cells = {}
@@ -130,7 +128,7 @@ class MedConverterMesh:
                 with open(filename, mode="r", encoding=enc) as f:
                     f.read()
                 return enc
-            except UnicodeDecodeError as err:
+            except UnicodeDecodeError:
                 continue
 
         msg = "File encoding is not among : %s" % (", ".join(encodings))

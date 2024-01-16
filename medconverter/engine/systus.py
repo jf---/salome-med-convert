@@ -3,7 +3,6 @@
 
 import time
 import os.path as osp
-import medcoupling
 
 from .logger import logger
 from .medconverter import MedConverterMesh
@@ -41,7 +40,7 @@ class MedConverterSystus(MedConverterMesh):
         logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
 
     def __init__(self):
-        super(MedConverterSystus, self).__init__()
+        super().__init__()
         self.systusmesh = None
 
     def read_systus_mesh(self, filename, skip_types=[]):

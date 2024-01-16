@@ -4,12 +4,10 @@
 import time
 import re
 import os.path as osp
-import medcoupling
 
 from ..utilities import chunks
 from .logger import logger
 from .medconverter import MedConverterMesh
-from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
@@ -215,8 +213,6 @@ class MedConverterAster(MedConverterMesh):
         # Elements et groupes
         elements_lines = []
         groups_lines = []
-        groups_e_ids = {}
-        groups_n_ids = {}
 
         c_renum = ConnectivityRenumberer("ASTER")
         e_conv = CellsTypeConverter("ASTER")

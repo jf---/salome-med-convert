@@ -28,19 +28,12 @@ import traceback
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
-from . import supported_input_formats, supported_output_formats, convert
+from . import supported_input_formats, convert
 from ..engine import Fmt
-from ..utilities import HAS_SALOME, translate
+from ..utilities import HAS_SALOME, translate, docs_path, resources_path
 from .settings import Settings
-from .utilities import (
-    connect,
-    docs_path,
-    get_dir_name,
-    get_file_name,
-    publish_meshes,
-    resources_path,
-    to_list,
-)
+from .utilities import connect, get_file_name, publish_meshes
+
 
 UIFILE = osp.join(resources_path(), "medconverter", "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
@@ -296,7 +289,6 @@ class MainDialog(BASE, FORM):
         filters = []
 
         settings = self.to_settings()
-        ext = Fmt.extensions(settings.output_format)
         filters.append("Aster Commands (*.comm)")
         filters.append("All files (*)")
 
