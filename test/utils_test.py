@@ -30,6 +30,7 @@ from urllib.error import HTTPError
 from medconverter.engine import Fmt, convert as convert_engine
 from medconverter.utilities import MAX_ELTS_CHECK_GROUPS, create_test_json_file
 
+DATA_URL = "https://minio.retd.edf.fr/codeaster/tests-data"
 DEBUG = int(os.getenv("DEBUG", 0))
 
 try:
@@ -51,8 +52,7 @@ def download_file(datafile, dest, insecure=False):
         bool: *True* if it suceeded, *False* otherwise.
     """
     timeout = 10
-    repo = "https://nexus.retd.edf.fr/repository/codeaster-archives/tests-data"
-    url = repo + "/salome-med-convert/" + datafile
+    url = DATA_URL + "/salome-med-convert/" + datafile
     ctx = ssl._create_unverified_context() if insecure else None
     try:
         with urlopen(url, timeout=timeout, context=ctx) as request:
@@ -187,7 +187,6 @@ def base_test_conversion(
 def deep_test_conversion(
     utest, filename, input_format, output_format, jsonfile, commtest=True, skip_types=[]
 ):
-
     """Function to deep check a mesh conversion.
 
     Arguments:
