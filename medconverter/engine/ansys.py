@@ -70,7 +70,7 @@ class AnsysCell:
         elem_tension=None,
     ):
         self.id = elem_id
-        if elem_nodes is not None:
+        if elem_nodes != None:
             self.nodes = elem_nodes
         else:
             self.nodes = []
@@ -91,7 +91,7 @@ class AnsysGroup:
     def __init__(self, name=None, typeg=None, group=None):
         self.name = name
         self.type = typeg
-        if group is not None:
+        if group != None:
             self.elems = group
         else:
             self.elems = []
@@ -1273,7 +1273,7 @@ class MedConverterAnsys(MedConverterMesh):
             sname = name.split("-")
             rname = name.replace("-", "_")
 
-            if dicoKeyword[sname[1]] is "COQUE":
+            if dicoKeyword[sname[1]] == "COQUE":
                 if flag[0] == False:
                     if parenthese == True:
                         f.write("{0:>26}),\n".format(" "))
@@ -1306,7 +1306,7 @@ class MedConverterAnsys(MedConverterMesh):
                         )
                     )
 
-            elif dicoKeyword[sname[1]] is "POUTRE":
+            elif dicoKeyword[sname[1]] == "POUTRE":
                 if flag[1] == False:
                     if parenthese == True:
                         f.write("{0:>28}),\n".format(" "))
@@ -1437,7 +1437,7 @@ class MedConverterAnsys(MedConverterMesh):
                 elif rep_global == 0:
                     orientation.append("CARA='ANGL_VRIL', VALE=0.0,),\n")
 
-            elif dicoKeyword[sname[1]] is "DISCRET":
+            elif dicoKeyword[sname[1]] == "DISCRET":
                 if flag[2] == False:
                     if parenthese == True:
                         f.write("{0:>29}),\n".format(" "))
@@ -1510,7 +1510,7 @@ class MedConverterAnsys(MedConverterMesh):
                             "CARA='VECT_X_Y', VALE={},),\n".format(Rep[i].getRep(nodes))
                         )
 
-            elif dicoKeyword[sname[1]] is "DISCRET_2D":
+            elif dicoKeyword[sname[1]] == "DISCRET_2D":
                 if flag[3] == False:
                     if parenthese == True:
                         f.write("{0:>31}),\n".format(" "))
@@ -1559,7 +1559,7 @@ class MedConverterAnsys(MedConverterMesh):
                             "CARA='VECT_X_Y', VALE={},),\n".format(Rep[i].getRep(nodes))
                         )
 
-            elif dicoKeyword[sname[1]] is "BARRE":
+            elif dicoKeyword[sname[1]] == "BARRE":
                 if flag[4] == False:
                     f.write("{0:>22}BARRE=(_F(GROUP_MA='{1}', ".format(" ", rname))
                     parenthese = True
@@ -1570,7 +1570,7 @@ class MedConverterAnsys(MedConverterMesh):
                 if i in Sect:
                     f.write("SECTION='GENERALE', CARA='A', VALE={}),\n".format(Sect[i].getAire()))
 
-            elif dicoKeyword[sname[1]] is "CABLE":
+            elif dicoKeyword[sname[1]] == "CABLE":
                 if flag[5] == False:
                     if parenthese == True:
                         f.write("{0:>26}),\n".format(" "))
@@ -1592,7 +1592,7 @@ class MedConverterAnsys(MedConverterMesh):
                     if present == False:
                         f.write("SECTION={0}, N_INIT={1}),\n".format(Sect[i].getAire(), 0.0))
 
-            elif dicoKeyword[sname[1]] is "MASSIF":
+            elif dicoKeyword[sname[1]] == "MASSIF":
                 i = int(sname[2])
                 if flag[6] == False:
                     if parenthese == True:
