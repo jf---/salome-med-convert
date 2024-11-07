@@ -863,6 +863,8 @@ class MedConverterAbaqus(MedConverterMesh):
         e_conv = CellsTypeConverter("ABAQUS")
         c_renum = ConnectivityRenumberer("ABAQUS")
 
+        groups_by_elem = {}
+
         for elem in mesh.Elements:
             idx_element_abaqus = elem.getId()
             element_abaqus_type = elem.getType()
@@ -874,6 +876,10 @@ class MedConverterAbaqus(MedConverterMesh):
             )
 
             self.add_cell(idx_element_abaqus, element_medcoupling_type, element_nodes_med)
+
+            if element_abaqus_type not in groups_by_elem:
+                groups_by_elem[element_abaqus_type] = []
+            groups_by_elem[element_abaqus_type].append(idx_element_abaqus)
 
         # Les groups
         # Nodes' group
@@ -887,6 +893,11 @@ class MedConverterAbaqus(MedConverterMesh):
             group_name = group.getName()
             group_element_abaqus = map(int, group.getGroup())
             self.add_group_cells(group_name, group_element_abaqus)
+
+        # Add a group by cell type:
+        for group_name, group_element_abaqus in groups_by_elem.items():
+            if group_name not in mesh.ElsetName:
+                self.add_group_cells(group_name, group_element_abaqus)
 
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]

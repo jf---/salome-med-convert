@@ -636,7 +636,7 @@
   }
  },
  "NB_CELLS": 2000,
- "NB_GRP_CELLS": 11,
+"NB_GRP_CELLS": 13,
  "NB_GRP_NODES": 16,
  "NB_NODES": 10588,
  "NODES": {
