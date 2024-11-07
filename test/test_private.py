@@ -87,6 +87,12 @@ class TestPrivate(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
+    def test_abaqus_eprouvette(self):
+        testname = "ABAQUS_EPROUVETTE"
+        filename = get_datafile_path("%s.inp" % testname)
+        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
+
     def test_ansys_exemple_01(self):
         testname = "ANSYS_EXEMPLE_01"
         filename = get_datafile_path("%s.cdb" % testname)
