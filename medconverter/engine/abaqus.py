@@ -4,7 +4,6 @@
 import time
 import os.path as osp
 import numpy as np
-import medcoupling
 import sys
 
 from .logger import logger
