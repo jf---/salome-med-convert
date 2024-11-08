@@ -46,7 +46,7 @@ class TestPerf(unittest.TestCase):
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_surface(self):
-        testname = "ABAQUS_PERF"
+        testname = "ABAQUS_SURFACE"
         filename = osp.join(data_path(), f"{testname}.inp")
         jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
