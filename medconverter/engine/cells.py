@@ -65,6 +65,18 @@ class CellsTypeConverter:
             # Acoustic element
             ("AC1D2", "SEG2"),
             ("AC1D3", "SEG3"),
+            # Rigid element
+            ("R2D2", "SEG2"),
+            ("R2D3", "SEG3"),
+            ("RB2D2", "SEG2"),
+            ("RB3D2", "SEG2"),
+            ("RB2D3", "SEG3"),
+            ("RAX2", "SEG2"),
+            ("RAX3", "SEG3"),
+            ("R3D3", "TRI3"),
+            ("R3D4", "QUAD4"),
+            ("R3D6", "TRI6"),
+            ("R3D8", "QUAD8"),
             # Beam element
             ("B21", "SEG2"),
             ("B22", "SEG3"),

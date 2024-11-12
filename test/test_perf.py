@@ -35,19 +35,20 @@ class TestPerf(unittest.TestCase):
 
     def test_systus_perf(self):
         testname = "SYSTUS_DONN408"
-        filename = get_datafile_path("%s.ASC" % testname)
-        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        filename = get_datafile_path(f"{testname}.ASC")
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Systus, Fmt.Salome, jsonfile)
 
     def test_abaqus_perf(self):
         testname = "ABAQUS_PERF"
-        filename = get_datafile_path("%s.inp" % testname)
-        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        filename = get_datafile_path(f"{testname}.inp")
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_surface(self):
-        filename = osp.join(data_path(), "ABAQUS_SURFACE.inp")
-        jsonfile = osp.join(data_path(), "json", "ABAQUS_SURFACE.json")
+        testname = "ABAQUS_SURFACE"
+        filename = osp.join(data_path(), f"{testname}.inp")
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_abaqus_hoj(self):
@@ -64,13 +65,13 @@ class TestPerf(unittest.TestCase):
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_v07_sets.txt"))
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_Spectra.txt"))
         filename = get_datafile_path("%s/%s" % (folder, "ABAQUS_HOJ_Ad_E_Full_RS_Y_BE.inp"))
-        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Abaqus, Fmt.Salome, jsonfile)
 
     def test_ansys_perf(self):
         testname = "ANSYS_PERF"
-        filename = get_datafile_path("%s.cdb" % testname)
-        jsonfile = osp.join(data_path(), "json", "%s.json" % testname)
+        filename = get_datafile_path(f"{testname}.cdb")
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile)
 
 
