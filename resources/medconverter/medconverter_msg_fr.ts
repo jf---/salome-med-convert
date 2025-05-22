@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="en">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr" sourcelanguage="en">
 <context>
     <name>medconverter</name>
     <message>
@@ -8,12 +9,12 @@
         <translation>Convertisseur de maillage</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="447"/>
+        <location filename="MainDialog.ui" line="486"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="454"/>
+        <location filename="MainDialog.ui" line="493"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -28,12 +29,12 @@
         <translation type="obsolete">Format du maillage d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="180"/>
-        <source>Output MED file</source>
-        <translation>Fichier MED de sortie</translation>
+        <location filename="MainDialog.ui" line="219"/>
+        <source>Output file</source>
+        <translation>Fichier de sortie</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="163"/>
+        <location filename="MainDialog.ui" line="202"/>
         <source>Import mesh in SMESH</source>
         <translation>Importer le maillage dans SMESH</translation>
     </message>
@@ -43,59 +44,59 @@
         <translation type="obsolete">Suivez le wizard.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="146"/>
+        <location filename="../../medconverter/gui/gui.py" line="139"/>
         <source>Converting mesh, please wait...</source>
         <translation>Conversion du maillage, veuillez patienter...</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="186"/>
+        <location filename="../../medconverter/gui/gui.py" line="179"/>
         <source>Open the SMESH module to see the newly created mesh.</source>
         <translation>Ouvrez le module SMESH pour voir le maillage nouvellement créé.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="195"/>
+        <location filename="../../medconverter/gui/gui.py" line="188"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="196"/>
+        <location filename="../../medconverter/gui/gui.py" line="189"/>
         <source>Conversion Done.</source>
         <translation>Conversion Terminée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="201"/>
+        <location filename="../../medconverter/gui/gui.py" line="194"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="203"/>
+        <location filename="../../medconverter/gui/gui.py" line="196"/>
         <source>Conversion Failed.
 {0}</source>
         <translation>La conversion a échoué.
 {0}</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="238"/>
+        <location filename="../../medconverter/gui/gui.py" line="245"/>
         <source>Please select the input mesh format.</source>
         <translation>Veuillez sélectionner le format du maillage d&apos;entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="242"/>
+        <location filename="../../medconverter/gui/gui.py" line="248"/>
         <source>Please select the input mesh file.</source>
         <translation>Veuillez sélectionner le maillage en entrée.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="245"/>
+        <location filename="../../medconverter/gui/gui.py" line="254"/>
         <source>Please select at least one output type.</source>
         <translation>Veuillez sélectionner au moins un type de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="248"/>
+        <location filename="../../medconverter/gui/gui.py" line="257"/>
         <source>Please select the output file.</source>
         <translation>Veuillez sélectionner le fichier de sortie.</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="295"/>
+        <location filename="../../medconverter/gui/gui.py" line="304"/>
         <source>Select a file</source>
         <translation>Choisir un fichier</translation>
     </message>
@@ -120,17 +121,17 @@
         <translation>Format de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="135"/>
+        <location filename="../../medconverter/gui/gui.py" line="128"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="136"/>
+        <location filename="../../medconverter/gui/gui.py" line="129"/>
         <source>Help is not available.</source>
         <translation>L&apos;aide n&apos;est pas disponible.</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="440"/>
+        <location filename="MainDialog.ui" line="479"/>
         <source>Apply</source>
         <translation>Exécuter</translation>
     </message>
@@ -140,7 +141,7 @@
         <translation>Fichier comm de sortie</translation>
     </message>
     <message>
-        <location filename="../../medconverter/gui/gui.py" line="251"/>
+        <location filename="../../medconverter/gui/gui.py" line="260"/>
         <source>Please select the output comm.</source>
         <translation>Veuillez sélectionner le fichier comm de sortie.</translation>
     </message>
@@ -150,7 +151,7 @@
         <translation>Format d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="71"/>
+        <location filename="MainDialog.ui" line="190"/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -160,7 +161,7 @@
         <translation>Fichier d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="278"/>
+        <location filename="MainDialog.ui" line="317"/>
         <source>...</source>
         <translation></translation>
     </message>
@@ -170,39 +171,49 @@
         <translation>Maillage</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="235"/>
+        <location filename="MainDialog.ui" line="274"/>
         <source>Command</source>
         <translation>Mise en données</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="249"/>
+        <location filename="MainDialog.ui" line="288"/>
         <source>Output COMM file</source>
         <translation>Fichier COMM de sortie</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="399"/>
+        <location filename="MainDialog.ui" line="438"/>
         <source>TextLabel</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="301"/>
+        <location filename="MainDialog.ui" line="340"/>
         <source>Advanced</source>
         <translation>Avancées</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="313"/>
+        <location filename="MainDialog.ui" line="352"/>
         <source>Advanced options may lead to unexpected results</source>
         <translation>Les options avancées peuvent entraîner des résultats inattendus</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="338"/>
+        <location filename="MainDialog.ui" line="377"/>
         <source>Skip Types</source>
         <translation>Types ignorés</translation>
     </message>
     <message>
-        <location filename="MainDialog.ui" line="351"/>
+        <location filename="MainDialog.ui" line="390"/>
         <source>List of cell types ( comma separated ) ignored during conversion. Types are given in the input mesh format.</source>
         <translation>Liste des type de maille ( separés par virgule ) ignorées à la conversion. Les types sont donnés dans le format du maillage d&apos;entrée.</translation>
+    </message>
+    <message>
+        <location filename="MainDialog.ui" line="176"/>
+        <source>Output format</source>
+        <translation>Format de sortie</translation>
+    </message>
+    <message>
+        <location filename="../../medconverter/gui/gui.py" line="251"/>
+        <source>Please select the output mesh format.</source>
+        <translation>Veuillez sélectionner le format du maillage de sortie.</translation>
     </message>
 </context>
 </TS>
