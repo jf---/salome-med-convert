@@ -214,7 +214,7 @@ class MedConverterSystus(MedConverterMesh):
         id_groups = 1  # La numérotation des groupes systus est incrementale et commune à tout type de groupe
         for name in sorted(groups_e_ids.keys()):
             group_e = groups_e_ids[name]
-            group_line = '%d %s 2 0 "PART_ID %d"  ""  "" %s' % (
+            group_line = '%d %s 2 0 "COLLECTOR_ID %d"  ""  "" %s' % (
                 id_groups,
                 name,
                 id_groups,
