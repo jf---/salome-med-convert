@@ -26,17 +26,6 @@ Advanced Options
 	      
    advanced_options
    
-Tests
------
-.. toctree::
-   :maxdepth: 2
-	      
-   tests_systus
-   tests_abaqus
-   tests_ansys
-   tests_zset
-   tests_aster
-
 Connectivity tables
 -------------------
 
@@ -46,5 +35,6 @@ Connectivity tables
 - `Abaqus <_static/abaqus_connectivity.pdf>`_
 - `Ansys <_static/ansys_connectivity.pdf>`_
 - `Zset <_static/zset_connectivity.pdf>`_
+- `TetGen <_static/tetgen_connectivity.pdf>`_
 
  
