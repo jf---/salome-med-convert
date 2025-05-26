@@ -114,7 +114,7 @@ class Settings:
         self.input_file = ""
         self.input_format = Fmt.Null
         self.output_file = ""
-        self.output_format = Fmt.Salome
+        self.output_format = Fmt.Null
         self.output_comm = ""
         self.skip_types = []
 

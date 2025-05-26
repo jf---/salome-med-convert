@@ -1,0 +1,31 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{tikz-3dplot}
+
+\begin{document}
+\tdplotsetmaincoords{70}{110}
+\input{config_generic.tex}
+\input{params.tex}
+\begin{tikzpicture}[font=\LARGE,tdplot_main_coords, every node/.style={scale=\scal}]
+
+\def\locations{1,...,4}
+
+\coordinate (1) at (0,-2\l,0);
+\coordinate (2) at (0,0,0);
+\coordinate (3) at (0,0,2\l);
+\coordinate (4) at (0,-2\l,2\l);
+
+
+\draw[-]
+(1) -- (2)
+(2) -- (3)
+(3) -- (4)
+(4) -- (1);
+
+\foreach \x [count=\c,evaluate=\c as \y using {{\connectivityQuadL}[\c-1]}]  in \locations 
+         {
+           \fill[black] (\x) circle [radius=\radius];
+           \node[\colorconnectivity, above left] at (\x) {\y};
+         }
+
+\end{tikzpicture}
+\end{document}

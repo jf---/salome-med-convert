@@ -28,7 +28,7 @@ import traceback
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
-from . import supported_input_formats, convert
+from . import supported_input_formats, supported_output_formats, convert
 from ..engine import Fmt
 from ..utilities import HAS_SALOME, translate, docs_path, resources_path
 from .settings import Settings
@@ -56,13 +56,10 @@ class MainDialog(BASE, FORM):
         self.setupUi(self)
         self.setStatus("")
 
-        self.smeshCheckBox.setEnabled(HAS_SALOME)
-        if not HAS_SALOME:
-            self.outFileCheckBox.setChecked(True)
-
         connect(self.inFileLineEdit.textChanged, self.update_controls)
         connect(self.inFileButton.clicked, self.browse_file_in)
         connect(self.inFormatBox.currentIndexChanged, self.update_controls)
+        connect(self.outFormatBox.currentIndexChanged, self.update_controls)
         connect(self.outFileCheckBox.stateChanged, self.update_controls)
         connect(self.outFileLineEdit.textChanged, self.update_controls)
         connect(self.outFileButton.clicked, self.browse_file_out)
@@ -75,6 +72,7 @@ class MainDialog(BASE, FORM):
         connect(self.helpButton.clicked, self.show_help)
 
         self.inFormatBox.addItems([Fmt.name(i) for i in supported_input_formats()])
+        self.outFormatBox.addItems([Fmt.name(i) for i in supported_output_formats()])
 
         # initialize default values
         self.from_settings(Settings())
@@ -102,6 +100,7 @@ class MainDialog(BASE, FORM):
         self.outFileLineEdit.setText(settings.output_file)
         self.inFileLineEdit.setText(settings.input_file)
         self.inFormatBox.setCurrentText(Fmt.name(settings.input_format))
+        self.outFormatBox.setCurrentText(Fmt.name(settings.output_format))
         self.skipTypesEdit.setText(",".join(settings.skip_types))
 
     def to_settings(self):
@@ -115,6 +114,7 @@ class MainDialog(BASE, FORM):
 
         settings.output_comm = self.outCommLineEdit.text()
         settings.output_file = self.outFileLineEdit.text()
+        settings.output_format = Fmt.get(self.outFormatBox.currentText())
         settings.input_file = self.inFileLineEdit.text()
         settings.input_format = Fmt.get(self.inFormatBox.currentText())
         settings.skip_types = self.skipTypesEdit.text().split(",")
@@ -219,6 +219,20 @@ class MainDialog(BASE, FORM):
         self.skipTypesCheckBox.setEnabled(enable_skiptypes)
         self.skipTypesEdit.setEnabled(enable_skiptypes)
 
+        enable_plot = HAS_SALOME and settings.output_format in (Fmt.Salome,)
+        self.smeshCheckBox.setEnabled(enable_plot)
+        if not enable_plot:
+            self.smeshCheckBox.setChecked(False)
+
+        if settings.input_format not in (Fmt.Salome, Fmt.Null):
+            self.outFormatBox.setCurrentText(Fmt.name(Fmt.Salome))
+
+        if settings.output_format not in (Fmt.Salome, Fmt.Null):
+            self.inFormatBox.setCurrentText(Fmt.name(Fmt.Salome))
+
+        if not HAS_SALOME:
+            self.outFileCheckBox.setChecked(True)
+
     def is_valid(self):
         """Tell if the settings are valid, the conversion can be launched.
 
@@ -230,9 +244,11 @@ class MainDialog(BASE, FORM):
         if settings.input_format == Fmt.Null:
             self.setStatus(translate("medconverter", "Please select the input mesh format."))
             return False
-
         if not settings.input_file:
             self.setStatus(translate("medconverter", "Please select the input mesh file."))
+            return False
+        if settings.output_format == Fmt.Null:
+            self.setStatus(translate("medconverter", "Please select the output mesh format."))
             return False
         if not (self.outFileCheckBox.isChecked() or self.smeshCheckBox.isChecked()):
             self.setStatus(translate("medconverter", "Please select at least one output type."))
