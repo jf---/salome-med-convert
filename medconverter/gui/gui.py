@@ -147,7 +147,8 @@ class MainDialog(BASE, FORM):
         use_tmp = False
         if not settings.output_file:
             use_tmp = True
-            settings.output_file = tempfile.mkstemp(suffix=".med")[1]
+            fd, settings.output_file = tempfile.mkstemp(suffix=".med")
+            os.close(fd)
         settings.dump(sys.stdout)
 
         output_comm = (
