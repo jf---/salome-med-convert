@@ -184,12 +184,13 @@ class MedConverterMesh:
             for j, (medcoupling_cell_type, element_nodes_med) in enumerate(self.cells[dim]):
                 self.cells_continuous[cells_shift + j] = (medcoupling_cell_type, element_nodes_med)
 
-            for group, values in self.groups_e[dim].items():
-                if group in self.groups_e_continuous:
-                    for v in values:
-                        self.groups_e_continuous[group].append(cells_shift + v)
-                else:
-                    self.groups_e_continuous[group] = [cells_shift + v for v in values]
+            if dim in self.groups_e:
+                for group, values in self.groups_e[dim].items():
+                    if group in self.groups_e_continuous:
+                        for v in values:
+                            self.groups_e_continuous[group].append(cells_shift + v)
+                    else:
+                        self.groups_e_continuous[group] = [cells_shift + v for v in values]
 
             cells_shift += j + 1
 
