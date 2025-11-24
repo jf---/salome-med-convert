@@ -458,6 +458,16 @@ class TestSimple(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", "TETGEN_FVCA6_1.json")
         deep_test_conversion(self, filename, Fmt.Tetgen, Fmt.Salome, jsonfile)
 
+    def test_salome_systus_empty_level(self):
+        filename = osp.join(data_path(), "SALOME_BOX.med")
+        jsonfile = osp.join(data_path(), "json", "SALOME_BOX.json")
+        deep_test_conversion(self, filename, Fmt.Salome, Fmt.Systus, jsonfile)
+
+    def test_salome_aster_empty_level(self):
+        filename = osp.join(data_path(), "SALOME_BOX.med")
+        jsonfile = osp.join(data_path(), "json", "SALOME_BOX.json")
+        deep_test_conversion(self, filename, Fmt.Salome, Fmt.Aster, jsonfile)
+
 
 if __name__ == "__main__":
     unittest.main()
