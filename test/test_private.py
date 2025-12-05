@@ -165,6 +165,12 @@ class TestPrivate(unittest.TestCase):
         jsonfile = osp.join(data_path(), "json", f"{testname}.json")
         deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile, commtest=False)
 
+    def test_ansys_vanne(self):
+        testname = "ANSYS_VANNE"
+        filename = get_datafile_path(f"{testname}.cdb")
+        jsonfile = osp.join(data_path(), "json", f"{testname}.json")
+        deep_test_conversion(self, filename, Fmt.Ansys, Fmt.Salome, jsonfile, commtest=False)
+
 
 if __name__ == "__main__":
     unittest.main()
