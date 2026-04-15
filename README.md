@@ -1,74 +1,60 @@
 # Converter MED from/to other formats
 
-This project provides a SALOME plugin to convert mesh files between MED and
-other formats.
+Convert mesh files between MED and other FEA formats.
 
-At this time, only the following format is supported :
-- SYSTUS (as known as in 2018 release).
-- ABAQUS
-- ASTER
-- ANSYS
-- ZSET
+Supported formats: **SYSTUS**, **ABAQUS**, **ANSYS**, **Aster**, **ZSET**, **Tetgen**.
 
-Only the meshes are converted for the moment. It is planned to also convert
-results fields.
+Only meshes are converted for the moment. It is planned to also convert result fields.
 
-This plugin requires at least SALOME 9.3.
+## Building (macOS ARM64)
 
+All dependencies come from conda-forge via [pixi](https://pixi.sh). medcoupling and libmed-MPI are built from source (no conda packages for macOS).
 
-## Installation
-
-Load environment with PyQt 5 support, for example, by loading the SALOME
-environment and type `make`.
-
-``` bash
-salome shell -- make
+```bash
+pixi install -e build
+pixi run -e build bash scripts/build-libmed-mpi.sh
+pixi run -e build bash scripts/build-medcoupling.sh
 ```
 
+This builds libmed 4.2 with MPI, then medcoupling V9_14_0 with the ARM64 `long`/`long long` patches. The medcoupling script runs the test suite at the end (698 tests).
 
-# Executing the plugin using the development files
+See `scripts/ARM64_BUILD_NOTES.md` for details on the ARM64 type compatibility issues.
 
-## Using the graphical interface
+## Usage
 
-In stand-alone mode:
+### Command line
 
-``` bash
-medconverter gui
-```
-
-or in a SALOME graphical session:
-
-``` bash
-SALOME_PLUGINS_PATH=$(pwd) salome
-```
-
-## Using the command line
-
-Example:
-
-``` bash
+```bash
 medconverter run test/data/MOTIF_DONN1.ASC /tmp/motif.med
 ```
 
-See `medconverter run --help` for the available arguments.
+See `medconverter run --help` for available arguments.
 
+### GUI
 
-# Testing
+Standalone:
 
-In the source tree, just execute:
+```bash
+medconverter gui
+```
 
-``` bash
+As a SALOME plugin (requires SALOME 9.3+):
+
+```bash
+SALOME_PLUGINS_PATH=$(pwd) salome
+```
+
+## Testing
+
+```bash
+pixi run -e build pytest test/ -x -q -n auto -k "not section"
+```
+
+Tests requiring EDF VPN access (`test_private`, `test_perf`) or full SALOME (`section` tests) are excluded.
+
+## Legacy installation (SALOME environment)
+
+```bash
+salome shell -- make
 salome shell -- python test/run_unittest.py
-```
-
-or to run a specific test:
-
-``` bash
-salome shell -- python test/run_unittest.py -v test_simple.TestSimple.test_abaqus_carre
-```
-
-Within a SALOME installation:
-
-``` bash
-salome test -L MEDCONVERTER
 ```
