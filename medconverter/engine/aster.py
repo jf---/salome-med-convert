@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
-import re
 import os.path as osp
+import re
+import time
 
 from ..utilities import chunks
-from .logger import logger
-from .medconverter import MedConverterMesh
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
+from .logger import logger
+from .medconverter import MedConverterMesh
 
 ASTER_MAX_LINE_SIZE = 8
 ASTER_NODES_SHIFT = 1  # La numérotation ASTER des noeuds démarre à 1
@@ -95,7 +95,6 @@ class MedConverterAster(MedConverterMesh):
 
         self.mesh_name = osp.splitext(osp.split(filename)[-1])[0]
         for block in mesh_blocks:
-
             bname, bbody, bfields = zip_block(block)
 
             if bname in ("COOR_3D", "COOR_2D"):

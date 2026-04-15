@@ -18,10 +18,11 @@
 """
 This module implements *medconverter* settings
 """
+
 from collections import OrderedDict
 
-from ..utilities import translate
 from ..engine import Fmt
+from ..utilities import translate
 
 
 class Settings:

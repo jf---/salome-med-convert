@@ -28,19 +28,17 @@ import traceback
 from PyQt5 import Qt as Q
 from PyQt5 import QtCore, uic
 
-from . import supported_input_formats, supported_output_formats, convert
 from ..engine import Fmt
-from ..utilities import HAS_SALOME, translate, docs_path, resources_path
+from ..utilities import HAS_SALOME, docs_path, resources_path, translate
+from . import convert, supported_input_formats, supported_output_formats
 from .settings import Settings
 from .utilities import connect, get_file_name, publish_meshes
-
 
 UIFILE = osp.join(resources_path(), "medconverter", "MainDialog.ui")
 BASE, FORM = uic.loadUiType(UIFILE)
 
 
 class MainDialog(BASE, FORM):
-
     """
     Main window of *medconverter* plugin.
     """
@@ -355,7 +353,7 @@ def start(context=None, verbose=False):
         # create application
         app = Q.QApplication(sys.argv)
         app.lastWindowClosed.connect(app.quit)
-        lang = "en" if not "fr" in Q.QLocale.system().name() else "fr"
+        lang = "en" if "fr" not in Q.QLocale.system().name() else "fr"
         parent = None
 
     parent = context.sg.getDesktop() if context is not None else None

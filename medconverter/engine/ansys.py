@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
 import math
 import os.path as osp
+import time
 from collections import OrderedDict
-import medcoupling
+
 import numpy as np
 
-from .logger import logger
-from .medconverter import MedConverterMesh
-from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
+from .errors import MedConverterError
+from .logger import logger
+from .medconverter import MedConverterMesh
 
 # doc: https://www.mm.bme.hu/~gyebro/files/ans_help_v182/ans_cmd/Hlp_C_CM.html
 # doc: http://oss.jishulink.com/caenet/forums/upload/2013/11/25/389/21437609302438.pdf
@@ -697,7 +697,6 @@ class MedConverterAnsys(MedConverterMesh):
         tic = time.perf_counter()
         # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, "r", encoding=self._get_file_encoding(filename)) as file:
-
             for line in file:
                 strip_line = line.strip().upper()
                 spline = strip_line.split()
@@ -1004,7 +1003,6 @@ class MedConverterAnsys(MedConverterMesh):
                     namegroupelem = namegroupelem + "-" + str(id_epais)
 
                     if cell.rep == 0 or cell.rep == rep_global:
-
                         x1 = nodes[cell.nodes[1]]
                         o1 = nodes[cell.nodes[0]]
                         y1 = nodes[cell.nodes[2]]
@@ -1269,7 +1267,6 @@ class MedConverterAnsys(MedConverterMesh):
 
         orientation.append("{:>22}ORIENTATION=(".format(" "))
         for name in groupname:
-
             sname = name.split("-")
             rname = name.replace("-", "_")
 
@@ -1321,9 +1318,7 @@ class MedConverterAnsys(MedConverterMesh):
                     if Sect[i].subtype == "RECT":
                         f.write(
                             "SECTION='RECTANGLE', VARI_SECT='CONSTANT', CARA=('HY', 'HZ'), VALE=({0}, {1}),),\
-                                \n".format(
-                                Sect[i].data[0], Sect[i].data[1]
-                            )
+                                \n".format(Sect[i].data[0], Sect[i].data[1])
                         )
                     elif Sect[i].subtype == "QUAD":
                         hy1 = math.sqrt(
@@ -1345,16 +1340,12 @@ class MedConverterAnsys(MedConverterMesh):
                         vale = (hy1, hy2, hz1, hz2)
                         f.write(
                             "SECTION='RECTANGLE', VARI_SECT='HOMOTHETIQUE', CARA=('HY1', 'HY2', 'HZ1', 'HZ2'), VALE=({}),),\
-                                \n".format(
-                                vale
-                            )
+                                \n".format(vale)
                         )
                     elif Sect[i].subtype == "HREC":
                         f.write(
                             "SECTION='RECTANGLE', VARI_SECT='HOMOTHETIQUE', CARA=('HY1', 'HZ1', 'HY2', 'HZ2', 'EPY1', 'EPY2', 'EPZ1', EPZ2'), VALE=({}),),\
-                                \n".format(
-                                Sect[i].data[:]
-                            )
+                                \n".format(Sect[i].data[:])
                         )
                     elif "CSOL" in Sect[i].subtype:
                         f.write(
@@ -1365,9 +1356,7 @@ class MedConverterAnsys(MedConverterMesh):
                     elif "CTUB" in Sect[i].subtype:
                         f.write(
                             "SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0},{1})),\
-                                \n".format(
-                                Sect[i].data[1], Sect[i].data[1] - Sect[i].data[0]
-                            )
+                                \n".format(Sect[i].data[1], Sect[i].data[1] - Sect[i].data[0])
                         )
                     elif Sect[i].subtype == "ASEC":
                         f.write(
@@ -1400,9 +1389,7 @@ class MedConverterAnsys(MedConverterMesh):
                 elif i in Sect and Sect[i].type == "PIPE":
                     f.write(
                         "SECTION='CERCLE', VARI_SECT='CONSTANT', CARA=('R', 'EP'), VALE=({0}, {1}),),\
-                            \n".format(
-                            Sect[i].data[0] / 2, Sect[i].data[1]
-                        )
+                            \n".format(Sect[i].data[0] / 2, Sect[i].data[1])
                     )
 
                 i = int(sname[2])
@@ -1629,7 +1616,6 @@ class MedConverterAnsys(MedConverterMesh):
         Sect = self._structural_data_read[7]
 
         with open(comm_file, "w") as f:
-
             coque = False
             coque_name = []
             flag = [False, False, False]
@@ -1704,15 +1690,12 @@ from code_aster.Objects.table_py import Table
 tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
 {0} = CREA_TABLE(**tab_updated.dict_CREA_TABLE())
 
-""".format(
-                            name_cara
-                        )
+""".format(name_cara)
                     )
 
             f.write("MA=LIRE_MAILLAGE(FORMAT='MED', NOM_MED='{0}')\n".format(self.mesh_name))
 
             for name in groupname:
-
                 sname = name.split("-")
                 rname = name.replace("-", "_")
 
@@ -1725,17 +1708,13 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         flag[0] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n{0:>28}PHENOMENE='MECANIQUE',\
-                                \n{0:>29}MODELISATION='{2}'),\n ".format(
-                                " ", rname, sname[1]
-                            )
+                                \n{0:>29}MODELISATION='{2}'),\n ".format(" ", rname, sname[1])
                         )
                         meca_name.append(name)
                     elif sname[0][0] == "M":
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n {0:>28}PHENOMENE='MECANIQUE',\
-                                \n{0:>29}MODELISATION='{2}'),\n".format(
-                                " ", rname, sname[1]
-                            )
+                                \n{0:>29}MODELISATION='{2}'),\n".format(" ", rname, sname[1])
                         )
                         meca_name.append(name)
 
@@ -1744,17 +1723,13 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         flag[1] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n{0:>28}PHENOMENE='THERMIQUE',\
-                                \n{0:>29}MODELISATION='{1}'),\n".format(
-                                " ", rname
-                            )
+                                \n{0:>29}MODELISATION='{1}'),\n".format(" ", rname)
                         )
                         ther_name.append(name)
                     elif sname[0][0] == "T":
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n{0:>28}PHENOMENE='THERMIQUE',\
-                                \n{:>29}MODELISATION='{2}'),\n".format(
-                                " ", rname, sname[1]
-                            )
+                                \n{:>29}MODELISATION='{2}'),\n".format(" ", rname, sname[1])
                         )
                         ther_name.append(name)
 
@@ -1763,18 +1738,14 @@ tab_updated = Table([cara_updated], tab_cara.para, tab_cara.type)
                         flag[1] = True
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}',\n {0:>28}PHENOMENE='ACOUSTIQUE',\
-                                \n{0:>29}MODELISATION='{2}'),\n".format(
-                                " ", rname, sname[1]
-                            )
+                                \n{0:>29}MODELISATION='{2}'),\n".format(" ", rname, sname[1])
                         )
                         acou_name.append(name)
 
                     elif sname[0][0] == "A":
                         f.write(
                             "{0:>26}_F(GROUP_MA='{1}', \n{0:>28}PHENOMENE='ACOUSTIQUE',\
-                                \n{0:>29}MODELISATION='{2}'),\n".format(
-                                " ", rname, sname[1]
-                            )
+                                \n{0:>29}MODELISATION='{2}'),\n".format(" ", rname, sname[1])
                         )
                         acou_name.append(name)
 

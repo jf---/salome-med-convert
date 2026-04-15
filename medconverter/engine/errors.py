@@ -4,4 +4,5 @@
 
 class MedConverterError(Exception):
     "Base class for exceptions raised by the medconverter module."
+
     pass

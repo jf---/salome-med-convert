@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
 import os.path as osp
+import time
 
-from .logger import logger
-from .medconverter import MedConverterMesh
-from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
+from .errors import MedConverterError
+from .logger import logger
+from .medconverter import MedConverterMesh
 
 SYSTUS_NODES_SHIFT = 1  # La numérotation SYSTUS des noeuds démarre à 1
 SYSTUS_CELLS_SHIFT = 1  # La numérotation SYSTUS des élements démarre à 1
@@ -66,7 +66,6 @@ class MedConverterSystus(MedConverterMesh):
             self.mesh_name = line_1 or osp.splitext(osp.split(filename)[-1])[0]
 
             for line in f:
-
                 if flag["NODES"] == 1:
                     NODES.append(line)
                 elif flag["ELEMENTS"] == 1:
@@ -248,9 +247,7 @@ BEGIN_INFORMATIONS
  4 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 3 3 9 0 0 0 0 9 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0
 END_INFORMATIONS
-""".format(
-            *[time.strftime("%y%m%d %H%M%S"), self.mesh_name, nb_nodes, nb_elements]
-        )
+""".format(*[time.strftime("%y%m%d %H%M%S"), self.mesh_name, nb_nodes, nb_elements])
 
         txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n" % (
             nb_nodes,

@@ -19,8 +19,15 @@
 Implementation of *medconverter* plugin.
 """
 
-from .engine import Fmt, convert
-from .gui import supported_input_formats, supported_output_formats
-from .gui.gui import start
+from importlib.metadata import version
 
-from .version import __version__, __hgrevid__, __release__
+from .engine import Fmt as Fmt
+from .engine import convert as convert
+from .gui import (
+    supported_input_formats as supported_input_formats,
+)
+from .gui import (
+    supported_output_formats as supported_output_formats,
+)
+
+__version__ = version("medconverter")

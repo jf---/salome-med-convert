@@ -1,4 +1,80 @@
-[tool.black]
-line-length = 100
-skip-magic-trailing-comma = true
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[project]
+name = "medconverter"
+version = "1.1.0"
+description = "Convert mesh files between MED and other FEA formats (SYSTUS, ABAQUS, ANSYS, Aster, ZSET, Tetgen)"
+license = "GPL-3.0-only"
+requires-python = ">=3.10"
+dependencies = ["numpy"]
+
+[project.scripts]
+medconverter = "medconverter.cli:main"
+
+# --- pixi -----------------------------------------------------------------
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+
+[tool.pixi.dependencies]
+python = ">=3.10,<3.13"
+numpy = "*"
+pyqt = ">=5"
+
+# medcoupling + libmed-mpi: built from source against conda deps
+[tool.pixi.feature.build.dependencies]
+python = ">=3.10,<3.13"
+numpy = "*"
+pyqt = ">=5"
+cmake = "*"
+swig = ">=4.0.2"
+hdf5 = { version = "*", build = "*mpi_openmpi*" }
+openmpi = "*"
+libboost-devel = "*"
+zlib = "*"
+libxml2 = "*"
+c-compiler = "*"
+cxx-compiler = "*"
+gfortran = "*"
+make = "*"
+
+[tool.pixi.pypi-dependencies]
+medconverter = { path = ".", editable = true }
+
+[tool.pixi.feature.build.pypi-dependencies]
+medconverter = { path = ".", editable = true }
+
+[tool.pixi.feature.dev.dependencies]
+ruff = "*"
+pytest = "*"
+pytest-xdist = "*"
+
+[tool.pixi.environments]
+default = { features = ["dev"], solve-group = "default" }
+build = { features = ["dev", "build"], no-default-feature = true, solve-group = "build" }
+
+[tool.pixi.tasks]
+test = "pytest test/ -x -q -n auto"
+lint = "ruff check ."
+format = "ruff format ."
+_build-libmed = { cmd = "bash scripts/build-libmed-mpi.sh", description = "Build libmed with MPI from source" }
+_build-medcoupling = { cmd = "bash scripts/build-medcoupling.sh", description = "Build medcoupling from source" }
+build = { depends-on = ["_build-libmed", "_build-medcoupling"], description = "Build libmed-mpi + medcoupling" }
+
+# --- ruff ------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+# --- pytest ----------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["test"]

@@ -20,7 +20,9 @@ Implementation of *medconverter* plugin.
 """
 
 import traceback
-from ..engine import Fmt, convert as convert_engine
+
+from ..engine import Fmt
+from ..engine import convert as convert_engine
 
 
 def supported_input_formats():

@@ -19,12 +19,12 @@
 This package defines the *engine* of the *medconverter* plugin.
 """
 
-from .systus import MedConverterSystus
 from .abaqus import MedConverterAbaqus
 from .ansys import MedConverterAnsys
-from .zset import MedConverterZset
 from .aster import MedConverterAster
+from .systus import MedConverterSystus
 from .tetgen import MedConverterTetgen
+from .zset import MedConverterZset
 
 
 class Fmt:

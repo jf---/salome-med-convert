@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
 import os.path as osp
+import time
 
 from ..utilities import chunks
-from .logger import logger
-from .medconverter import MedConverterMesh
 from .cells import CellsTypeConverter, GroupCellsTypeConverter
 from .connectivity import ConnectivityRenumberer
+from .logger import logger
+from .medconverter import MedConverterMesh
 
 ZSET_MAX_LINE_SIZE = 21
 ZSET_NODES_SHIFT = 1  # La numérotation ZSET des noeuds démarre à 1

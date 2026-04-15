@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict
+
 import medcoupling
 
 from .errors import MedConverterError
 
 
 class CellsTypeConverter:
-
     _systus_to_med = {
         "0001": "POINT1",
         "1002": "SEG2",
@@ -682,7 +682,7 @@ class CellsTypeConverter:
     def _systus_to_mc(self, systus_type):
         dim, stype, nb_nodes = systus_type[0], systus_type[1], systus_type[-2:]
 
-        if not stype in ("0", "1", "2", "3"):
+        if stype not in ("0", "1", "2", "3"):
             raise MedConverterError(
                 "Cannot convert {} type '{}'".format(*(self.code.title(), systus_type))
             )
@@ -708,7 +708,6 @@ class CellsTypeConverter:
 
 
 class GroupCellsTypeConverter(CellsTypeConverter):
-
     _systus_to_med = {}
     _abaqus_to_med = {}
     _aster_to_med = {}

@@ -1,3 +1,9 @@
-install
+install/
 *.pyc
+__pycache__/
 medconverter/version.py
+*.egg-info/
+.pixi/
+.ruff_cache/
+.DS_Store
+.env

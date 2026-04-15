@@ -22,6 +22,7 @@ Auxiliary utilities for *medconverter* plugin.
 import os
 import os.path as osp
 import sys
+
 from PyQt5 import Qt as Q
 
 

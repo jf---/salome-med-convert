@@ -3,7 +3,7 @@
 import os.path as osp
 import unittest
 
-from medconverter.utilities import resources_path, docs_path, data_path
+from medconverter.utilities import data_path, docs_path, resources_path
 
 
 class TestUtilities(unittest.TestCase):

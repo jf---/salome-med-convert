@@ -19,13 +19,13 @@
 Convenient utilities for the MED CONVERT plugin.
 """
 
+import json
 import os
 import os.path as osp
-import json
 import random
 
-from PyQt5 import Qt as Q
 import medcoupling
+from PyQt5 import Qt as Q
 
 try:
     import salome

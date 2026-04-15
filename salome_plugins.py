@@ -19,8 +19,8 @@
 Deployment to SALOME.
 """
 
-from PyQt5 import Qt as Q
 import salome_pluginsmanager
+from PyQt5 import Qt as Q
 
 # pragma pylint: disable=invalid-name
 

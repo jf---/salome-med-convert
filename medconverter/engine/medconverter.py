@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
 import logging
+import time
 from collections import OrderedDict
+
 import medcoupling
 
-from .logger import logger
 from .errors import MedConverterError
+from .logger import logger
 
 
 class MedConverterMesh:
@@ -150,9 +151,9 @@ class MedConverterMesh:
         cell_nodes_med = tuple(self._corresponding_nodes[k] for k in cell_nodes)
 
         key = "%dD" % cell_dim
-        if not key in self.cells:
+        if key not in self.cells:
             self.cells[key] = []
-        if not key in self._corresponding_cells:
+        if key not in self._corresponding_cells:
             self._corresponding_cells[key] = {}
 
         self.cells[key].append((medcoupling_cell_type, cell_nodes_med))
@@ -168,9 +169,9 @@ class MedConverterMesh:
         for cell in group_cells:
             for dim in self.cells.keys():
                 if cell in self._corresponding_cells[dim]:
-                    if not dim in self.groups_e:
+                    if dim not in self.groups_e:
                         self.groups_e[dim] = {}
-                    if not group_name in self.groups_e[dim]:
+                    if group_name not in self.groups_e[dim]:
                         self.groups_e[dim][group_name] = []
                     self.groups_e[dim][group_name].append(self._corresponding_cells[dim][cell])
 
@@ -299,7 +300,7 @@ class MedConverterMesh:
             tic = time.perf_counter()
 
             # Elements par niveau, avec renumerotation au passage
-            for (medcoupling_type, element_nodes_med) in self.cells[dim]:
+            for medcoupling_type, element_nodes_med in self.cells[dim]:
                 number_of_nodes_current_element = (
                     medcoupling.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(medcoupling_type)
                 )

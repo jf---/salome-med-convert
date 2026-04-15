@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
-import re
 import os.path as osp
-import medcoupling
+import time
 
-from ..utilities import chunks
-from .logger import logger
-from .medconverter import MedConverterMesh
-from .errors import MedConverterError
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
+from .logger import logger
+from .medconverter import MedConverterMesh
 
 
 class MedConverterTetgen(MedConverterMesh):

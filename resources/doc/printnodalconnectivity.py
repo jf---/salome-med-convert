@@ -1,7 +1,9 @@
-import sys
 import string
-from medconverter.engine.connectivity import ConnectivityRenumberer
+import sys
+
 import medcoupling as medc
+
+from medconverter.engine.connectivity import ConnectivityRenumberer
 
 letters = list(string.ascii_uppercase)
 

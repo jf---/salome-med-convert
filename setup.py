@@ -9,14 +9,14 @@ Installation of the Salome-Meca plugin for the calculation of water blades via M
 #     https://docs.python.org/2/distutils/setupscript.html#listing-whole-packages
 
 # from setuptools import setup, find_packages, Extension
-import sys
 import os
 import os.path as osp
-from glob import glob
-from distutils import log
-from distutils.core import setup
-from distutils.command.install_lib import install_lib
 import subprocess
+import sys
+from distutils import log
+from distutils.command.install_lib import install_lib
+from distutils.core import setup
+from glob import glob
 
 
 def get_prefix(argv):
@@ -110,9 +110,7 @@ with open(os.sep.join(["medconverter", "version.py"]), "w") as f:
 __version__ = '{}'
 __hgrevid__ = '{}'
 __release__ = '{}'
-""".format(
-            sys.argv[0], __version__, __hgrevid__, __release__
-        )
+""".format(sys.argv[0], __version__, __hgrevid__, __release__)
     )
 
 cmdclass = {"install_lib": InstallLibSalome}

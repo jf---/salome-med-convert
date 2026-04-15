@@ -15,19 +15,20 @@
 # along with this program; if not, you may download a copy of license
 # from https://www.gnu.org/licenses/gpl-3.0.
 
+import getpass
+import json
 import os
 import os.path as osp
 import shutil
+import ssl
 import sys
-import json
 import tempfile
 from functools import wraps
-import ssl
-import getpass
-from urllib.request import urlopen
 from urllib.error import HTTPError
+from urllib.request import urlopen
 
-from medconverter.engine import Fmt, convert as convert_engine
+from medconverter.engine import Fmt
+from medconverter.engine import convert as convert_engine
 from medconverter.utilities import MAX_ELTS_CHECK_GROUPS, create_test_json_file
 
 DATA_URL = "https://minio.retd.edf.fr/codeaster/tests-data"
