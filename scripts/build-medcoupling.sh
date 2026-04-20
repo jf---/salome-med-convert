@@ -1,152 +1,110 @@
 #!/usr/bin/env bash
-# Build medcoupling from source against conda-provided deps.
-# Usage: pixi run -e build _build-medcoupling
+# Build medcoupling V9_14_0 from source with MPI + ARM64 patches.
 set -euo pipefail
 
 MEDCOUPLING_VERSION="V9_14_0"
-MEDCOUPLING_REPO="https://github.com/SalomePlatform/medcoupling.git"
-CONFIG_URL="https://github.com/SalomePlatform/configuration/archive/refs/heads/master.tar.gz"
-
 PREFIX="${CONDA_PREFIX:?run inside pixi}"
 NCPU="$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
-WORKDIR="${TMPDIR:-/tmp}/medcoupling-build"
-MEDCOUPLING_SRC="${WORKDIR}/medcoupling"
-BUILD_DIR="${MEDCOUPLING_SRC}/build"
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+BUILDROOT="$(cd "${SCRIPTDIR}/.." && pwd)/.build/medcoupling"
+SRC_DIR="${BUILDROOT}/src"
+CFG_DIR="${SRC_DIR}/deps/config"
+BUILD_DIR="${SRC_DIR}/build"
 
-# OpenMPI wrapper hardcodes conda cross-compiler name; override to system clang
-export OMPI_CC=clang
-export OMPI_CXX=clang++
+# ── skip if already installed ─────────────────────────────────────────
+if python -c "import medcoupling; medcoupling.MEDCouplingUMesh" 2>/dev/null; then
+    echo "medcoupling already installed, skipping (rm .build/medcoupling to force)"
+    exit 0
+fi
 
-# ── clone / update source ────────────────────────────────────────────
-if [ ! -d "${MEDCOUPLING_SRC}/.git" ]; then
-    echo "==> cloning medcoupling ${MEDCOUPLING_VERSION}"
-    mkdir -p "${WORKDIR}"
+# OpenMPI wrappers hardcode conda cross-compiler; override to system clang
+export OMPI_CC=clang OMPI_CXX=clang++
+
+echo "==> building medcoupling ${MEDCOUPLING_VERSION}"
+
+# ── clone source ──────────────────────────────────────────────────────
+if [ ! -d "${SRC_DIR}/.git" ]; then
+    mkdir -p "${BUILDROOT}"
     git clone --branch "${MEDCOUPLING_VERSION}" --depth 1 \
-        "${MEDCOUPLING_REPO}" "${MEDCOUPLING_SRC}"
+        https://github.com/SalomePlatform/medcoupling.git "${SRC_DIR}"
 else
-    echo "==> resetting medcoupling to ${MEDCOUPLING_VERSION}"
-    git -C "${MEDCOUPLING_SRC}" checkout -- .
-    git -C "${MEDCOUPLING_SRC}" fetch --tags
-    git -C "${MEDCOUPLING_SRC}" checkout "${MEDCOUPLING_VERSION}"
+    git -C "${SRC_DIR}" checkout -- .
 fi
 
 # ── SALOME configuration cmake module ─────────────────────────────────
-CFG_DIR="${MEDCOUPLING_SRC}/deps/config"
 if [ ! -d "${CFG_DIR}/cmake" ]; then
-    echo "==> fetching SALOME configuration module"
     mkdir -p "${CFG_DIR}"
-    curl -fsSL "${CONFIG_URL}" | tar xz --strip-components=1 -C "${CFG_DIR}"
+    curl -fsSL "https://github.com/SalomePlatform/configuration/archive/refs/heads/master.tar.gz" \
+        | tar xz --strip-components=1 -C "${CFG_DIR}"
 fi
 
-# ── patch HDF5 cmake finder (from conda-forge feedstock) ──────────────
+# ── patches ───────────────────────────────────────────────────────────
+# HDF5 cmake finder (conda-forge feedstock)
 HDFCMAKE="${CFG_DIR}/cmake/FindSalomeHDF5.cmake"
-if [ -f "${HDFCMAKE}" ] && ! grep -q "_first_hdf5_lib" "${HDFCMAKE}"; then
-    echo "==> patching FindSalomeHDF5.cmake"
+if ! grep -q "_first_hdf5_lib" "${HDFCMAKE}" 2>/dev/null; then
     python -c "
 import pathlib
 p = pathlib.Path('${HDFCMAKE}')
-old = p.read_text()
-new = old.replace(
+p.write_text(p.read_text().replace(
     'GET_PROPERTY(_lib_lst SOURCE \${HDF5_LIBRARIES} PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES_NOCONFIG)',
-    '''SET(_lib_lst \"\")
-  LIST(GET HDF5_LIBRARIES 0 _first_hdf5_lib)
-  IF(TARGET \${_first_hdf5_lib})
-    GET_PROPERTY(_lib_lst TARGET \${_first_hdf5_lib} PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES_NOCONFIG)
-  ENDIF()''')
-p.write_text(new)
+    'SET(_lib_lst \"\")\n  LIST(GET HDF5_LIBRARIES 0 _first_hdf5_lib)\n  IF(TARGET \${_first_hdf5_lib})\n    GET_PROPERTY(_lib_lst TARGET \${_first_hdf5_lib} PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES_NOCONFIG)\n  ENDIF()'))
 "
 fi
 
-# ── ensure python-config exists (SALOME cmake expects it) ─────────────
-if [ ! -e "${PREFIX}/bin/python-config" ] && [ -e "${PREFIX}/bin/python3-config" ]; then
-    ln -sf python3-config "${PREFIX}/bin/python-config"
-fi
+# python-config symlink (SALOME cmake expects it)
+[ -e "${PREFIX}/bin/python-config" ] || ln -sf python3-config "${PREFIX}/bin/python-config"
 
-# ── ARM64 macOS: patch long vs long long ──────────────────────────────
-# On ARM64, long and long long are both 64-bit but Clang treats them as
-# incompatible types. libmed defines med_int as `long`. medcoupling uses
-# int64_t (= long long) everywhere. We patch so the entire codebase
-# consistently uses `long` for 64-bit integers.
+# ARM64: long vs long long (see scripts/ARM64_BUILD_NOTES.md)
 ARM64_FLAGS=""
 if [ "$(uname -m)" = "arm64" ]; then
-    echo "==> patching int64_t types for ARM64 compatibility"
-
-    sed -i.bak 's/typedef std::int64_t mcIdType;/typedef long mcIdType;  \/\/ ARM64: match med_int/' \
-        "${MEDCOUPLING_SRC}/src/INTERP_KERNEL/MCIdType.hxx"
-
-    sed -i.bak 's/using Int64 = std::int64_t;/using Int64 = long;  \/\/ ARM64: match med_int/' \
-        "${MEDCOUPLING_SRC}/src/MEDCoupling/MCType.hxx"
-
-    find "${MEDCOUPLING_SRC}/src" -name "*.cxx" -exec \
-        sed -i.bak 's/std::int64_t/long/g' {} +
-
-    # std::bind2nd removed in C++17
+    echo "    patching for ARM64 (long vs long long, bind2nd)"
+    sed -i.bak 's/typedef std::int64_t mcIdType;/typedef long mcIdType;/' \
+        "${SRC_DIR}/src/INTERP_KERNEL/MCIdType.hxx"
+    sed -i.bak 's/using Int64 = std::int64_t;/using Int64 = long;/' \
+        "${SRC_DIR}/src/MEDCoupling/MCType.hxx"
+    find "${SRC_DIR}/src" -name "*.cxx" -exec sed -i.bak 's/std::int64_t/long/g' {} +
     sed -i.bak 's/std::bind2nd(std::not_equal_to<int>(),ref)/[ref](int v){ return v != ref; }/' \
-        "${MEDCOUPLING_SRC}/src/ParaMEDMEM/InterpolationMatrix.cxx"
-
-    find "${MEDCOUPLING_SRC}/src" -name "*.bak" -delete
+        "${SRC_DIR}/src/ParaMEDMEM/InterpolationMatrix.cxx"
+    find "${SRC_DIR}/src" -name "*.bak" -delete
     ARM64_FLAGS="-Wno-sign-conversion"
 fi
 
-# ── clean stale HEADERS (cause redefinition; must happen before configure) ─
-# Only medcoupling installs .hxx/.txx/.i; libmed/HDF5 use .h
-echo "==> cleaning stale medcoupling headers"
+# clean stale headers from previous install (only medcoupling uses .hxx/.txx)
 find "${PREFIX}/include" -maxdepth 1 \( -name "*.hxx" -o -name "*.txx" -o -name "*.i" \) -delete 2>/dev/null || true
 
 # ── configure ─────────────────────────────────────────────────────────
 rm -rf "${BUILD_DIR}"
-echo "==> configuring in ${BUILD_DIR}"
-cmake -B "${BUILD_DIR}" -S "${MEDCOUPLING_SRC}" \
-    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-    -DCMAKE_BUILD_TYPE=Release \
+cmake -B "${BUILD_DIR}" -S "${SRC_DIR}" \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
-    -DPYTHON_ROOT_DIR="${PREFIX}" \
-    -DPYTHON_EXECUTABLE="$(which python)" \
-    -Wno-dev \
+    -DCMAKE_SKIP_INSTALL_RPATH=ON \
+    -DPYTHON_ROOT_DIR="${PREFIX}" -DPYTHON_EXECUTABLE="$(which python)" \
     -DCONFIGURATION_ROOT_DIR="${CFG_DIR}" \
-    -DMED_INT_IS_LONG=ON \
-    -DMEDCOUPLING_BUILD_TESTS=OFF \
-    -DMEDCOUPLING_BUILD_PY_TESTS=OFF \
-    -DMEDCOUPLING_BUILD_DOC=OFF \
-    -DMEDCOUPLING_USE_64BIT_IDS=ON \
-    -DMEDCOUPLING_ENABLE_PARTITIONER=OFF \
-    -DMEDCOUPLING_ENABLE_RENUMBER=OFF \
-    -DMEDCOUPLING_ENABLE_SHAPERECOGN=OFF \
-    -DSALOME_USE_MPI=ON \
-    -DMEDCOUPLING_USE_MPI=ON \
-    -DMPI_C_COMPILER="$(which mpicc)" \
-    -DMPI_CXX_COMPILER="$(which mpicxx)" \
-    -DMEDCOUPLING_MEDLOADER_USE_XDR=OFF \
-    -DXDR_INCLUDE_DIRS="" \
+    -DMED_INT_IS_LONG=ON -DMEDCOUPLING_USE_64BIT_IDS=ON \
+    -DMEDCOUPLING_BUILD_TESTS=OFF -DMEDCOUPLING_BUILD_PY_TESTS=OFF -DMEDCOUPLING_BUILD_DOC=OFF \
+    -DMEDCOUPLING_ENABLE_PARTITIONER=OFF -DMEDCOUPLING_ENABLE_RENUMBER=OFF -DMEDCOUPLING_ENABLE_SHAPERECOGN=OFF \
+    -DSALOME_USE_MPI=ON -DMEDCOUPLING_USE_MPI=ON \
+    -DMPI_C_COMPILER="$(which mpicc)" -DMPI_CXX_COMPILER="$(which mpicxx)" \
+    -DMEDCOUPLING_MEDLOADER_USE_XDR=OFF -DXDR_INCLUDE_DIRS="" \
     -DCMAKE_CXX_FLAGS="${ARM64_FLAGS}" \
     -DCMAKE_SHARED_LINKER_FLAGS="-undefined dynamic_lookup" \
-    -DCMAKE_MODULE_LINKER_FLAGS="-undefined dynamic_lookup"
+    -DCMAKE_MODULE_LINKER_FLAGS="-undefined dynamic_lookup" \
+    -Wno-dev
 
 # ── build + install ───────────────────────────────────────────────────
-echo "==> building (${NCPU} cores)"
-# build may return non-zero from optional SWIG targets; install anyway
 cmake --build "${BUILD_DIR}" -j"${NCPU}" || true
 
-# verify critical artifacts exist before installing
 for lib in _medcoupling.so libmedcoupling.dylib libmedloader.dylib; do
-    if ! find "${BUILD_DIR}" -name "${lib}" | grep -q .; then
-        echo "FATAL: ${lib} not built" >&2; exit 1
-    fi
+    find "${BUILD_DIR}" -name "${lib}" | grep -q . || { echo "FATAL: ${lib} not built" >&2; exit 1; }
 done
 
-echo "==> installing into ${PREFIX}"
-# Disable rpath fixup — install_name_tool fails on already-fixed binaries
-# and cmake treats it as fatal, aborting before later targets install.
-cmake -DCMAKE_SKIP_INSTALL_RPATH=ON "${BUILD_DIR}" 2>/dev/null
+# compile .pyc files cmake install expects (build step sometimes skips them)
+find "${BUILD_DIR}" -name "*.py" -exec python -m py_compile {} \; 2>/dev/null || true
+
 cmake --install "${BUILD_DIR}"
 
-# save manifest for clean uninstall on next rebuild
-cp "${BUILD_DIR}/install_manifest.txt" "${WORKDIR}/install_manifest.txt" 2>/dev/null || true
-
-echo "==> verifying"
 python -c "import medcoupling; print('medcoupling OK')"
 
-echo "==> running medconverter tests"
-# skip: section tests need full SALOME; private/perf tests need EDF VPN
+# ── tests ─────────────────────────────────────────────────────────────
 pytest test/test_simple.py test/test_aster.py test/test_backward_simple.py test/test_utilities.py \
     -x -q -n auto -k "not section"

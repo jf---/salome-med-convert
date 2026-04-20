@@ -1690,7 +1690,7 @@ packages:
 - pypi: ./
   name: medconverter
   version: 1.1.0
-  sha256: 1396ca6138147abdcb02852bab1f7b91f54fe0e512ca5debc2d13dfc59b4953f
+  sha256: 9ac77ea2b7b3e7c6b5591189b030b65c7545489118d4f1b5af757c7c53d42300
   requires_dist:
   - numpy
   requires_python: '>=3.10'
