@@ -5,8 +5,9 @@ set -euo pipefail
 
 VERSION="4.2"
 PREFIX="${CONDA_PREFIX:?run inside pixi}"
-NCPU="$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
-BUILDROOT="$(cd "$(dirname "$0")/.." && pwd)/.build/libmed"
+NCPU="$(sysctl -n hw.ncpu 2>/dev/null || echo 4)"
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+BUILDROOT="$(cd "${SCRIPTDIR}/.." && pwd)/.build/libmed"
 SRC_DIR="${BUILDROOT}/med-copy-${VERSION}"
 
 # ── skip if already installed with MPI ────────────────────────────────

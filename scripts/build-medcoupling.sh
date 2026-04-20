@@ -4,12 +4,13 @@ set -euo pipefail
 
 MEDCOUPLING_VERSION="V9_14_0"
 PREFIX="${CONDA_PREFIX:?run inside pixi}"
-NCPU="$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
+NCPU="$(sysctl -n hw.ncpu 2>/dev/null || echo 4)"
 SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
 BUILDROOT="$(cd "${SCRIPTDIR}/.." && pwd)/.build/medcoupling"
 SRC_DIR="${BUILDROOT}/src"
 CFG_DIR="${SRC_DIR}/deps/config"
 BUILD_DIR="${SRC_DIR}/build"
+SITEPKG="$(python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
 
 # ── skip if already installed ─────────────────────────────────────────
 if python -c "import medcoupling; medcoupling.MEDCouplingUMesh" 2>/dev/null; then
@@ -18,7 +19,7 @@ if python -c "import medcoupling; medcoupling.MEDCouplingUMesh" 2>/dev/null; the
 fi
 
 # OpenMPI wrappers hardcode conda cross-compiler; override to system clang
-export OMPI_CC=clang OMPI_CXX=clang++
+export OMPI_CC=clang OMPI_CXX=clang++ OMPI_FC="$(which gfortran)"
 
 echo "==> building medcoupling ${MEDCOUPLING_VERSION}"
 
@@ -91,34 +92,31 @@ cmake -B "${BUILD_DIR}" -S "${SRC_DIR}" \
     -DCMAKE_MODULE_LINKER_FLAGS="-undefined dynamic_lookup" \
     -Wno-dev
 
-# ── build + install ───────────────────────────────────────────────────
+# ── build ─────────────────────────────────────────────────────────────
+# ParaMEDMEM_Swig may fail on optional targets; tolerate that but verify
+# the critical artifacts exist.
 cmake --build "${BUILD_DIR}" -j"${NCPU}" || true
 
 for lib in _medcoupling.so libmedcoupling.dylib libmedloader.dylib; do
-    find "${BUILD_DIR}" -name "${lib}" | grep -q . || { echo "FATAL: ${lib} not built" >&2; exit 1; }
+    if ! find "${BUILD_DIR}" -name "${lib}" | grep -q .; then
+        echo "FATAL: ${lib} not built" >&2; exit 1
+    fi
 done
 
-# strip .pyc install rules — cmake expects them at non-standard paths and
-# aborts install when SWIG build skips pyc generation
+# ── install ───────────────────────────────────────────────────────────
+# strip .pyc install rules — cmake aborts when SWIG skips pyc generation
 find "${BUILD_DIR}" -name "cmake_install.cmake" -exec \
     sed -i '' '/\.pyc"/d' {} +
 
-cmake --install "${BUILD_DIR}" || { echo "FATAL: cmake --install failed" >&2; exit 1; }
+cmake --install "${BUILD_DIR}"
 
-# macOS case-insensitive FS: _MEDCoupling.so and _medcoupling.so are the same
-# inode. Delete both, then install PyWrapping's _medcoupling.so (which bundles
-# everything including MEDLoader, making _MEDCoupling.so redundant).
-SITEPKG="${PREFIX}/lib/python3.12/site-packages"
+# macOS case-insensitive FS: _MEDCoupling.so and _medcoupling.so share an
+# inode. cmake installs _MEDCoupling.so first, clobbering _medcoupling.so.
+# Force-copy the correct PyWrapping module (which bundles everything).
 rm -f "${SITEPKG}/_MEDCoupling.so" "${SITEPKG}/_medcoupling.so"
 cp "${BUILD_DIR}/src/PyWrapping/_medcoupling.so" "${SITEPKG}/_medcoupling.so"
 
-if ! python -c "import medcoupling; medcoupling.MEDCouplingUMesh" 2>/dev/null; then
-    echo "FATAL: medcoupling not importable after install" >&2
-    exit 1
-fi
-
+# ── verify ────────────────────────────────────────────────────────────
+python -c "import medcoupling; medcoupling.MEDCouplingUMesh" \
+    || { echo "FATAL: medcoupling not importable after install" >&2; exit 1; }
 echo "medcoupling OK"
-
-# ── tests ─────────────────────────────────────────────────────────────
-pytest test/test_simple.py test/test_aster.py test/test_backward_simple.py test/test_utilities.py \
-    -x -q -n auto -k "not section"

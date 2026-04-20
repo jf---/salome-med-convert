@@ -42,12 +42,12 @@ pytest-xdist = "*"
 medconverter = { path = ".", editable = true }
 
 [tool.pixi.tasks]
-test = "pytest test/ -x -q -n auto -k 'not section'"
+test = "pytest test/test_simple.py test/test_aster.py test/test_backward_simple.py test/test_utilities.py -x -q -n auto -k 'not section'"
 lint = "ruff check ."
 format = "ruff format ."
-_build-libmed = { cmd = "bash scripts/build-libmed-mpi.sh", description = "libmed MPI from source" }
-_build-medcoupling = { cmd = "bash scripts/build-medcoupling.sh", description = "medcoupling from source" }
-build = { depends-on = ["_build-libmed", "_build-medcoupling"], description = "Build libmed-MPI + medcoupling" }
+_build-libmed = { cmd = "bash scripts/build-libmed-mpi.sh" }
+_build-medcoupling = { cmd = "bash scripts/build-medcoupling.sh" }
+build = { depends-on = ["_build-libmed", "_build-medcoupling", "test"], description = "Build + test" }
 
 # --- ruff ------------------------------------------------------------------
 

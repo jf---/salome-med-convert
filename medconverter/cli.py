@@ -2,11 +2,9 @@
 
 import argparse
 import signal
-import sys
 from pathlib import Path
 
-from medconverter.engine import Fmt
-from medconverter.engine import convert as convert_engine
+from medconverter.engine import Fmt, convert
 from medconverter.gui import supported_input_formats, supported_output_formats
 from medconverter.utilities import create_test_json_file
 
@@ -100,7 +98,7 @@ def main():
         if auto_oformat == "Unknown":
             parser_run.error("Cannot derive the output format: use '--output-format'")
 
-        convert_engine(
+        convert(
             str(input_path),
             Fmt.get(auto_iformat),
             str(output_path),
@@ -112,5 +110,3 @@ def main():
 
     else:
         mainparser.print_help()
-
-    sys.exit(0)
