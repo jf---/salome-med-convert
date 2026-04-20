@@ -98,12 +98,26 @@ for lib in _medcoupling.so libmedcoupling.dylib libmedloader.dylib; do
     find "${BUILD_DIR}" -name "${lib}" | grep -q . || { echo "FATAL: ${lib} not built" >&2; exit 1; }
 done
 
-# compile .pyc files cmake install expects (build step sometimes skips them)
-find "${BUILD_DIR}" -name "*.py" -exec python -m py_compile {} \; 2>/dev/null || true
+# strip .pyc install rules — cmake expects them at non-standard paths and
+# aborts install when SWIG build skips pyc generation
+find "${BUILD_DIR}" -name "cmake_install.cmake" -exec \
+    sed -i '' '/\.pyc"/d' {} +
 
-cmake --install "${BUILD_DIR}"
+cmake --install "${BUILD_DIR}" || { echo "FATAL: cmake --install failed" >&2; exit 1; }
 
-python -c "import medcoupling; print('medcoupling OK')"
+# macOS case-insensitive FS: _MEDCoupling.so and _medcoupling.so are the same
+# inode. Delete both, then install PyWrapping's _medcoupling.so (which bundles
+# everything including MEDLoader, making _MEDCoupling.so redundant).
+SITEPKG="${PREFIX}/lib/python3.12/site-packages"
+rm -f "${SITEPKG}/_MEDCoupling.so" "${SITEPKG}/_medcoupling.so"
+cp "${BUILD_DIR}/src/PyWrapping/_medcoupling.so" "${SITEPKG}/_medcoupling.so"
+
+if ! python -c "import medcoupling; medcoupling.MEDCouplingUMesh" 2>/dev/null; then
+    echo "FATAL: medcoupling not importable after install" >&2
+    exit 1
+fi
+
+echo "medcoupling OK"
 
 # ── tests ─────────────────────────────────────────────────────────────
 pytest test/test_simple.py test/test_aster.py test/test_backward_simple.py test/test_utilities.py \
