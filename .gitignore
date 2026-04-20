@@ -1,7 +1,6 @@
 install/
 *.pyc
 __pycache__/
-medconverter/version.py
 *.egg-info/
 .pixi/
 .build/

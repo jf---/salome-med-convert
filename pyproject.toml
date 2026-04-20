@@ -17,6 +17,7 @@ medconverter = "medconverter.cli:main"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
+# osx-arm64 only: medcoupling/libmed built from source. Linux CI uses setup.py.
 platforms = ["osx-arm64"]
 
 [tool.pixi.dependencies]
@@ -57,6 +58,9 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 # --- pytest ----------------------------------------------------------------
 

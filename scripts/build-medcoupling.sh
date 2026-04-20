@@ -35,7 +35,7 @@ fi
 # ── SALOME configuration cmake module ─────────────────────────────────
 if [ ! -d "${CFG_DIR}/cmake" ]; then
     mkdir -p "${CFG_DIR}"
-    curl -fsSL "https://github.com/SalomePlatform/configuration/archive/refs/heads/master.tar.gz" \
+    curl -fsSL "https://github.com/SalomePlatform/configuration/archive/refs/tags/${MEDCOUPLING_VERSION}.tar.gz" \
         | tar xz --strip-components=1 -C "${CFG_DIR}"
 fi
 
@@ -63,6 +63,8 @@ if [ "$(uname -m)" = "arm64" ]; then
         "${SRC_DIR}/src/INTERP_KERNEL/MCIdType.hxx"
     sed -i.bak 's/using Int64 = std::int64_t;/using Int64 = long;/' \
         "${SRC_DIR}/src/MEDCoupling/MCType.hxx"
+    # medcoupling uses int64_t only as an alias for mcIdType, never for
+    # wire-format integers, so this blanket replacement is safe.
     find "${SRC_DIR}/src" -name "*.cxx" -exec sed -i.bak 's/std::int64_t/long/g' {} +
     sed -i.bak 's/std::bind2nd(std::not_equal_to<int>(),ref)/[ref](int v){ return v != ref; }/' \
         "${SRC_DIR}/src/ParaMEDMEM/InterpolationMatrix.cxx"
@@ -93,20 +95,29 @@ cmake -B "${BUILD_DIR}" -S "${SRC_DIR}" \
     -Wno-dev
 
 # ── build ─────────────────────────────────────────────────────────────
-# ParaMEDMEM_Swig may fail on optional targets; tolerate that but verify
-# the critical artifacts exist.
-cmake --build "${BUILD_DIR}" -j"${NCPU}" || true
+# ParaMEDMEM_Swig may fail on optional SWIG targets (warnings-as-errors);
+# tolerate that only if the critical artifacts were produced.
+BUILD_RC=0
+cmake --build "${BUILD_DIR}" -j"${NCPU}" || BUILD_RC=$?
 
-for lib in _medcoupling.so libmedcoupling.dylib libmedloader.dylib; do
+CRITICAL_LIBS="_medcoupling.so libmedcoupling.dylib libmedloader.dylib"
+for lib in ${CRITICAL_LIBS}; do
     if ! find "${BUILD_DIR}" -name "${lib}" | grep -q .; then
-        echo "FATAL: ${lib} not built" >&2; exit 1
+        echo "FATAL: ${lib} not built (cmake exited ${BUILD_RC})" >&2; exit 1
     fi
 done
+if [ "${BUILD_RC}" -ne 0 ]; then
+    echo "    build returned ${BUILD_RC} but critical artifacts present, continuing"
+fi
 
 # ── install ───────────────────────────────────────────────────────────
-# strip .pyc install rules — cmake aborts when SWIG skips pyc generation
+# strip install rules for files the build may not have produced —
+# missing .pyc files and optional _ParaMEDMEM.so abort cmake --install
 find "${BUILD_DIR}" -name "cmake_install.cmake" -exec \
     sed -i '' '/\.pyc"/d' {} +
+if [ ! -f "${BUILD_DIR}/src/ParaMEDMEM_Swig/_ParaMEDMEM.so" ]; then
+    : > "${BUILD_DIR}/src/ParaMEDMEM_Swig/cmake_install.cmake"
+fi
 
 cmake --install "${BUILD_DIR}"
 

@@ -21,7 +21,7 @@ Implementation of *medconverter* plugin.
 
 from importlib.metadata import version
 
-from .engine import Fmt, convert  # noqa: F401
-from .gui import supported_input_formats, supported_output_formats  # noqa: F401
+from .engine import Fmt, convert
+from .gui import supported_input_formats, supported_output_formats
 
 __version__ = version("medconverter")

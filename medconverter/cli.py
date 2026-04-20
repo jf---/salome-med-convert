@@ -8,10 +8,9 @@ from medconverter.engine import Fmt, convert
 from medconverter.gui import supported_input_formats, supported_output_formats
 from medconverter.utilities import create_test_json_file
 
-signal.signal(signal.SIGINT, signal.SIG_DFL)
-
 
 def main():
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     metaparser = argparse.ArgumentParser(add_help=False)
     metaparser.add_argument("-v", "--verbose", action="store_true", help="print more informations")
 
